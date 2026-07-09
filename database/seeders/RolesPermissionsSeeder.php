@@ -2,62 +2,20 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 
+/**
+ * DEPRECATED: This seeder has been replaced by RoleAndPermissionSeeder.
+ * Do NOT use this seeder as it creates conflicting roles and permissions.
+ * 
+ * This file is kept for reference only.
+ */
 class RolesPermissionsSeeder extends Seeder
 {
     public function run(): void
     {
-        $abilities = [
-            'read',
-            'write',
-            'create',
-            'delete',
-        ];
-
-        $permissions_by_role = [
-            'administrator' => [
-                'user management',
-            ],
-            'super_admin' => [
-                'user management',
-            ],
-            'department_admin' => [],
-            'teacher' => [],
-            'student' => [],
-        ];
-
-        // Create permissions
-        foreach ($permissions_by_role as $permissions) {
-            foreach ($permissions as $permission) {
-                foreach ($abilities as $ability) {
-                    $permissionName = $ability . ' ' . $permission;
-                    if (!Permission::where('name', $permissionName)->exists()) {
-                        Permission::create(['name' => $permissionName]);
-                    }
-                }
-            }
-        }
-
-        // Create administrator role and sync permissions
-        foreach ($permissions_by_role as $role => $permissions) {
-            $full_permissions_list = [];
-            foreach ($abilities as $ability) {
-                foreach ($permissions as $permission) {
-                    $full_permissions_list[] = $ability . ' ' . $permission;
-                }
-            }
-
-            $roleInstance = Role::firstOrCreate(['name' => $role]);
-            if (!empty($full_permissions_list)) {
-                $roleInstance->syncPermissions($full_permissions_list);
-            }
-        }
-
-        // Assign administrator role to demo@demo.com
-        User::where('email', 'demo@demo.com')->first()?->assignRole('administrator');
+        // This seeder is DISABLED - use RoleAndPermissionSeeder instead
+        echo "\n⚠️  RolesPermissionsSeeder is DEPRECATED and disabled.\n";
+        echo "Use RoleAndPermissionSeeder instead.\n\n";
     }
 }

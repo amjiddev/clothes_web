@@ -52,15 +52,13 @@ class RegisteredUserController extends Controller
             'last_login_ip' => $request->getClientIp()
         ]);
 
-        // Assign USER role
-        $user->assignRole('user');
+        // Assign CUSTOMER role (not 'user' - 'customer' is defined in RoleAndPermissionSeeder)
+        $user->assignRole('customer');
 
         // Send verification email
         event(new Registered($user));
 
-        // Auth::login($user);
-
-        // return redirect(RouteServiceProvider::HOME);
+        // Return success response
         return response()->json([
             'message' => 'Please check your email to verify your account.'
         ]);

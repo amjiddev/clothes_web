@@ -16,9 +16,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        // Order matters - Roles must be created before users are assigned roles
         $this->call([
-            UsersSeeder::class,
-            RolesPermissionsSeeder::class,
+            RoleAndPermissionSeeder::class,  // Create roles and permissions first
+            SettingsSeeder::class,           // Settings before other seeders
+            SuperAdminSeeder::class,         // Then create admin user
+            DemoUserSeeder::class,           // Demo user for testing
+            UsersSeeder::class,              // Other users
+            CategorySeeder::class,           // Product data
+            ProductSeeder::class,            // Product data
+            WebsiteCmsSeeder::class,         // Website CMS content
         ]);
     }
 }

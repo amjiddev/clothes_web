@@ -1,0 +1,52 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Payment extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'order_id',
+        'user_id',
+        'transaction_id',
+        'payment_method',
+        'status',
+        'amount',
+        'response',
+        'processed_at',
+    ];
+
+    protected $casts = [
+        'amount' => 'decimal:2',
+        'processed_at' => 'datetime',
+    ];
+
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function isCompleted()
+    {
+        return $this->status === 'completed';
+    }
+
+    public function isFailed()
+    {
+        return $this->status === 'failed';
+    }
+
+    public function isRefunded()
+    {
+        return $this->status === 'refunded';
+    }
+}

@@ -70,6 +70,8 @@ class Kernel extends HttpKernel
         'permission' => MiddlewarePermissionMiddleware::class,
         'role_or_permission' => MiddlewareRoleOrPermissionMiddleware::class,
         'admin_or_redirect' => \App\Http\Middleware\AdminOrRedirect::class,
+        'admin.only' => \App\Http\Middleware\AdminOnly::class,
+        'receptionist.only' => \App\Http\Middleware\ReceptionistOnly::class,
     ];
 }
 
