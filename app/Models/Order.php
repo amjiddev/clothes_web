@@ -49,6 +49,11 @@ class Order extends Model
         return $this->hasOne(StitchingOrder::class);
     }
 
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
     public function generateOrderNumber()
     {
         $prefix = 'ORD-' . date('Ymd');

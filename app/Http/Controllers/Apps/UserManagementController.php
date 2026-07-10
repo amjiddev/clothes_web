@@ -69,7 +69,7 @@ class UserManagementController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => bcrypt($validated['password']),
-            'email_verified_at' => now(),
+            'email_verified_at' => now(),  // ✅ Set to Active immediately (no Pending)
         ]);
 
         $role = Role::find($validated['role']);
@@ -111,11 +111,13 @@ class UserManagementController extends Controller
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'role' => 'required|exists:roles,id',
             'password' => 'nullable|string|min:8|confirmed',
+            'is_blocked' => 'nullable|boolean',
         ]);
 
         $user->update([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'is_blocked' => $request->has('is_blocked') ? (bool)$request->input('is_blocked') : false,
         ]);
 
         if ($validated['password']) {

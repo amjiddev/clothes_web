@@ -72,10 +72,10 @@
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <strong class="text-muted d-block mb-2">Status</strong>
-                            @if($user->email_verified_at)
-                            <span class="badge bg-success px-3 py-2">Active</span>
+                            @if($user->is_blocked)
+                            <span class="badge bg-danger px-3 py-2">Inactive</span>
                             @else
-                            <span class="badge bg-warning text-dark px-3 py-2">Pending</span>
+                            <span class="badge bg-success px-3 py-2">Active</span>
                             @endif
                         </div>
                         <div class="col-md-6">

@@ -172,7 +172,7 @@ class ReceptionistController extends Controller
     public function destroy(Receptionist $receptionist)
     {
         $receptionist->user->removeRole('receptionist');
-        $receptionist->user->revokePermissions($receptionist->getPermissions());
+        $receptionist->user->revokePermissionTo($receptionist->getPermissions());
         $receptionist->delete();
 
         return redirect()->route('admin.receptionists.index')->with('success', 'Receptionist deleted successfully!');

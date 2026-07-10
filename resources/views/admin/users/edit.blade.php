@@ -89,6 +89,24 @@
                             @enderror
                         </div>
 
+                        <!-- Status -->
+                        <div class="mb-4">
+                            <label for="is_blocked" class="form-label fw-bold">
+                                <i class="fas fa-ban me-2"></i>Status
+                            </label>
+                            <select class="form-select" id="is_blocked" name="is_blocked">
+                                <option value="0" {{ !$user->is_blocked ? 'selected' : '' }}>
+                                    Active
+                                </option>
+                                <option value="1" {{ $user->is_blocked ? 'selected' : '' }}>
+                                    Inactive
+                                </option>
+                            </select>
+                            <small class="text-muted d-block mt-2">
+                                Set user status to Active or Inactive
+                            </small>
+                        </div>
+
                         <!-- Password (Optional) -->
                         <div class="mb-4">
                             <label for="password" class="form-label fw-bold">
@@ -143,10 +161,10 @@
                     </div>
                     <div class="mb-3">
                         <strong class="text-muted d-block mb-1">Status:</strong>
-                        @if($user->email_verified_at)
-                        <span class="badge bg-success">Active</span>
+                        @if($user->is_blocked)
+                            <span class="badge bg-danger">Inactive</span>
                         @else
-                        <span class="badge bg-warning text-dark">Pending</span>
+                            <span class="badge bg-success">Active</span>
                         @endif
                     </div>
                     <div class="mb-3">

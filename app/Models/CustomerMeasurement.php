@@ -11,28 +11,34 @@ class CustomerMeasurement extends Model
 
     protected $fillable = [
         'user_id',
-        'title',
+        'profile_name',
         'chest',
-        'waist',
-        'hips',
         'shoulder',
         'sleeve_length',
-        'torso_length',
-        'inseam',
+        'shirt_length',
         'neck',
+        'waist',
+        'trouser_length',
+        'bottom',
+        'thigh',
+        'cuff_size',
+        'design_image',
+        'special_instructions',
         'notes',
         'is_default',
     ];
 
     protected $casts = [
         'chest' => 'decimal:2',
-        'waist' => 'decimal:2',
-        'hips' => 'decimal:2',
         'shoulder' => 'decimal:2',
         'sleeve_length' => 'decimal:2',
-        'torso_length' => 'decimal:2',
-        'inseam' => 'decimal:2',
+        'shirt_length' => 'decimal:2',
         'neck' => 'decimal:2',
+        'waist' => 'decimal:2',
+        'trouser_length' => 'decimal:2',
+        'bottom' => 'decimal:2',
+        'thigh' => 'decimal:2',
+        'cuff_size' => 'decimal:2',
         'is_default' => 'boolean',
     ];
 

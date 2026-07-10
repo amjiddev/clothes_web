@@ -113,10 +113,10 @@
                             @endif
                         </td>
                         <td>
-                            @if($user->email_verified_at)
-                            <span class="badge bg-success">Active</span>
+                            @if($user->is_blocked)
+                                <span class="badge bg-danger">Inactive</span>
                             @else
-                            <span class="badge bg-warning text-dark">Pending</span>
+                                <span class="badge bg-success">Active</span>
                             @endif
                         </td>
                         <td class="text-end pe-4">

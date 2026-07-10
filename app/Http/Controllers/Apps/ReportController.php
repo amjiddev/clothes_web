@@ -7,10 +7,8 @@ use App\Models\Order;
 use App\Models\StitchingOrder;
 use App\Models\User;
 use App\Models\Payment;
-use App\Models\CustomerMeasurement;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class ReportController extends Controller
 {
@@ -52,260 +50,230 @@ class ReportController extends Controller
     }
 
     /**
-     * Order Report
+     * Daily Orders Report
      */
-    public function orderReport(Request $request)
+    public function dailyOrdersReport(Request $request)
     {
-        $query = Order::with(['customer', 'payments']);
+        $date = $request->get('date', Carbon::today()->toDateString());
+        $date = Carbon::createFromFormat('Y-m-d', $date);
 
-        // Date Range Filter
-        if ($request->has('from_date') && $request->has('to_date')) {
-            $fromDate = Carbon::createFromFormat('Y-m-d', $request->from_date)->startOfDay();
-            $toDate = Carbon::createFromFormat('Y-m-d', $request->to_date)->endOfDay();
-            $query->whereBetween('created_at', [$fromDate, $toDate]);
-        }
+        $orders = Order::whereDate('created_at', $date)
+            ->with('user')
+            ->orderByDesc('created_at')
+            ->get();
 
-        // Status Filter
-        if ($request->has('status') && $request->status) {
-            $query->where('status', $request->status);
-        }
-
-        // Order Type Filter
-        if ($request->has('order_type') && $request->order_type) {
-            $query->where('order_type', $request->order_type);
-        }
-
-        $orders = $query->orderBy('created_at', 'desc')->get();
-
-        // Calculate totals
-        $totalOrders = $orders->count();
-        $totalRevenue = $orders->sum('total');
-        $averageOrderValue = $totalOrders > 0 ? $totalRevenue / $totalOrders : 0;
-
-        return view('receptionist.reports.orders', compact('orders', 'totalOrders', 'totalRevenue', 'averageOrderValue'));
-    }
-
-    /**
-     * Stitching Report
-     */
-    public function stitchingReport(Request $request)
-    {
-        $query = StitchingOrder::with(['tailor', 'order.customer']);
-
-        // Date Range Filter
-        if ($request->has('from_date') && $request->has('to_date')) {
-            $fromDate = Carbon::createFromFormat('Y-m-d', $request->from_date)->startOfDay();
-            $toDate = Carbon::createFromFormat('Y-m-d', $request->to_date)->endOfDay();
-            $query->whereBetween('created_at', [$fromDate, $toDate]);
-        }
-
-        // Status Filter
-        if ($request->has('status') && $request->status) {
-            $query->where('stitching_status', $request->status);
-        }
-
-        // Tailor Filter
-        if ($request->has('tailor_id') && $request->tailor_id) {
-            $query->where('tailor_id', $request->tailor_id);
-        }
-
-        $stitchingOrders = $query->orderBy('created_at', 'desc')->get();
-
-        // Calculate stats
-        $totalOrders = $stitchingOrders->count();
-        $completedOrders = $stitchingOrders->where('stitching_status', 'completed')->count();
-        $pendingOrders = $stitchingOrders->where('stitching_status', 'pending')->count();
-        $totalCost = $stitchingOrders->sum('estimated_cost');
-
-        $tailors = User::role('tailor')->select('id', 'name')->get();
-
-        return view('receptionist.reports.stitching', compact('stitchingOrders', 'totalOrders', 'completedOrders', 'pendingOrders', 'totalCost', 'tailors'));
-    }
-
-    /**
-     * Customer Report
-     */
-    public function customerReport(Request $request)
-    {
-        $customers = User::role('customer')
-            ->with(['orders', 'measurements'])
-            ->get()
-            ->map(function ($customer) {
-                return [
-                    'id' => $customer->id,
-                    'name' => $customer->name,
-                    'email' => $customer->email,
-                    'phone' => $customer->phone,
-                    'total_orders' => $customer->orders->count(),
-                    'total_spent' => $customer->orders->sum('total'),
-                    'total_measurements' => $customer->measurements->count(),
-                ];
-            });
-
-        // Sort
-        if ($request->has('sort_by')) {
-            $sortBy = $request->sort_by;
-            $customers = collect($customers)->sortByDesc($sortBy)->values();
-        }
-
-        return view('receptionist.reports.customers', compact('customers'));
-    }
-
-    /**
-     * Payment Report
-     */
-    public function paymentReport(Request $request)
-    {
-        $query = Payment::with('order.customer');
-
-        // Date Range Filter
-        if ($request->has('from_date') && $request->has('to_date')) {
-            $fromDate = Carbon::createFromFormat('Y-m-d', $request->from_date)->startOfDay();
-            $toDate = Carbon::createFromFormat('Y-m-d', $request->to_date)->endOfDay();
-            $query->whereBetween('created_at', [$fromDate, $toDate]);
-        }
-
-        // Status Filter
-        if ($request->has('status') && $request->status) {
-            $query->where('status', $request->status);
-        }
-
-        $payments = $query->orderBy('created_at', 'desc')->get();
-
-        // Calculate totals
-        $totalPayments = $payments->count();
-        $totalAmount = $payments->sum('amount');
-        $completedAmount = $payments->where('status', 'completed')->sum('amount');
-        $pendingAmount = $payments->where('status', 'pending')->sum('amount');
-
-        return view('receptionist.reports.payments', compact('payments', 'totalPayments', 'totalAmount', 'completedAmount', 'pendingAmount'));
-    }
-
-    /**
-     * Export Report
-     */
-    public function export(Request $request)
-    {
-        $reportType = $request->input('type');
-        $format = $request->input('format', 'csv');
-
-        // Validate inputs
-        if (!in_array($reportType, ['orders', 'stitching', 'customers', 'payments'])) {
-            return redirect()->back()->with('error', 'Invalid report type');
-        }
-
-        if ($format === 'csv') {
-            return $this->exportToCSV($reportType);
-        }
-
-        return redirect()->back()->with('error', 'Unsupported export format');
-    }
-
-    /**
-     * Export to CSV
-     */
-    private function exportToCSV($reportType)
-    {
-        $fileName = 'report-' . $reportType . '-' . date('Y-m-d') . '.csv';
-
-        $headers = [
-            'Content-Type' => 'text/csv; charset=utf-8',
-            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+        $chartData = $this->getDailyOrdersChart($date);
+        $summary = [
+            'total_orders' => $orders->count(),
+            'completed' => $orders->where('status', 'completed')->count(),
+            'pending' => $orders->where('status', 'pending')->count(),
+            'total_revenue' => $orders->sum('total'),
+            'average_order_value' => $orders->count() > 0 ? $orders->sum('total') / $orders->count() : 0,
         ];
 
-        $callback = function () use ($reportType) {
-            $file = fopen('php://output', 'w');
-
-            if ($reportType === 'orders') {
-                $this->exportOrdersCSV($file);
-            } elseif ($reportType === 'stitching') {
-                $this->exportStitchingCSV($file);
-            } elseif ($reportType === 'customers') {
-                $this->exportCustomersCSV($file);
-            } elseif ($reportType === 'payments') {
-                $this->exportPaymentsCSV($file);
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return view('receptionist.reports.daily-orders', compact('orders', 'date', 'chartData', 'summary'));
     }
 
     /**
-     * Export orders to CSV
+     * Monthly Sales Report
      */
-    private function exportOrdersCSV($file)
+    public function monthlySalesReport(Request $request)
     {
-        fputcsv($file, ['Order ID', 'Customer', 'Type', 'Amount', 'Status', 'Date']);
+        $month = $request->get('month', Carbon::now()->format('Y-m'));
+        $startDate = Carbon::createFromFormat('Y-m', $month)->startOfMonth();
+        $endDate = $startDate->copy()->endOfMonth();
 
-        Order::with('customer')->get()->each(function ($order) use ($file) {
-            fputcsv($file, [
-                $order->id,
-                $order->customer?->name ?? 'N/A',
-                $order->order_type,
-                $order->total,
-                $order->status,
-                $order->created_at->format('Y-m-d H:i:s'),
-            ]);
-        });
+        $orders = Order::whereBetween('created_at', [$startDate, $endDate])
+            ->where('status', '!=', 'cancelled')
+            ->with('user')
+            ->orderByDesc('created_at')
+            ->get();
+
+        $chartData = $this->getMonthlySalesChart($startDate, $endDate);
+        $summary = [
+            'total_sales' => $orders->sum('total'),
+            'total_orders' => $orders->count(),
+            'completed_orders' => $orders->where('status', 'completed')->count(),
+            'pending_orders' => $orders->where('status', 'pending')->count(),
+            'average_order_value' => $orders->count() > 0 ? $orders->sum('total') / $orders->count() : 0,
+            'daily_average' => $startDate->diffInDays($endDate) + 1 > 0 ? $orders->sum('total') / ($startDate->diffInDays($endDate) + 1) : 0,
+        ];
+
+        return view('receptionist.reports.monthly-sales', compact('orders', 'startDate', 'endDate', 'month', 'chartData', 'summary'));
     }
 
     /**
-     * Export stitching orders to CSV
+     * Pending Stitching Report
      */
-    private function exportStitchingCSV($file)
+    public function pendingStitchingReport(Request $request)
     {
-        fputcsv($file, ['Order ID', 'Customer', 'Tailor', 'Garment Type', 'Status', 'Cost', 'Date']);
+        $status = $request->get('status', 'pending');
+        $fromDate = $request->get('from_date') ? Carbon::createFromFormat('Y-m-d', $request->get('from_date')) : Carbon::now()->subDays(30);
+        $toDate = $request->get('to_date') ? Carbon::createFromFormat('Y-m-d', $request->get('to_date')) : Carbon::now();
 
-        StitchingOrder::with(['order.customer', 'tailor'])->get()->each(function ($order) use ($file) {
-            fputcsv($file, [
-                $order->id,
-                $order->order?->customer?->name ?? 'N/A',
-                $order->tailor?->name ?? 'Unassigned',
-                $order->garment_type,
-                $order->stitching_status,
-                $order->estimated_cost,
-                $order->created_at->format('Y-m-d H:i:s'),
-            ]);
-        });
+        $query = StitchingOrder::with(['order', 'order.user', 'tailor', 'measurement']);
+
+        if ($status && $status !== 'all') {
+            $query->where('stitching_status', $status);
+        }
+
+        $stitchingOrders = $query->whereBetween('created_at', [$fromDate, $toDate])
+            ->orderBy('created_at')
+            ->get();
+
+        $chartData = $this->getStitchingStatusChart($fromDate, $toDate);
+        $summary = [
+            'total_stitching' => $stitchingOrders->count(),
+            'pending' => $stitchingOrders->where('stitching_status', 'pending')->count(),
+            'in_progress' => $stitchingOrders->where('stitching_status', 'in_progress')->count(),
+            'completed' => $stitchingOrders->where('stitching_status', 'completed')->count(),
+            'on_hold' => $stitchingOrders->where('stitching_status', 'on_hold')->count(),
+        ];
+
+        return view('receptionist.reports.pending-stitching', compact('stitchingOrders', 'fromDate', 'toDate', 'status', 'chartData', 'summary'));
     }
 
     /**
-     * Export customers to CSV
+     * Completed Orders Report
      */
-    private function exportCustomersCSV($file)
+    public function completedOrdersReport(Request $request)
     {
-        fputcsv($file, ['Customer ID', 'Name', 'Email', 'Phone', 'Total Orders', 'Total Spent']);
+        $fromDate = $request->get('from_date') ? Carbon::createFromFormat('Y-m-d', $request->get('from_date')) : Carbon::now()->subDays(30);
+        $toDate = $request->get('to_date') ? Carbon::createFromFormat('Y-m-d', $request->get('to_date')) : Carbon::now();
 
-        User::role('customer')->with('orders')->get()->each(function ($customer) use ($file) {
-            fputcsv($file, [
-                $customer->id,
-                $customer->name,
-                $customer->email,
-                $customer->phone ?? 'N/A',
-                $customer->orders->count(),
-                $customer->orders->sum('total'),
-            ]);
-        });
+        $orders = Order::where('status', 'completed')
+            ->whereBetween('created_at', [$fromDate, $toDate])
+            ->with('user')
+            ->orderByDesc('created_at')
+            ->get();
+
+        $chartData = $this->getCompletedOrdersChart($fromDate, $toDate);
+        $summary = [
+            'total_completed' => $orders->count(),
+            'total_revenue' => $orders->sum('total'),
+            'average_order_value' => $orders->count() > 0 ? $orders->sum('total') / $orders->count() : 0,
+            'total_items' => $orders->sum(function($order) { return $order->orderItems->count(); }),
+        ];
+
+        return view('receptionist.reports.completed-orders', compact('orders', 'fromDate', 'toDate', 'chartData', 'summary'));
     }
 
     /**
-     * Export payments to CSV
+     * Payment Collection Report
      */
-    private function exportPaymentsCSV($file)
+    public function paymentCollectionReport(Request $request)
     {
-        fputcsv($file, ['Payment ID', 'Order ID', 'Customer', 'Amount', 'Status', 'Date']);
+        $fromDate = $request->get('from_date') ? Carbon::createFromFormat('Y-m-d', $request->get('from_date')) : Carbon::now()->subDays(30);
+        $toDate = $request->get('to_date') ? Carbon::createFromFormat('Y-m-d', $request->get('to_date')) : Carbon::now();
+        $status = $request->get('status', 'all');
 
-        Payment::with('order.customer')->get()->each(function ($payment) use ($file) {
-            fputcsv($file, [
-                $payment->id,
-                $payment->order_id,
-                $payment->order?->customer?->name ?? 'N/A',
-                $payment->amount,
-                $payment->status,
-                $payment->created_at->format('Y-m-d H:i:s'),
-            ]);
-        });
+        $query = Payment::with(['order', 'user'])->whereBetween('created_at', [$fromDate, $toDate]);
+
+        if ($status && $status !== 'all') {
+            $query->where('status', $status);
+        }
+
+        $payments = $query->orderByDesc('created_at')->get();
+
+        $chartData = $this->getPaymentCollectionChart($fromDate, $toDate);
+        $summary = [
+            'total_transactions' => $payments->count(),
+            'total_collected' => $payments->where('status', 'completed')->sum('amount'),
+            'total_pending' => $payments->where('status', 'pending')->sum('amount'),
+            'average_payment' => $payments->count() > 0 ? $payments->sum('amount') / $payments->count() : 0,
+            'completed_count' => $payments->where('status', 'completed')->count(),
+            'pending_count' => $payments->where('status', 'pending')->count(),
+            'failed_count' => $payments->where('status', 'failed')->count(),
+        ];
+
+        return view('receptionist.reports.payment-collection', compact('payments', 'fromDate', 'toDate', 'status', 'chartData', 'summary'));
+    }
+
+    /**
+     * Helper: Get Daily Orders Chart Data
+     */
+    private function getDailyOrdersChart($date)
+    {
+        $orders = Order::whereDate('created_at', $date)
+            ->select('status', \DB::raw('count(*) as count'))
+            ->groupBy('status')
+            ->get();
+
+        return [
+            'labels' => $orders->pluck('status')->map(fn($s) => ucfirst(str_replace('_', ' ', $s)))->toArray(),
+            'data' => $orders->pluck('count')->toArray(),
+        ];
+    }
+
+    /**
+     * Helper: Get Monthly Sales Chart Data
+     */
+    private function getMonthlySalesChart($startDate, $endDate)
+    {
+        $dailySales = Order::whereBetween('created_at', [$startDate, $endDate])
+            ->where('status', '!=', 'cancelled')
+            ->select(\DB::raw('DATE(created_at) as date'), \DB::raw('SUM(total) as total'), \DB::raw('COUNT(*) as count'))
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        return [
+            'labels' => $dailySales->pluck('date')->toArray(),
+            'sales' => $dailySales->pluck('total')->toArray(),
+            'orders' => $dailySales->pluck('count')->toArray(),
+        ];
+    }
+
+    /**
+     * Helper: Get Stitching Status Chart Data
+     */
+    private function getStitchingStatusChart($fromDate, $toDate)
+    {
+        $statuses = StitchingOrder::whereBetween('created_at', [$fromDate, $toDate])
+            ->select('stitching_status', \DB::raw('count(*) as count'))
+            ->groupBy('stitching_status')
+            ->get();
+
+        return [
+            'labels' => $statuses->pluck('stitching_status')->map(fn($s) => ucfirst(str_replace('_', ' ', $s)))->toArray(),
+            'data' => $statuses->pluck('count')->toArray(),
+        ];
+    }
+
+    /**
+     * Helper: Get Completed Orders Chart Data
+     */
+    private function getCompletedOrdersChart($fromDate, $toDate)
+    {
+        $dailyCompleted = Order::where('status', 'completed')
+            ->whereBetween('created_at', [$fromDate, $toDate])
+            ->select(\DB::raw('DATE(created_at) as date'), \DB::raw('SUM(total) as total'), \DB::raw('COUNT(*) as count'))
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        return [
+            'labels' => $dailyCompleted->pluck('date')->toArray(),
+            'sales' => $dailyCompleted->pluck('total')->toArray(),
+            'orders' => $dailyCompleted->pluck('count')->toArray(),
+        ];
+    }
+
+    /**
+     * Helper: Get Payment Collection Chart Data
+     */
+    private function getPaymentCollectionChart($fromDate, $toDate)
+    {
+        $dailyPayments = Payment::whereBetween('created_at', [$fromDate, $toDate])
+            ->select('status', \DB::raw('DATE(created_at) as date'), \DB::raw('SUM(amount) as total'), \DB::raw('COUNT(*) as count'))
+            ->groupBy('date', 'status')
+            ->orderBy('date')
+            ->get();
+
+        return [
+            'labels' => $dailyPayments->pluck('date')->unique()->values()->toArray(),
+            'completed' => $dailyPayments->where('status', 'completed')->pluck('total')->toArray(),
+            'pending' => $dailyPayments->where('status', 'pending')->pluck('total')->toArray(),
+        ];
     }
 }
