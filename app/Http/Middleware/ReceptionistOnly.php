@@ -41,7 +41,7 @@ class ReceptionistOnly
             return redirect()->route('tailor.dashboard');
         }
 
-        // Customers and other users
+        // Default redirect for customers and others
         return redirect()->route('home');
     }
 }

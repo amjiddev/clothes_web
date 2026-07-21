@@ -10,7 +10,8 @@ class AdminOnly
 {
     /**
      * Handle an incoming request.
-     * Only super_admin, receptionist, and tailor can access admin routes.
+     * Only super_admin can access admin routes.
+     * Receptionists and tailors have their own separate dashboards.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
@@ -26,10 +27,19 @@ class AdminOnly
             return redirect()->route('verification.notice');
         }
 
-        // Only allow super_admin, receptionist, and tailor roles
+        // Only allow super_admin role for admin routes
         $user = auth()->user();
-        if ($user->hasRole('super_admin') || $user->hasRole('receptionist') || $user->hasRole('tailor')) {
+        if ($user->hasRole('super_admin')) {
             return $next($request);
+        }
+
+        // Redirect based on user role
+        if ($user->hasRole('receptionist')) {
+            return redirect()->route('receptionist.dashboard');
+        }
+
+        if ($user->hasRole('tailor')) {
+            return redirect()->route('tailor.dashboard');
         }
 
         // Customers and other users cannot access admin routes

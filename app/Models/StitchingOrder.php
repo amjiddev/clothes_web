@@ -53,6 +53,12 @@ class StitchingOrder extends Model
         return $this->belongsTo(User::class, 'tailor_id');
     }
 
+    public function statusHistory()
+    {
+        return $this->hasMany(StitchingStatusHistory::class, 'stitching_order_id')
+                    ->orderBy('changed_at', 'asc');
+    }
+
     public function getStatusBadgeAttribute()
     {
         $badges = [

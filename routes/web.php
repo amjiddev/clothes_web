@@ -25,7 +25,7 @@ Route::middleware('auth')->get('/dashboard', function () {
 
     // Tailor go to tailor dashboard
     if ($user->hasRole('tailor')) {
-        return redirect()->route('receptionist.dashboard'); // Update this when tailor dashboard is built
+        return redirect()->route('tailor.dashboard');
     }
 
     // Customers go to home
@@ -42,6 +42,9 @@ require __DIR__ . '/auth.php';
 
 // Admin routes (Admin only)
 require __DIR__ . '/admin.php';
+
+// Tailor routes (Tailor only)
+require __DIR__ . '/tailor.php';
 
 // Receptionist routes (Receptionist only)
 require __DIR__ . '/receptionist.php';

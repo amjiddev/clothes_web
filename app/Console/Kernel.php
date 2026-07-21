@@ -15,7 +15,14 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        // Send notifications for orders approaching delivery date (run every hour)
+        $schedule->command('notify:approaching-deliveries')->hourly();
+
+        // Send notifications for recently uploaded designs (run every 30 minutes)
+        $schedule->command('notify:design-uploads')->everyThirtyMinutes();
+
+        // Clean up old read notifications (older than 90 days, run daily at 2 AM)
+        $schedule->command('notifications:cleanup')->dailyAt('02:00');
     }
 
     /**

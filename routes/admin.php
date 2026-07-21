@@ -92,4 +92,14 @@ Route::middleware(['auth', 'verified', 'admin.only'])->prefix('admin')->name('ad
         Route::resource('roles', \App\Http\Controllers\Apps\RoleManagementController::class);
         Route::resource('permissions', \App\Http\Controllers\Apps\PermissionManagementController::class);
     });
+
+    // Website Management - Frontend Pages
+    Route::prefix('website-management')->name('website-management.')->group(function () {
+        Route::get('/home', [\App\Http\Controllers\Admin\WebsitePageController::class, 'home'])->name('home');
+        Route::get('/shop', [\App\Http\Controllers\Admin\WebsitePageController::class, 'shop'])->name('shop');
+        Route::get('/categories', [\App\Http\Controllers\Admin\WebsitePageController::class, 'categories'])->name('categories');
+        Route::get('/tailoring-service', [\App\Http\Controllers\Admin\WebsitePageController::class, 'tailoringService'])->name('tailoring-service');
+        Route::get('/about-us', [\App\Http\Controllers\Admin\WebsitePageController::class, 'aboutUs'])->name('about-us');
+        Route::get('/contact', [\App\Http\Controllers\Admin\WebsitePageController::class, 'contact'])->name('contact');
+    });
 });

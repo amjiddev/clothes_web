@@ -109,6 +109,40 @@
             </a>
         </div>
 
+        <!-- Website Management - Frontend Pages -->
+        <div class="nav-item">
+            <a href="#" class="nav-link nav-toggle {{ request()->routeIs('admin.website-management.*') ? 'active' : '' }} collapsed">
+                <i class="fas fa-globe"></i>
+                <span>Website Management</span>
+            </a>
+            <div class="nav-submenu {{ request()->routeIs('admin.website-management.*') ? 'show' : '' }}">
+                <a href="{{ route('admin.website-management.home') }}" class="nav-link {{ request()->routeIs('admin.website-management.home') ? 'active' : '' }}">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="{{ route('admin.website-management.shop') }}" class="nav-link {{ request()->routeIs('admin.website-management.shop') ? 'active' : '' }}">
+                    <i class="fas fa-store"></i>
+                    <span>Shop</span>
+                </a>
+                <a href="{{ route('admin.website-management.categories') }}" class="nav-link {{ request()->routeIs('admin.website-management.categories') ? 'active' : '' }}">
+                    <i class="fas fa-th-list"></i>
+                    <span>Categories</span>
+                </a>
+                <a href="{{ route('admin.website-management.tailoring-service') }}" class="nav-link {{ request()->routeIs('admin.website-management.tailoring-service') ? 'active' : '' }}">
+                    <i class="fas fa-scissors"></i>
+                    <span>Tailoring Service</span>
+                </a>
+                <a href="{{ route('admin.website-management.about-us') }}" class="nav-link {{ request()->routeIs('admin.website-management.about-us') ? 'active' : '' }}">
+                    <i class="fas fa-info-circle"></i>
+                    <span>About Us</span>
+                </a>
+                <a href="{{ route('admin.website-management.contact') }}" class="nav-link {{ request()->routeIs('admin.website-management.contact') ? 'active' : '' }}">
+                    <i class="fas fa-envelope"></i>
+                    <span>Contact</span>
+                </a>
+            </div>
+        </div>
+
         <!-- User Management -->
         <div class="nav-item">
             <a href="#" class="nav-link nav-toggle {{ request()->routeIs('admin.user-management.*') ? 'active' : '' }} collapsed">

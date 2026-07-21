@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\StitchingOrder;
 use App\Models\User;
+use App\Http\Controllers\Tailor\NotificationController;
 
 class StitchingOrderService
 {
@@ -24,6 +25,13 @@ class StitchingOrderService
             'assigned_date' => now(),
         ]);
 
+        // Send notification to tailor
+        NotificationController::notifyOrderAssigned(
+            $tailorId,
+            $stitchingOrder->id,
+            $stitchingOrder->order->order_number ?? "Order #" . $stitchingOrder->id
+        );
+
         return $stitchingOrder;
     }
 
@@ -32,6 +40,7 @@ class StitchingOrderService
      */
     public function updateStatus(StitchingOrder $stitchingOrder, string $status, array $data = []): StitchingOrder
     {
+        $oldStatus = $stitchingOrder->stitching_status;
         $updateData = ['stitching_status' => $status];
 
         if (isset($data['tailor_notes'])) {
@@ -47,6 +56,16 @@ class StitchingOrderService
         }
 
         $stitchingOrder->update($updateData);
+
+        // Send notification to tailor about status update
+        if ($stitchingOrder->tailor_id && $oldStatus !== $status) {
+            NotificationController::notifyStatusUpdated(
+                $stitchingOrder->tailor_id,
+                $stitchingOrder->id,
+                $stitchingOrder->order->order_number ?? "Order #" . $stitchingOrder->id,
+                $status
+            );
+        }
 
         // Update related order status
         if ($status === 'completed') {

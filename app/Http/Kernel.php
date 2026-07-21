@@ -72,6 +72,7 @@ class Kernel extends HttpKernel
         'admin_or_redirect' => \App\Http\Middleware\AdminOrRedirect::class,
         'admin.only' => \App\Http\Middleware\AdminOnly::class,
         'receptionist.only' => \App\Http\Middleware\ReceptionistOnly::class,
+        'tailor.only' => \App\Http\Middleware\TailorOnly::class,
     ];
 }
 
