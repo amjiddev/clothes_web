@@ -4,29 +4,42 @@
 
 @section('content')
 
-<!-- Hero Section -->
-<section class="hero-section">
-    <div class="container">
-        <div class="row align-items-center min-vh-100">
-            <div class="col-lg-6 hero-content">
-                <h1>Premium Men's Fashion & Custom Tailoring</h1>
-                <h2>Buy Ready Made Suits or Get Your Perfect Custom Stitching</h2>
-                <p style="font-size: 1.1rem; margin-bottom: 2rem; line-height: 1.6;">
-                    Discover our exclusive collection of premium men's clothing and professional tailoring services. Whether you're looking for elegant ready-made pieces or custom stitched designs, we have everything to elevate your style.
-                </p>
-                <div class="d-flex gap-3 flex-wrap">
-                    <a href="{{ route('shop') }}" class="btn-premium">
-                        <i class="fas fa-shopping-bag me-2"></i>Shop Collection
-                    </a>
-                    <a href="{{ route('tailoring') }}" class="btn-outline-premium">
-                        <i class="fas fa-scissors me-2"></i>Book Stitching
-                    </a>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <img src="https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=500&h=600&fit=crop" alt="Premium Suit" class="img-fluid rounded" style="box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-            </div>
+<!-- Hero Section with Image Slider -->
+    <!-- Slider Container -->
+    <div class="hero-slider" style="position: relative; width: 100%; height: 85vh; overflow: hidden;">
+        <!-- Slide 1 - Clickable -->
+        <div class="hero-slide active" onclick="window.location.href='{{ route('shop') }}';" style="position: absolute; width: 100%; height: 100%; background: url('{{ asset('frontend/images/images.jfif') }}') center/cover no-repeat; background-size: cover; opacity: 1; transition: opacity 0.8s ease-in-out; cursor: pointer;">
         </div>
+        
+        <!-- Slide 2 - Clickable -->
+        <div class="hero-slide" onclick="window.location.href='{{ route('shop') }}';" style="position: absolute; width: 100%; height: 100%; background: url('{{ asset('frontend/images/images (1).jfif') }}') center/cover no-repeat; background-size: cover; opacity: 0; transition: opacity 0.8s ease-in-out; cursor: pointer;">
+        </div>
+        
+        <!-- Slide 3 - Clickable -->
+        <div class="hero-slide" onclick="window.location.href='{{ route('shop') }}';" style="position: absolute; width: 100%; height: 100%; background: url('{{ asset('frontend/images/images (2).jfif') }}') center/cover no-repeat; background-size: cover; opacity: 0; transition: opacity 0.8s ease-in-out; cursor: pointer;">
+        </div>
+        
+        <!-- Slide 4 - Clickable -->
+        <div class="hero-slide" onclick="window.location.href='{{ route('shop') }}';" style="position: absolute; width: 100%; height: 100%; background: url('{{ asset('frontend/images/images (3).jfif') }}') center/cover no-repeat; background-size: cover; opacity: 0; transition: opacity 0.8s ease-in-out; cursor: pointer;">
+        </div>
+    </div>
+
+    <!-- Previous Button - Clickable -->
+    <button class="hero-nav-btn hero-prev" onclick="prevSlide(event)" style="position: absolute; left: 30px; top: 50%; transform: translateY(-50%); z-index: 20; background: rgba(255,255,255,0.4); border: 2px solid rgba(255,255,255,0.8); color: white; font-size: 28px; width: 60px; height: 60px; border-radius: 50%; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;">
+        <i class="fas fa-chevron-left"></i>
+    </button>
+
+    <!-- Next Button - Clickable -->
+    <button class="hero-nav-btn hero-next" onclick="nextSlide(event)" style="position: absolute; right: 30px; top: 50%; transform: translateY(-50%); z-index: 20; background: rgba(255,255,255,0.4); border: 2px solid rgba(255,255,255,0.8); color: white; font-size: 28px; width: 60px; height: 60px; border-radius: 50%; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;">
+        <i class="fas fa-chevron-right"></i>
+    </button>
+
+    <!-- Slider Dots - Clickable -->
+    <div class="hero-dots" style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 20; display: flex; gap: 12px;">
+        <span class="hero-dot active" onclick="currentSlide(0, event)" style="width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,0.9); cursor: pointer; transition: all 0.3s ease;"></span>
+        <span class="hero-dot" onclick="currentSlide(1, event)" style="width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.3s ease;"></span>
+        <span class="hero-dot" onclick="currentSlide(2, event)" style="width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.3s ease;"></span>
+        <span class="hero-dot" onclick="currentSlide(3, event)" style="width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.3s ease;"></span>
     </div>
 </section>
 
@@ -388,7 +401,101 @@
 @endsection
 
 @section('scripts')
+<style>
+    .hero-nav-btn:hover {
+        background: rgba(255,255,255,0.7) !important;
+        transform: translateY(-50%) scale(1.1) !important;
+    }
+
+    .hero-dot {
+        transition: all 0.3s ease;
+    }
+
+    .hero-dot:hover {
+        background: rgba(255,255,255,0.8) !important;
+        transform: scale(1.2);
+    }
+
+    .hero-dot.active {
+        width: 30px !important;
+        background: rgba(255,255,255,0.95) !important;
+    }
+</style>
+
 <script>
+let currentSlideIndex = 0;
+let autoSlideTimer;
+
+function showSlide(index) {
+    const slides = document.querySelectorAll('.hero-slide');
+    const dots = document.querySelectorAll('.hero-dot');
+    const totalSlides = slides.length;
+
+    // Ensure index is within bounds
+    if (index >= totalSlides) {
+        currentSlideIndex = 0;
+    } else if (index < 0) {
+        currentSlideIndex = totalSlides - 1;
+    } else {
+        currentSlideIndex = index;
+    }
+
+    // Hide all slides
+    slides.forEach(slide => {
+        slide.style.opacity = '0';
+    });
+
+    // Show current slide
+    slides[currentSlideIndex].style.opacity = '1';
+
+    // Update dots
+    dots.forEach((dot, i) => {
+        dot.classList.remove('active');
+        if (i === currentSlideIndex) {
+            dot.classList.add('active');
+        }
+    });
+}
+
+function nextSlide(event) {
+    if (event) {
+        event.stopPropagation();
+    }
+    clearInterval(autoSlideTimer);
+    showSlide(currentSlideIndex + 1);
+    startAutoSlide();
+}
+
+function prevSlide(event) {
+    if (event) {
+        event.stopPropagation();
+    }
+    clearInterval(autoSlideTimer);
+    showSlide(currentSlideIndex - 1);
+    startAutoSlide();
+}
+
+function currentSlide(index, event) {
+    if (event) {
+        event.stopPropagation();
+    }
+    clearInterval(autoSlideTimer);
+    showSlide(index);
+    startAutoSlide();
+}
+
+function startAutoSlide() {
+    autoSlideTimer = setInterval(() => {
+        showSlide(currentSlideIndex + 1);
+    }, 4000); // Change slide every 4 seconds
+}
+
+// Initialize slider when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    showSlide(0);
+    startAutoSlide();
+});
+
 function addToCart(productId) {
     // TODO: Implement add to cart functionality
     alert('Product added to cart! (Demo)');
