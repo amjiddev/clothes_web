@@ -132,213 +132,40 @@
         </div>
 
         <div class="row g-4">
-            <!-- Featured Product 1 - Premium Cotton Suit -->
+            @forelse($featuredProducts as $product)
             <div class="col-lg-3 col-md-4 col-sm-6">
                 <div class="product-card">
                     <div class="product-image" style="position: relative;">
-                        <img src="{{ asset('frontend/images/images.jfif') }}" alt="Premium Cotton Suit" onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">
-                        <span class="product-badge" style="position: absolute; top: 10px; right: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.85rem; opacity: 0; transition: opacity 0.3s ease; z-index: 10;">In Stock</span>
-                        <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-40%</span>
+                        <img src="{{ $product->image_url }}" alt="{{ $product->name }}" onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'" style="height: 280px; object-fit: cover;">
+                        <span class="product-badge" style="position: absolute; top: 10px; right: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.85rem; opacity: 0; transition: opacity 0.3s ease; z-index: 10;">{{ $product->stock_status }}</span>
+                        @if($product->hasDiscount())
+                        <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-{{ $product->discount_percentage }}%</span>
+                        @endif
                     </div>
                     <div class="product-info">
-                        <h3 class="product-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">Premium Cotton Suit</h3>
+                        <h3 class="product-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">{{ $product->name }}</h3>
                         <div class="product-price">
-                            <span class="current">Rs. 8,990</span>
-                            <span class="original">Rs. 10,788</span>
+                            <span class="current">Rs. {{ number_format($product->final_price, 0) }}</span>
+                            @if($product->hasDiscount())
+                            <span class="original">Rs. {{ number_format($product->price, 0) }}</span>
+                            @endif
                         </div>
                         <div class="product-actions">
-                            <button class="btn-add-cart" onclick="addToCart(1)">
+                            <button class="btn-add-cart" onclick="addToCart({{ $product->id }})">
                                 <i class="fas fa-cart-plus"></i> Add
                             </button>
-                            <a href="{{ route('product.detail', 1) }}" class="btn-view-detail">
+                            <a href="{{ route('product.detail', $product->slug) }}" class="btn-view-detail">
                                 <i class="fas fa-eye"></i>
                             </a>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Featured Product 2 - Cotton Formal Shirt -->
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div class="product-card">
-                    <div class="product-image" style="position: relative;">
-                        <img src="{{ asset('frontend/images/images (1).jfif') }}" alt="Cotton Formal Shirt" onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">
-                        <span class="product-badge" style="position: absolute; top: 10px; right: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.85rem; opacity: 0; transition: opacity 0.3s ease; z-index: 10;">In Stock</span>
-                        <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-17%</span>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">Cotton Formal Shirt</h3>
-                        <div class="product-price">
-                            <span class="current">Rs. 2,490</span>
-                            <span class="original">Rs. 2,988</span>
-                        </div>
-                        <div class="product-actions">
-                            <button class="btn-add-cart" onclick="addToCart(2)">
-                                <i class="fas fa-cart-plus"></i> Add
-                            </button>
-                            <a href="{{ route('product.detail', 2) }}" class="btn-view-detail">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
+            @empty
+            <div class="col-12">
+                <p class="text-center text-muted">No featured products available</p>
             </div>
-
-            <!-- Featured Product 3 - Wash & Wear Kurta -->
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div class="product-card">
-                    <div class="product-image" style="position: relative;">
-                        <img src="{{ asset('frontend/images/images (2).jfif') }}" alt="Wash & Wear Kurta" onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">
-                        <span class="product-badge" style="position: absolute; top: 10px; right: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.85rem; opacity: 0; transition: opacity 0.3s ease; z-index: 10;">In Stock</span>
-                        <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-20%</span>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">Wash & Wear Kurta</h3>
-                        <div class="product-price">
-                            <span class="current">Rs. 3,590</span>
-                            <span class="original">Rs. 4,308</span>
-                        </div>
-                        <div class="product-actions">
-                            <button class="btn-add-cart" onclick="addToCart(3)">
-                                <i class="fas fa-cart-plus"></i> Add
-                            </button>
-                            <a href="{{ route('product.detail', 3) }}" class="btn-view-detail">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Featured Product 4 - Khaddar Formal Suit -->
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div class="product-card">
-                    <div class="product-image" style="position: relative;">
-                        <img src="{{ asset('frontend/images/images (3).jfif') }}" alt="Khaddar Formal Suit" onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">
-                        <span class="product-badge" style="position: absolute; top: 10px; right: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.85rem; opacity: 0; transition: opacity 0.3s ease; z-index: 10;">In Stock</span>
-                        <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-17%</span>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">Khaddar Formal Suit</h3>
-                        <div class="product-price">
-                            <span class="current">Rs. 5,990</span>
-                            <span class="original">Rs. 7,188</span>
-                        </div>
-                        <div class="product-actions">
-                            <button class="btn-add-cart" onclick="addToCart(4)">
-                                <i class="fas fa-cart-plus"></i> Add
-                            </button>
-                            <a href="{{ route('product.detail', 4) }}" class="btn-view-detail">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Featured Product 5 - Linen Casual Shirt -->
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div class="product-card">
-                    <div class="product-image" style="position: relative;">
-                        <img src="{{ asset('frontend/images/images (4).jfif') }}" alt="Linen Casual Shirt" onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">
-                        <span class="product-badge" style="position: absolute; top: 10px; right: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.85rem; opacity: 0; transition: opacity 0.3s ease; z-index: 10;">In Stock</span>
-                        <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-17%</span>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">Linen Casual Shirt</h3>
-                        <div class="product-price">
-                            <span class="current">Rs. 2,890</span>
-                            <span class="original">Rs. 3,468</span>
-                        </div>
-                        <div class="product-actions">
-                            <button class="btn-add-cart" onclick="addToCart(5)">
-                                <i class="fas fa-cart-plus"></i> Add
-                            </button>
-                            <a href="{{ route('product.detail', 5) }}" class="btn-view-detail">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Featured Product 6 - Boski Premium Kurta -->
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div class="product-card">
-                    <div class="product-image" style="position: relative;">
-                        <img src="{{ asset('frontend/images/images (5).jfif') }}" alt="Boski Premium Kurta" onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">
-                        <span class="product-badge" style="position: absolute; top: 10px; right: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.85rem; opacity: 0; transition: opacity 0.3s ease; z-index: 10;">In Stock</span>
-                        <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-17%</span>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">Boski Premium Kurta</h3>
-                        <div class="product-price">
-                            <span class="current">Rs. 4,690</span>
-                            <span class="original">Rs. 5,628</span>
-                        </div>
-                        <div class="product-actions">
-                            <button class="btn-add-cart" onclick="addToCart(6)">
-                                <i class="fas fa-cart-plus"></i> Add
-                            </button>
-                            <a href="{{ route('product.detail', 6) }}" class="btn-view-detail">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Featured Product 7 - Dhanakye Traditional Pyjama -->
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div class="product-card">
-                    <div class="product-image" style="position: relative;">
-                        <img src="{{ asset('frontend/images/images.jfif') }}" alt="Dhanakye Traditional Pyjama" onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">
-                        <span class="product-badge" style="position: absolute; top: 10px; right: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.85rem; opacity: 0; transition: opacity 0.3s ease; z-index: 10;">In Stock</span>
-                        <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-17%</span>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">Dhanakye Traditional Pyjama</h3>
-                        <div class="product-price">
-                            <span class="current">Rs. 3,290</span>
-                            <span class="original">Rs. 3,948</span>
-                        </div>
-                        <div class="product-actions">
-                            <button class="btn-add-cart" onclick="addToCart(7)">
-                                <i class="fas fa-cart-plus"></i> Add
-                            </button>
-                            <a href="{{ route('product.detail', 7) }}" class="btn-view-detail">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Featured Product 8 - Premium Shalwar Set -->
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div class="product-card">
-                    <div class="product-image" style="position: relative;">
-                        <img src="{{ asset('frontend/images/images (1).jfif') }}" alt="Premium Shalwar Set" onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">
-                        <span class="product-badge" style="position: absolute; top: 10px; right: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.85rem; opacity: 0; transition: opacity 0.3s ease; z-index: 10;">In Stock</span>
-                        <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-17%</span>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">Premium Shalwar Set</h3>
-                        <div class="product-price">
-                            <span class="current">Rs. 6,490</span>
-                            <span class="original">Rs. 7,788</span>
-                        </div>
-                        <div class="product-actions">
-                            <button class="btn-add-cart" onclick="addToCart(8)">
-                                <i class="fas fa-cart-plus"></i> Add
-                            </button>
-                            <a href="{{ route('product.detail', 8) }}" class="btn-view-detail">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            @endforelse
         </div>
 
         <div class="text-center mt-5">
