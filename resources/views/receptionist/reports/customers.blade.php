@@ -85,7 +85,7 @@
                             <span class="badge bg-info">{{ $customer['total_orders'] }}</span>
                         </td>
                         <td>
-                            <strong>₹{{ number_format($customer['total_spent'], 2) }}</strong>
+                            <strong>Rs. {{ number_format($customer['total_spent'], 2) }}</strong>
                         </td>
                         <td>
                             <span class="badge bg-secondary">{{ $customer['total_measurements'] }}</span>

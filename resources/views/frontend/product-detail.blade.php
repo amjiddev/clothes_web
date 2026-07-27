@@ -99,16 +99,16 @@
                 <div class="row mb-4" style="border-top: 2px solid var(--accent-gold); border-bottom: 2px solid var(--accent-gold); padding: 1.5rem 0;">
                     <div class="col-md-6">
                         <h3 style="color: var(--accent-gold); font-size: 1.8rem; font-weight: 700;">
-                            ₹{{ number_format($product->final_price, 0) }}
+                            Rs. {{ number_format($product->final_price, 0) }}
                         </h3>
                     </div>
                     <div class="col-md-6 text-end">
                         @if($product->hasDiscount())
                         <p style="font-size: 0.9rem; color: var(--text-muted); text-decoration: line-through;">
-                            ₹{{ number_format($product->price, 0) }}
+                            Rs. {{ number_format($product->price, 0) }}
                         </p>
                         <span style="color: var(--accent-gold); font-weight: 600;">
-                            You Save: ₹{{ number_format($product->price - $product->final_price, 0) }}
+                            You Save: Rs. {{ number_format($product->price - $product->final_price, 0) }}
                         </span>
                         @endif
                     </div>
@@ -224,7 +224,7 @@
                 <div class="row g-3" style="background: #F8F5EF; padding: 1.5rem; border-radius: 10px; border-left: 4px solid var(--accent-gold);">
                     <div class="col-md-4 text-center">
                         <i class="fas fa-shipping-fast" style="font-size: 1.5rem; color: var(--accent-gold);"></i>
-                        <p class="mt-2" style="color: var(--primary-dark);"><strong>Free Shipping</strong><br><small>On orders above ₹2000</small></p>
+                        <p class="mt-2" style="color: var(--primary-dark);"><strong>Free Shipping</strong><br><small>On orders above Rs. 2000</small></p>
                     </div>
                     <div class="col-md-4 text-center">
                         <i class="fas fa-undo" style="font-size: 1.5rem; color: var(--accent-gold);"></i>
@@ -320,7 +320,7 @@
                             <p style="font-size: 0.8rem; color: var(--accent-gold); font-weight: 600; margin-bottom: 0.5rem;">{{ $related->category->name }}</p>
                             <h5 style="font-weight: 600; color: var(--primary-dark); margin-bottom: 0.5rem;">{{ $related->name }}</h5>
                             <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span style="font-size: 1.2rem; font-weight: 700; color: var(--accent-gold);">₹{{ number_format($related->final_price, 0) }}</span>
+                                <span style="font-size: 1.2rem; font-weight: 700; color: var(--accent-gold);">Rs. {{ number_format($related->final_price, 0) }}</span>
                                 <a href="{{ route('product.detail', $related->slug) }}" class="btn btn-sm" style="background: var(--accent-gold); color: var(--primary-dark); border: none; padding: 5px 10px;">
                                     <i class="fas fa-arrow-right"></i>
                                 </a>

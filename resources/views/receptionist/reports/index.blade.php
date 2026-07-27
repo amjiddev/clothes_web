@@ -28,10 +28,10 @@
     <div class="col-md-6 col-lg-3 mb-3">
         <div class="stat-card">
             <i class="fas fa-rupiah-sign stat-icon"></i>
-            <div class="stat-value">₹{{ number_format($todayRevenue, 0) }}</div>
+            <div class="stat-value">Rs. {{ number_format($todayRevenue, 0) }}</div>
             <div class="stat-label">Today's Revenue</div>
             <div class="stat-change">
-                <i class="fas fa-info-circle"></i> ₹{{ number_format($monthlyRevenue, 0) }} this month
+                <i class="fas fa-info-circle"></i> Rs. {{ number_format($monthlyRevenue, 0) }} this month
             </div>
         </div>
     </div>
@@ -50,10 +50,10 @@
     <div class="col-md-6 col-lg-3 mb-3">
         <div class="stat-card">
             <i class="fas fa-money-bill-wave stat-icon"></i>
-            <div class="stat-value">₹{{ number_format($collectedPayments, 0) }}</div>
+            <div class="stat-value">Rs. {{ number_format($collectedPayments, 0) }}</div>
             <div class="stat-label">Collected</div>
             <div class="stat-change">
-                <i class="fas fa-exclamation"></i> ₹{{ number_format($pendingPayments, 0) }} pending
+                <i class="fas fa-exclamation"></i> Rs. {{ number_format($pendingPayments, 0) }} pending
             </div>
         </div>
     </div>
@@ -78,7 +78,7 @@
                     </div>
                     <div class="stat-mini">
                         <span class="label">Today's Revenue</span>
-                        <span class="value">₹{{ number_format($todayRevenue, 0) }}</span>
+                        <span class="value">Rs. {{ number_format($todayRevenue, 0) }}</span>
                     </div>
                 </div>
                 <a href="{{ route('receptionist.reports.daily-orders') }}" class="btn btn-custom btn-primary-custom w-100">
@@ -105,7 +105,7 @@
                     </div>
                     <div class="stat-mini">
                         <span class="label">Monthly Revenue</span>
-                        <span class="value">₹{{ number_format($monthlyRevenue, 0) }}</span>
+                        <span class="value">Rs. {{ number_format($monthlyRevenue, 0) }}</span>
                     </div>
                 </div>
                 <a href="{{ route('receptionist.reports.monthly-sales') }}" class="btn btn-custom btn-primary-custom w-100">
@@ -159,7 +159,7 @@
                     </div>
                     <div class="stat-mini">
                         <span class="label">Total Revenue</span>
-                        <span class="value">₹{{ number_format($collectedPayments, 0) }}</span>
+                        <span class="value">Rs. {{ number_format($collectedPayments, 0) }}</span>
                     </div>
                 </div>
                 <a href="{{ route('receptionist.reports.completed-orders') }}" class="btn btn-custom btn-primary-custom w-100">
@@ -182,11 +182,11 @@
                 <div class="report-stats mb-3">
                     <div class="stat-mini">
                         <span class="label">Collected</span>
-                        <span class="value">₹{{ number_format($collectedPayments, 0) }}</span>
+                        <span class="value">Rs. {{ number_format($collectedPayments, 0) }}</span>
                     </div>
                     <div class="stat-mini">
                         <span class="label">Pending</span>
-                        <span class="value">₹{{ number_format($pendingPayments, 0) }}</span>
+                        <span class="value">Rs. {{ number_format($pendingPayments, 0) }}</span>
                     </div>
                 </div>
                 <a href="{{ route('receptionist.reports.payment-collection') }}" class="btn btn-custom btn-primary-custom w-100">

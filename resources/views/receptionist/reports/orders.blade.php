@@ -78,14 +78,14 @@
     <div class="col-md-4">
         <div class="stat-card">
             <i class="fas fa-rupiah-sign stat-icon"></i>
-            <div class="stat-value">₹{{ number_format($totalRevenue, 0) }}</div>
+            <div class="stat-value">Rs. {{ number_format($totalRevenue, 0) }}</div>
             <div class="stat-label">Total Revenue</div>
         </div>
     </div>
     <div class="col-md-4">
         <div class="stat-card">
             <i class="fas fa-chart-line stat-icon"></i>
-            <div class="stat-value">₹{{ number_format($averageOrderValue, 0) }}</div>
+            <div class="stat-value">Rs. {{ number_format($averageOrderValue, 0) }}</div>
             <div class="stat-label">Average Order Value</div>
         </div>
     </div>
@@ -121,7 +121,7 @@
                         </td>
                         <td>{{ $order->customer?->name ?? 'N/A' }}</td>
                         <td>{{ ucfirst($order->order_type ?? 'Regular') }}</td>
-                        <td>₹{{ number_format($order->total, 2) }}</td>
+                        <td>Rs. {{ number_format($order->total, 2) }}</td>
                         <td>
                             @php
                                 $statusClass = match($order->status) {

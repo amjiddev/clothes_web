@@ -42,7 +42,7 @@
                             <li>Premium fabrics</li>
                             <li>Expert consultation</li>
                             <li>Delivery included</li>
-                            <li><strong style="color: var(--accent-gold);">Starting from ₹500</strong></li>
+                            <li><strong style="color: var(--accent-gold);">Starting from Rs. 500</strong></li>
                         </ul>
                     </div>
                 </div>
@@ -59,7 +59,7 @@
                             <li>Fabric selection</li>
                             <li>Custom stitching</li>
                             <li>Multiple fittings</li>
-                            <li><strong style="color: var(--accent-gold);">Starting from ₹1,500</strong></li>
+                            <li><strong style="color: var(--accent-gold);">Starting from Rs. 1,500</strong></li>
                         </ul>
                     </div>
                 </div>
@@ -76,7 +76,7 @@
                             <li>Expert stitching</li>
                             <li>Precise measurements</li>
                             <li>Quality guarantee</li>
-                            <li><strong style="color: var(--accent-gold);">Starting from ₹300</strong></li>
+                            <li><strong style="color: var(--accent-gold);">Starting from Rs. 300</strong></li>
                         </ul>
                     </div>
                 </div>
@@ -380,7 +380,7 @@
                             <li>✓ Multiple fittings</li>
                             <li>✓ Free alterations (30 days)</li>
                             <li style="margin-top: 10px; border-top: 1px solid #ddd; padding-top: 10px; font-weight: 600; color: var(--accent-gold);">
-                                Starting from ₹1,500
+                                Starting from Rs. 1,500
                             </li>
                         </ul>
                     </div>
@@ -398,7 +398,7 @@
                             <li>✓ Precise fitting</li>
                             <li>✓ Quality guarantee</li>
                             <li style="margin-top: 10px; border-top: 1px solid #ddd; padding-top: 10px; font-weight: 600; color: var(--accent-gold);">
-                                Starting from ₹300
+                                Starting from Rs. 300
                             </li>
                         </ul>
                     </div>

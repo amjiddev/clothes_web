@@ -77,7 +77,7 @@
                         </td>
                         <td>{{ $order->customer?->name ?? 'N/A' }}</td>
                         <td>{{ $order->created_at->format('M d, Y') }}</td>
-                        <td>₹{{ number_format($order->total, 2) }}</td>
+                        <td>Rs. {{ number_format($order->total, 2) }}</td>
                         <td>
                             @php
                                 $statusClass = match($order->status) {

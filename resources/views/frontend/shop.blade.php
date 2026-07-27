@@ -44,18 +44,72 @@
                                     <a href="{{ route('shop') }}" class="list-group-item list-group-item-action p-2" style="border: none; color: var(--primary-dark);">
                                         All Products
                                     </a>
-                                    @foreach($categories as $category)
+                                    <!-- Cotton -->
                                     <label class="list-group-item list-group-item-action p-2" style="border: none;">
                                         <input 
                                             type="radio" 
                                             name="category" 
-                                            value="{{ $category->id }}"
-                                            {{ request('category') == $category->id ? 'checked' : '' }}
+                                            value="cotton"
+                                            {{ request('category') == 'cotton' ? 'checked' : '' }}
                                             onchange="this.form.submit()"
                                         >
-                                        <span style="color: var(--primary-dark);">{{ $category->name }}</span>
+                                        <span style="color: var(--primary-dark);">Cotton</span>
                                     </label>
-                                    @endforeach
+                                    <!-- Wash & Wear -->
+                                    <label class="list-group-item list-group-item-action p-2" style="border: none;">
+                                        <input 
+                                            type="radio" 
+                                            name="category" 
+                                            value="wash-wear"
+                                            {{ request('category') == 'wash-wear' ? 'checked' : '' }}
+                                            onchange="this.form.submit()"
+                                        >
+                                        <span style="color: var(--primary-dark);">Wash & Wear</span>
+                                    </label>
+                                    <!-- Khaddar -->
+                                    <label class="list-group-item list-group-item-action p-2" style="border: none;">
+                                        <input 
+                                            type="radio" 
+                                            name="category" 
+                                            value="khaddar"
+                                            {{ request('category') == 'khaddar' ? 'checked' : '' }}
+                                            onchange="this.form.submit()"
+                                        >
+                                        <span style="color: var(--primary-dark);">Khaddar</span>
+                                    </label>
+                                    <!-- Linen -->
+                                    <label class="list-group-item list-group-item-action p-2" style="border: none;">
+                                        <input 
+                                            type="radio" 
+                                            name="category" 
+                                            value="linen"
+                                            {{ request('category') == 'linen' ? 'checked' : '' }}
+                                            onchange="this.form.submit()"
+                                        >
+                                        <span style="color: var(--primary-dark);">Linen</span>
+                                    </label>
+                                    <!-- Boski -->
+                                    <label class="list-group-item list-group-item-action p-2" style="border: none;">
+                                        <input 
+                                            type="radio" 
+                                            name="category" 
+                                            value="boski"
+                                            {{ request('category') == 'boski' ? 'checked' : '' }}
+                                            onchange="this.form.submit()"
+                                        >
+                                        <span style="color: var(--primary-dark);">Boski</span>
+                                    </label>
+                                    <!-- Dhanakye -->
+                                    <label class="list-group-item list-group-item-action p-2" style="border: none;">
+                                        <input 
+                                            type="radio" 
+                                            name="category" 
+                                            value="dhanakye"
+                                            {{ request('category') == 'dhanakye' ? 'checked' : '' }}
+                                            onchange="this.form.submit()"
+                                        >
+                                        <span style="color: var(--primary-dark);">Dhanak</span>
+                                    </label>
                                 </div>
                             </form>
                         </div>
@@ -69,7 +123,7 @@
                             </h6>
                             <form method="GET" action="{{ route('shop') }}" id="priceForm">
                                 <div class="mb-3">
-                                    <label class="form-label" style="color: var(--primary-dark); font-size: 0.9rem;">Min Price (₹)</label>
+                                    <label class="form-label" style="color: var(--primary-dark); font-size: 0.9rem;">Min Price (Rs.)</label>
                                     <input 
                                         type="number" 
                                         name="min_price" 
@@ -80,7 +134,7 @@
                                     >
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label" style="color: var(--primary-dark); font-size: 0.9rem;">Max Price (₹)</label>
+                                    <label class="form-label" style="color: var(--primary-dark); font-size: 0.9rem;">Max Price (Rs.)</label>
                                     <input 
                                         type="number" 
                                         name="max_price" 
@@ -293,11 +347,11 @@
                                 <!-- Pricing -->
                                 <div style="margin-bottom: 1rem;">
                                     <span style="font-size: 1.3rem; font-weight: 700; color: var(--accent-gold);">
-                                        ₹{{ number_format($product->final_price, 0) }}
+                                        Rs. {{ number_format($product->final_price, 0) }}
                                     </span>
                                     @if($product->hasDiscount())
                                         <span style="font-size: 0.9rem; color: var(--text-muted); text-decoration: line-through; margin-left: 0.5rem;">
-                                            ₹{{ number_format($product->price, 0) }}
+                                            Rs. {{ number_format($product->price, 0) }}
                                         </span>
                                     @endif
                                 </div>

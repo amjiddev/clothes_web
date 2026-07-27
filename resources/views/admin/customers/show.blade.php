@@ -133,12 +133,12 @@
                     </div>
                     <hr>
                     <div class="text-center mb-4">
-                        <h3 class="text-success">₹{{ number_format($stats['total_spending'], 2) }}</h3>
+                        <h3 class="text-success">Rs. {{ number_format($stats['total_spending'], 2) }}</h3>
                         <p class="text-muted mb-0">Total Spending</p>
                     </div>
                     <hr>
                     <div class="text-center mb-4">
-                        <h3 class="text-info">₹{{ number_format($stats['average_order_value'], 2) }}</h3>
+                        <h3 class="text-info">Rs. {{ number_format($stats['average_order_value'], 2) }}</h3>
                         <p class="text-muted mb-0">Average Order Value</p>
                     </div>
                     <hr>
@@ -203,7 +203,7 @@
                                             <span class="badge bg-light text-dark">{{ $order->type }}</span>
                                         </td>
                                         <td class="text-end">
-                                            <strong>₹{{ number_format($order->total, 2) }}</strong>
+                                            <strong>Rs. {{ number_format($order->total, 2) }}</strong>
                                         </td>
                                         <td class="text-center">
                                             <span class="badge bg-{{ $order->status_badge }}">
@@ -303,7 +303,7 @@
                                             <span class="badge bg-light text-dark">{{ $stitching->service_option ?? 'Custom' }}</span>
                                         </td>
                                         <td class="text-end">
-                                            <strong>₹{{ number_format($stitching->estimated_cost, 2) }}</strong>
+                                            <strong>Rs. {{ number_format($stitching->estimated_cost, 2) }}</strong>
                                         </td>
                                         <td class="text-center">
                                             <span class="badge bg-{{ $stitching->status_badge }}">

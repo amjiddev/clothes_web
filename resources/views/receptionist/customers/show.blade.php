@@ -115,7 +115,7 @@
 
                 <div class="mb-0">
                     <small class="text-muted d-block fw-bold">Total Spent</small>
-                    <h4 class="mb-0">₹{{ number_format($totalSpent, 2) }}</h4>
+                    <h4 class="mb-0">Rs. {{ number_format($totalSpent, 2) }}</h4>
                 </div>
             </div>
         </div>
@@ -164,7 +164,7 @@
                                             {{ ucfirst(str_replace('_', ' ', $order->type ?? 'custom')) }}
                                         </span>
                                     </td>
-                                    <td>₹{{ number_format($order->total ?? 0, 2) }}</td>
+                                    <td>Rs. {{ number_format($order->total ?? 0, 2) }}</td>
                                     <td>
                                         @php
                                             $statusClass = match($order->status) {

@@ -151,11 +151,11 @@
                         <td class="text-end">
                             <div>
                                 @if($product->has_discount)
-                                <span class="text-danger text-decoration-line-through">₹{{ number_format($product->price, 2) }}</span><br>
-                                <strong>₹{{ number_format($product->discount_price, 2) }}</strong>
+                                <span class="text-danger text-decoration-line-through">Rs. {{ number_format($product->price, 2) }}</span><br>
+                                <strong>Rs. {{ number_format($product->discount_price, 2) }}</strong>
                                 <small class="text-success">({{ $product->discount_percentage }}% OFF)</small>
                                 @else
-                                <strong>₹{{ number_format($product->price, 2) }}</strong>
+                                <strong>Rs. {{ number_format($product->price, 2) }}</strong>
                                 @endif
                             </div>
                         </td>

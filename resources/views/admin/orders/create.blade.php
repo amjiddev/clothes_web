@@ -88,7 +88,7 @@
                             <div class="mb-3">
                                 <label for="stitching_charge" class="form-label fw-bold">Stitching Charge <span class="text-danger">*</span></label>
                                 <div class="input-group">
-                                    <span class="input-group-text">₹</span>
+                                    <span class="input-group-text">Rs.</span>
                                     <input type="number" step="0.01" class="form-control @error('stitching_charge') is-invalid @enderror" id="stitching_charge" name="stitching_charge" value="{{ old('stitching_charge', 0) }}">
                                 </div>
                                 @error('stitching_charge')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -104,7 +104,7 @@
                                 <div class="mb-3">
                                     <label for="discount" class="form-label fw-bold">Discount</label>
                                     <div class="input-group">
-                                        <span class="input-group-text">₹</span>
+                                        <span class="input-group-text">Rs.</span>
                                         <input type="number" step="0.01" class="form-control @error('discount') is-invalid @enderror" id="discount" name="discount" value="{{ old('discount', 0) }}">
                                     </div>
                                     @error('discount')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -192,7 +192,7 @@ function addProductRow() {
                 <select class="form-select form-select-sm" name="items[${rowCount}][product_id]" required>
                     <option value="">Select Product</option>
                     @foreach($products as $product)
-                    <option value="{{ $product->id }}">{{ $product->name }} - ₹{{ $product->price }}</option>
+                    <option value="{{ $product->id }}">{{ $product->name }} - Rs. {{ $product->price }}</option>
                     @endforeach
                 </select>
             </div>

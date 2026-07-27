@@ -89,7 +89,7 @@
                         <div class="col-md-6">
                             <p class="mb-2">
                                 <small class="text-muted d-block">Total Amount</small>
-                                <strong class="text-primary">₹{{ number_format($order->total, 2) }}</strong>
+                                <strong class="text-primary">Rs. {{ number_format($order->total, 2) }}</strong>
                             </p>
                         </div>
                     </div>

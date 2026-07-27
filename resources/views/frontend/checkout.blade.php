@@ -243,7 +243,7 @@
                                         </p>
                                     </div>
                                     <p style="margin: 0; color: var(--accent-gold); font-weight: 600;">
-                                        ₹{{ number_format($item['line_total'], 2) }}
+                                        Rs. {{ number_format($item['line_total'], 2) }}
                                     </p>
                                 </div>
                                 @endforeach
@@ -253,19 +253,19 @@
                             <div style="background: #F8F5EF; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
                                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                                     <span style="color: var(--text-muted);">Subtotal</span>
-                                    <span style="font-weight: 600;">₹{{ number_format($subtotal, 2) }}</span>
+                                    <span style="font-weight: 600;">Rs. {{ number_format($subtotal, 2) }}</span>
                                 </div>
 
                                 <div id="stitchingChargeRow" style="display: none; margin-bottom: 10px;">
                                     <div style="display: flex; justify-content: space-between;">
                                         <span style="color: var(--text-muted);">Stitching Charge</span>
-                                        <span id="stitchingAmount" style="font-weight: 600;">₹0</span>
+                                        <span id="stitchingAmount" style="font-weight: 600;">Rs. 0</span>
                                     </div>
                                 </div>
 
                                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                                     <span style="color: var(--text-muted);">Tax (5%)</span>
-                                    <span style="font-weight: 600;">₹{{ number_format($tax, 2) }}</span>
+                                    <span style="font-weight: 600;">Rs. {{ number_format($tax, 2) }}</span>
                                 </div>
 
                                 <div style="display: flex; justify-content: space-between;">
@@ -279,7 +279,7 @@
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
                                     <span style="color: var(--primary-dark); font-weight: 700;">Total Amount</span>
                                     <span id="totalAmount" style="color: var(--accent-gold); font-weight: 700; font-size: 1.3rem;">
-                                        ₹{{ number_format($total, 2) }}
+                                        Rs. {{ number_format($total, 2) }}
                                     </span>
                                 </div>
                             </div>
@@ -428,12 +428,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (stitchingCharge > 0) {
             stitchingRow.style.display = 'block';
-            stitchingAmount.textContent = '₹' + stitchingCharge.toLocaleString('en-IN');
+            stitchingAmount.textContent = 'Rs. ' + stitchingCharge.toLocaleString('en-IN');
         } else {
             stitchingRow.style.display = 'none';
         }
 
-        totalAmount.textContent = '₹' + total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        totalAmount.textContent = 'Rs. ' + total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
     // Initialize

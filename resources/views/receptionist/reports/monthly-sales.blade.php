@@ -56,7 +56,7 @@
             <div class="card border-0 shadow">
                 <div class="card-body text-center">
                     <h6 class="text-muted mb-2">Total Sales</h6>
-                    <h3 class="mb-0 text-success">₹{{ number_format($summary['total_sales'], 2) }}</h3>
+                    <h3 class="mb-0 text-success">Rs. {{ number_format($summary['total_sales'], 2) }}</h3>
                     <small class="text-muted">revenue generated</small>
                 </div>
             </div>
@@ -74,7 +74,7 @@
             <div class="card border-0 shadow">
                 <div class="card-body text-center">
                     <h6 class="text-muted mb-2">Avg Order Value</h6>
-                    <h3 class="mb-0 text-info">₹{{ number_format($summary['average_order_value'], 2) }}</h3>
+                    <h3 class="mb-0 text-info">Rs. {{ number_format($summary['average_order_value'], 2) }}</h3>
                     <small class="text-muted">per order</small>
                 </div>
             </div>
@@ -83,7 +83,7 @@
             <div class="card border-0 shadow">
                 <div class="card-body text-center">
                     <h6 class="text-muted mb-2">Daily Average</h6>
-                    <h3 class="mb-0 text-warning">₹{{ number_format($summary['daily_average'], 2) }}</h3>
+                    <h3 class="mb-0 text-warning">Rs. {{ number_format($summary['daily_average'], 2) }}</h3>
                     <small class="text-muted">per day</small>
                 </div>
             </div>
@@ -165,7 +165,7 @@
                                 <span class="badge bg-light text-dark">Cloth + Stitching</span>
                             @endif
                         </td>
-                        <td><strong>₹{{ number_format($order->total, 2) }}</strong></td>
+                        <td><strong>Rs. {{ number_format($order->total, 2) }}</strong></td>
                         <td>
                             <span class="badge bg-{{ $order->status_badge_attribute ?? 'secondary' }}">
                                 {{ ucfirst(str_replace('_', ' ', $order->status)) }}
@@ -206,7 +206,7 @@
             labels: @json($chartData['labels'] ?? []),
             datasets: [
                 {
-                    label: 'Sales (₹)',
+                    label: 'Sales (Rs.)',
                     data: @json($chartData['sales'] ?? []),
                     borderColor: '#28a745',
                     backgroundColor: 'rgba(40, 167, 69, 0.1)',
@@ -244,7 +244,7 @@
                     position: 'left',
                     title: {
                         display: true,
-                        text: 'Sales (₹)',
+                        text: 'Sales (Rs.)',
                     }
                 },
                 y1: {

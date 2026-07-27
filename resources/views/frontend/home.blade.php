@@ -53,21 +53,71 @@
         </div>
 
         <div class="row g-4">
-            @forelse($categoriesWithCount as $category)
+            <!-- Cotton Category -->
             <div class="col-lg-2 col-md-3 col-sm-6">
-                <a href="{{ route('shop') }}?category={{ $category->id }}" class="text-decoration-none">
+                <a href="{{ route('shop') }}?category=cotton" class="text-decoration-none">
                     <div class="category-card">
                         <i class="fas fa-shopping-bag"></i>
-                        <h3>{{ $category->name }}</h3>
-                        <p>{{ $category->products_count }} items</p>
+                        <h3>Cotton</h3>
+                        <p>Premium Collection</p>
                     </div>
                 </a>
             </div>
-            @empty
-            <div class="col-12 text-center">
-                <p class="text-muted">No categories available at the moment</p>
+
+            <!-- Wash & Wear Category -->
+            <div class="col-lg-2 col-md-3 col-sm-6">
+                <a href="{{ route('shop') }}?category=wash-wear" class="text-decoration-none">
+                    <div class="category-card">
+                        <i class="fas fa-shopping-bag"></i>
+                        <h3>Wash & Wear</h3>
+                        <p>Easy Care Fabrics</p>
+                    </div>
+                </a>
             </div>
-            @endforelse
+
+            <!-- Khaddar Category -->
+            <div class="col-lg-2 col-md-3 col-sm-6">
+                <a href="{{ route('shop') }}?category=khaddar" class="text-decoration-none">
+                    <div class="category-card">
+                        <i class="fas fa-shopping-bag"></i>
+                        <h3>Khaddar</h3>
+                        <p>Durable Fabric</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Linen Category -->
+            <div class="col-lg-2 col-md-3 col-sm-6">
+                <a href="{{ route('shop') }}?category=linen" class="text-decoration-none">
+                    <div class="category-card">
+                        <i class="fas fa-shopping-bag"></i>
+                        <h3>Linen</h3>
+                        <p>Lightweight & Breathable</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Boski Category -->
+            <div class="col-lg-2 col-md-3 col-sm-6">
+                <a href="{{ route('shop') }}?category=boski" class="text-decoration-none">
+                    <div class="category-card">
+                        <i class="fas fa-shopping-bag"></i>
+                        <h3>Boski</h3>
+                        <p>Premium Quality</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Dhanakye Category -->
+            <div class="col-lg-2 col-md-3 col-sm-6">
+                <a href="{{ route('shop') }}?category=dhanakye" class="text-decoration-none">
+                    <div class="category-card">
+                        <i class="fas fa-shopping-bag"></i>
+                        <h3>Dhanak</h3>
+                        <p>Traditional Style</p>
+                    </div>
+                </a>
+            </div>
         </div>
     </div>
 </section>
@@ -100,8 +150,8 @@
                     <div class="product-info">
                         <h3 class="product-name">{{ $product->name }}</h3>
                         <div class="product-price">
-                            <span class="current">₹{{ number_format($product->price, 0) }}</span>
-                            <span class="original">₹{{ number_format($product->price * 1.2, 0) }}</span>
+                            <span class="current">Rs. {{ number_format($product->price, 0) }}</span>
+                            <span class="original">Rs. {{ number_format($product->price * 1.2, 0) }}</span>
                         </div>
                         @if($product->color)
                         <small class="text-muted d-block mb-2">
@@ -152,7 +202,7 @@
                         Browse our premium fabric collection and get perfect custom stitching. Choose from a variety of designs and get tailored according to your exact measurements.
                     </p>
                     <p style="margin-top: 1rem;">
-                        <strong>Starting from ₹500</strong>
+                        <strong>Starting from Rs. 500</strong>
                     </p>
                 </div>
             </div>
@@ -165,7 +215,7 @@
                         Got your own fabric? We'll stitch it for you! Our expert tailors can create anything from traditional kurtas to modern suits with precision and care.
                     </p>
                     <p style="margin-top: 1rem;">
-                        <strong>Starting from ₹300</strong>
+                        <strong>Starting from Rs. 300</strong>
                     </p>
                 </div>
             </div>

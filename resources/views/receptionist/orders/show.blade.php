@@ -188,10 +188,10 @@
                             {{ $item->quantity }}
                         </td>
                         <td class="text-right">
-                            ₹{{ number_format($item->price, 2) }}
+                            Rs. {{ number_format($item->price, 2) }}
                         </td>
                         <td class="text-right fw-bold">
-                            ₹{{ number_format($item->total, 2) }}
+                            Rs. {{ number_format($item->total, 2) }}
                         </td>
                     </tr>
                     @endforeach
@@ -241,7 +241,7 @@
                 </p>
                 <p class="mb-3">
                     <small class="text-muted d-block">Estimated Cost</small>
-                    <strong>₹{{ number_format($order->stitchingOrder->estimated_cost, 2) }}</strong>
+                    <strong>Rs. {{ number_format($order->stitchingOrder->estimated_cost, 2) }}</strong>
                 </p>
             </div>
             <div class="col-md-6">
@@ -289,29 +289,29 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between mb-2">
                     <span>Subtotal</span>
-                    <strong>₹{{ number_format($order->subtotal, 2) }}</strong>
+                    <strong>Rs. {{ number_format($order->subtotal, 2) }}</strong>
                 </div>
                 @if($order->stitching_charge > 0)
                 <div class="d-flex justify-content-between mb-2">
                     <span>Stitching Charges</span>
-                    <strong>₹{{ number_format($order->stitching_charge, 2) }}</strong>
+                    <strong>Rs. {{ number_format($order->stitching_charge, 2) }}</strong>
                 </div>
                 @endif
                 @if($order->tax > 0)
                 <div class="d-flex justify-content-between mb-2">
                     <span>Tax ({{ $order->tax > 0 ? '18%' : '0%' }})</span>
-                    <strong>₹{{ number_format($order->tax, 2) }}</strong>
+                    <strong>Rs. {{ number_format($order->tax, 2) }}</strong>
                 </div>
                 @endif
                 @if($order->discount > 0)
                 <div class="d-flex justify-content-between mb-3 pb-3 border-bottom text-danger">
                     <span>Discount</span>
-                    <strong>-₹{{ number_format($order->discount, 2) }}</strong>
+                    <strong>-Rs. {{ number_format($order->discount, 2) }}</strong>
                 </div>
                 @endif
                 <div class="d-flex justify-content-between">
                     <span class="fw-bold">Total Amount</span>
-                    <strong class="fs-5">₹{{ number_format($order->total, 2) }}</strong>
+                    <strong class="fs-5">Rs. {{ number_format($order->total, 2) }}</strong>
                 </div>
             </div>
         </div>
@@ -347,7 +347,7 @@
                     @foreach($order->payments as $payment)
                     <tr>
                         <td>{{ $payment->transaction_id ?? 'N/A' }}</td>
-                        <td class="fw-bold">₹{{ number_format($payment->amount, 2) }}</td>
+                        <td class="fw-bold">Rs. {{ number_format($payment->amount, 2) }}</td>
                         <td>
                             @if($payment->payment_method === 'cash')
                                 <i class="fas fa-money-bill-wave me-1"></i>Cash

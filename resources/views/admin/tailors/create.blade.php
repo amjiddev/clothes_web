@@ -131,7 +131,7 @@
 
                         <!-- Hourly Rate -->
                         <div class="mb-4">
-                            <label for="hourly_rate" class="form-label fw-bold">Hourly Rate (₹)</label>
+                            <label for="hourly_rate" class="form-label fw-bold">Hourly Rate (Rs.)</label>
                             <input type="number" step="0.01" class="form-control @error('hourly_rate') is-invalid @enderror" 
                                    id="hourly_rate" name="hourly_rate" value="{{ old('hourly_rate') }}" placeholder="500">
                             @error('hourly_rate')

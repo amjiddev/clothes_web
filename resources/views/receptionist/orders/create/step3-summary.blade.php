@@ -79,8 +79,8 @@
                         <tr>
                             <td class="fw-bold">{{ $product['product_name'] }}</td>
                             <td>{{ $product['quantity'] }}</td>
-                            <td>₹{{ number_format($product['price'], 2) }}</td>
-                            <td>₹{{ number_format($product['total'], 2) }}</td>
+                            <td>Rs. {{ number_format($product['price'], 2) }}</td>
+                            <td>Rs. {{ number_format($product['total'], 2) }}</td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -136,7 +136,7 @@
                 <div class="mb-3 pb-3 border-bottom">
                     <div class="d-flex justify-content-between mb-2">
                         <span>Subtotal</span>
-                        <strong>₹{{ number_format($subtotal, 2) }}</strong>
+                        <strong>Rs. {{ number_format($subtotal, 2) }}</strong>
                     </div>
                 </div>
 
@@ -144,21 +144,21 @@
                     @if($stitchingCharge > 0)
                     <div class="d-flex justify-content-between mb-2">
                         <span>Stitching Charge</span>
-                        <span>₹{{ number_format($stitchingCharge, 2) }}</span>
+                        <span>Rs. {{ number_format($stitchingCharge, 2) }}</span>
                     </div>
                     @endif
 
                     @if($tax > 0)
                     <div class="d-flex justify-content-between mb-2">
                         <span>Tax</span>
-                        <span>₹{{ number_format($tax, 2) }}</span>
+                        <span>Rs. {{ number_format($tax, 2) }}</span>
                     </div>
                     @endif
 
                     @if($discount > 0)
                     <div class="d-flex justify-content-between mb-2">
                         <span>Discount</span>
-                        <span class="text-success">-₹{{ number_format($discount, 2) }}</span>
+                        <span class="text-success">-Rs. {{ number_format($discount, 2) }}</span>
                     </div>
                     @endif
                 </div>
@@ -166,7 +166,7 @@
                 <div class="mb-4">
                     <div class="d-flex justify-content-between">
                         <h6>Total Amount</h6>
-                        <h5 class="text-primary mb-0">₹{{ number_format($total, 2) }}</h5>
+                        <h5 class="text-primary mb-0">Rs. {{ number_format($total, 2) }}</h5>
                     </div>
                 </div>
 

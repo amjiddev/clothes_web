@@ -54,12 +54,12 @@
                                     {{ $item->notes }}
                                 </p>
                                 <p style="margin: 3px 0 0 0; color: var(--text-muted); font-size: 0.85rem;">
-                                    Quantity: {{ $item->quantity }} × ₹{{ number_format($item->price, 2) }}
+                                    Quantity: {{ $item->quantity }} × Rs. {{ number_format($item->price, 2) }}
                                 </p>
                             </div>
                             <div style="text-align: right;">
                                 <p style="margin: 0; color: var(--accent-gold); font-weight: 600; font-size: 1.1rem;">
-                                    ₹{{ number_format($item->total, 2) }}
+                                    Rs. {{ number_format($item->total, 2) }}
                                 </p>
                             </div>
                         </div>
@@ -77,7 +77,7 @@
                             </div>
                             <div style="text-align: right;">
                                 <p style="margin: 0; color: var(--accent-gold); font-weight: 600; font-size: 1.1rem;">
-                                    ₹{{ number_format($order->stitching_charge, 2) }}
+                                    Rs. {{ number_format($order->stitching_charge, 2) }}
                                 </p>
                             </div>
                         </div>
@@ -94,24 +94,24 @@
 
                         <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee;">
                             <span style="color: var(--text-muted);">Subtotal</span>
-                            <span style="font-weight: 600;">₹{{ number_format($order->subtotal, 2) }}</span>
+                            <span style="font-weight: 600;">Rs. {{ number_format($order->subtotal, 2) }}</span>
                         </div>
 
                         @if($order->stitching_charge > 0)
                         <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee;">
                             <span style="color: var(--text-muted);">Stitching Charge</span>
-                            <span style="font-weight: 600;">₹{{ number_format($order->stitching_charge, 2) }}</span>
+                            <span style="font-weight: 600;">Rs. {{ number_format($order->stitching_charge, 2) }}</span>
                         </div>
                         @endif
 
                         <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee;">
                             <span style="color: var(--text-muted);">Tax (5%)</span>
-                            <span style="font-weight: 600;">₹{{ number_format($order->tax, 2) }}</span>
+                            <span style="font-weight: 600;">Rs. {{ number_format($order->tax, 2) }}</span>
                         </div>
 
                         <div style="display: flex; justify-content: space-between; padding: 15px 0; font-size: 1.2rem;">
                             <span style="color: var(--primary-dark); font-weight: 700;">Total Amount</span>
-                            <span style="color: var(--accent-gold); font-weight: 700;">₹{{ number_format($order->total, 2) }}</span>
+                            <span style="color: var(--accent-gold); font-weight: 700;">Rs. {{ number_format($order->total, 2) }}</span>
                         </div>
                     </div>
                 </div>

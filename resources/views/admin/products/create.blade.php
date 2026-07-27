@@ -156,7 +156,7 @@
                                     <div class="mb-3">
                                         <label for="price" class="form-label fw-bold">Price <span class="text-danger">*</span></label>
                                         <div class="input-group">
-                                            <span class="input-group-text">₹</span>
+                                            <span class="input-group-text">Rs.</span>
                                             <input type="number" step="0.01" class="form-control @error('price') is-invalid @enderror" id="price" name="price" placeholder="0.00" value="{{ old('price') }}" required>
                                         </div>
                                         @error('price')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
@@ -166,7 +166,7 @@
                                     <div class="mb-3">
                                         <label for="discount_price" class="form-label fw-bold">Discount Price</label>
                                         <div class="input-group">
-                                            <span class="input-group-text">₹</span>
+                                            <span class="input-group-text">Rs.</span>
                                             <input type="number" step="0.01" class="form-control @error('discount_price') is-invalid @enderror" id="discount_price" name="discount_price" placeholder="0.00" value="{{ old('discount_price') }}">
                                         </div>
                                         <small class="text-muted">Leave empty if no discount</small>

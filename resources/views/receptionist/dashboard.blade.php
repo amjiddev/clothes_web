@@ -81,7 +81,7 @@
     <div class="col-md-6 col-lg-4 mb-3">
         <div class="stat-card">
             <i class="fas fa-credit-card stat-icon"></i>
-            <div class="stat-value">₹{{ $pendingPayments }}</div>
+            <div class="stat-value">Rs. {{ $pendingPayments }}</div>
             <div class="stat-label">Pending Payments</div>
             <div class="stat-change negative">
                 <i class="fas fa-exclamation"></i> Amount Due
@@ -135,7 +135,7 @@
                                 </td>
                                 <td>{{ $order['customer_name'] }}</td>
                                 <td>{{ ucfirst($order['order_type']) }}</td>
-                                <td>₹{{ number_format($order['amount'], 2) }}</td>
+                                <td>Rs. {{ number_format($order['amount'], 2) }}</td>
                                 <td>
                                     @php
                                         $statusClass = match($order['status']) {

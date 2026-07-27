@@ -95,7 +95,7 @@
     <div class="col-md-3">
         <div class="stat-card">
             <i class="fas fa-rupiah-sign stat-icon"></i>
-            <div class="stat-value">₹{{ number_format($totalCost, 0) }}</div>
+            <div class="stat-value">Rs. {{ number_format($totalCost, 0) }}</div>
             <div class="stat-label">Total Cost</div>
         </div>
     </div>
@@ -151,7 +151,7 @@
                             @endphp
                             <span class="status-badge {{ $statusClass }}">{{ ucfirst(str_replace('_', ' ', $order->stitching_status)) }}</span>
                         </td>
-                        <td>₹{{ number_format($order->estimated_cost, 2) }}</td>
+                        <td>Rs. {{ number_format($order->estimated_cost, 2) }}</td>
                         <td>{{ $order->created_at->format('M d, Y') }}</td>
                         <td>
                             <a href="{{ route('receptionist.stitching-orders.show', $order->id) }}" class="btn btn-sm btn-outline-secondary">

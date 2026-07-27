@@ -69,21 +69,21 @@
     <div class="col-md-3">
         <div class="stat-card">
             <i class="fas fa-rupiah-sign stat-icon"></i>
-            <div class="stat-value">₹{{ number_format($totalAmount, 0) }}</div>
+            <div class="stat-value">Rs. {{ number_format($totalAmount, 0) }}</div>
             <div class="stat-label">Total Amount</div>
         </div>
     </div>
     <div class="col-md-3">
         <div class="stat-card">
             <i class="fas fa-check-circle stat-icon"></i>
-            <div class="stat-value">₹{{ number_format($completedAmount, 0) }}</div>
+            <div class="stat-value">Rs. {{ number_format($completedAmount, 0) }}</div>
             <div class="stat-label">Completed</div>
         </div>
     </div>
     <div class="col-md-3">
         <div class="stat-card">
             <i class="fas fa-hourglass stat-icon"></i>
-            <div class="stat-value">₹{{ number_format($pendingAmount, 0) }}</div>
+            <div class="stat-value">Rs. {{ number_format($pendingAmount, 0) }}</div>
             <div class="stat-label">Pending</div>
         </div>
     </div>
@@ -119,7 +119,7 @@
                             </a>
                         </td>
                         <td>{{ $payment->order?->customer?->name ?? 'N/A' }}</td>
-                        <td>₹{{ number_format($payment->amount, 2) }}</td>
+                        <td>Rs. {{ number_format($payment->amount, 2) }}</td>
                         <td>
                             @php
                                 $statusClass = match($payment->status) {

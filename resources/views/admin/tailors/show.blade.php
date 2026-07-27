@@ -199,7 +199,7 @@
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    ₹{{ number_format($order->estimated_cost, 2) }}
+                                    Rs. {{ number_format($order->estimated_cost, 2) }}
                                 </td>
                                 <td>
                                     <small class="text-muted">{{ $order->created_at->format('M d, Y') }}</small>

@@ -127,10 +127,10 @@
 
                         <!-- Total Spending -->
                         <td class="text-end">
-                            <strong>₹{{ number_format($customer->total_spending, 2) }}</strong>
+                            <strong>Rs. {{ number_format($customer->total_spending, 2) }}</strong>
                             @if($customer->orders_count > 0)
                             <br>
-                            <small class="text-muted">Avg: ₹{{ number_format($customer->total_spending / $customer->orders_count, 2) }}</small>
+                            <small class="text-muted">Avg: Rs. {{ number_format($customer->total_spending / $customer->orders_count, 2) }}</small>
                             @endif
                         </td>
 

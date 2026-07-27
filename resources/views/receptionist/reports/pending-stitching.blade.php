@@ -205,7 +205,7 @@
                                 {{ ucfirst(str_replace('_', ' ', $stitching->stitching_status)) }}
                             </span>
                         </td>
-                        <td><strong>₹{{ number_format($stitching->estimated_cost, 2) }}</strong></td>
+                        <td><strong>Rs. {{ number_format($stitching->estimated_cost, 2) }}</strong></td>
                         <td>{{ $stitching->assigned_date ? $stitching->assigned_date->format('M d, Y') : 'N/A' }}</td>
                         <td>
                             <a href="{{ route('receptionist.stitching-orders.show', $stitching) }}" class="btn btn-sm btn-outline-primary">

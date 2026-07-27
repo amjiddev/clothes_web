@@ -115,7 +115,7 @@
                             {{ ['ready_made' => 'Cloth', 'stitching' => 'Stitching', 'combined' => 'Both'][$order->type] ?? $order->type }}
                         </span>
                     </td>
-                    <td>₹{{ number_format($order->total, 2) }}</td>
+                    <td>Rs. {{ number_format($order->total, 2) }}</td>
                     <td>
                         @php
                             $statusColors = [

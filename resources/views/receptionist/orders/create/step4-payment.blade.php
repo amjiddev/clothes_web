@@ -51,7 +51,7 @@
 <div class="alert alert-info border-0" role="alert">
     <i class="fas fa-info-circle me-2"></i>
     <strong>Customer:</strong> {{ $customer->name }} ({{ $customer->email }})
-    | <strong>Total Amount:</strong> ₹{{ number_format($total, 2) }}
+    | <strong>Total Amount:</strong> Rs. {{ number_format($total, 2) }}
 </div>
 
 <div class="row">
@@ -141,14 +141,14 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="paid_amount" class="form-label fw-bold">
-                                <i class="fas fa-rupee-sign me-2"></i>Paid Amount (₹) <span class="text-danger">*</span>
+                                <i class="fas fa-rupee-sign me-2"></i>Paid Amount (Rs.) <span class="text-danger">*</span>
                             </label>
                             <input type="number" class="form-control form-control-lg" id="paid_amount" name="paid_amount" 
                                    value="{{ $total }}" min="0" step="0.01" required onchange="calculateRemaining()">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="remaining" class="form-label fw-bold">
-                                Remaining Amount (₹)
+                                Remaining Amount (Rs.)
                             </label>
                             <input type="number" class="form-control form-control-lg bg-light" id="remaining" 
                                    readonly value="0.00">
@@ -222,18 +222,18 @@
                 <div class="mb-3 pb-3 border-bottom">
                     <div class="d-flex justify-content-between mb-2">
                         <span>Total Amount</span>
-                        <strong id="totalAmount" class="text-primary">₹{{ number_format($total, 2) }}</strong>
+                        <strong id="totalAmount" class="text-primary">Rs. {{ number_format($total, 2) }}</strong>
                     </div>
                 </div>
 
                 <div class="mb-3 pb-3 border-bottom">
                     <div class="d-flex justify-content-between mb-2">
                         <span>Paid Amount</span>
-                        <strong id="paidDisplay" class="text-success">₹{{ number_format($total, 2) }}</strong>
+                        <strong id="paidDisplay" class="text-success">Rs. {{ number_format($total, 2) }}</strong>
                     </div>
                     <div class="d-flex justify-content-between">
                         <span>Remaining</span>
-                        <strong id="remainingDisplay" class="text-danger">₹0.00</strong>
+                        <strong id="remainingDisplay" class="text-danger">Rs. 0.00</strong>
                     </div>
                 </div>
 
@@ -383,8 +383,8 @@ function calculateRemaining() {
     const remaining = Math.max(0, total - paid);
 
     document.getElementById('remaining').value = remaining.toFixed(2);
-    document.getElementById('remainingDisplay').textContent = '₹' + remaining.toFixed(2);
-    document.getElementById('paidDisplay').textContent = '₹' + paid.toFixed(2);
+    document.getElementById('remainingDisplay').textContent = 'Rs. ' + remaining.toFixed(2);
+    document.getElementById('paidDisplay').textContent = 'Rs. ' + paid.toFixed(2);
 
     // Update payment status
     const statusDiv = document.getElementById('paymentStatus');

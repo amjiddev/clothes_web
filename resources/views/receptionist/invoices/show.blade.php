@@ -48,7 +48,7 @@
                             };
                         @endphp
                         <span class="status-badge {{ $statusClass }}">{{ ucfirst(str_replace('_', ' ', $order->status)) }}</span><br>
-                        <strong>Total Amount:</strong> <span style="color: var(--accent-color); font-weight: bold;">₹{{ number_format($order->total, 2) }}</span>
+                        <strong>Total Amount:</strong> <span style="color: var(--accent-color); font-weight: bold;">Rs. {{ number_format($order->total, 2) }}</span>
                     </div>
                 </div>
             </div>
@@ -87,8 +87,8 @@
                             <tr>
                                 <td>{{ $item->product?->name ?? 'N/A' }}</td>
                                 <td>{{ $item->quantity }}</td>
-                                <td>₹{{ number_format($item->unit_price, 2) }}</td>
-                                <td>₹{{ number_format($item->quantity * $item->unit_price, 2) }}</td>
+                                <td>Rs. {{ number_format($item->unit_price, 2) }}</td>
+                                <td>Rs. {{ number_format($item->quantity * $item->unit_price, 2) }}</td>
                             </tr>
                         @empty
                             <tr>
@@ -111,15 +111,15 @@
             <div style="padding: 20px;">
                 <div class="d-flex justify-content-between mb-2">
                     <span>Subtotal:</span>
-                    <strong>₹{{ number_format($order->subtotal ?? $order->total, 2) }}</strong>
+                    <strong>Rs. {{ number_format($order->subtotal ?? $order->total, 2) }}</strong>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
                     <span>Tax (if applicable):</span>
-                    <strong>₹{{ number_format($order->tax ?? 0, 2) }}</strong>
+                    <strong>Rs. {{ number_format($order->tax ?? 0, 2) }}</strong>
                 </div>
                 <div class="d-flex justify-content-between mb-3" style="border-top: 1px solid #e0e6ed; padding-top: 10px; margin-top: 10px;">
                     <strong>Total:</strong>
-                    <strong style="color: var(--accent-color); font-size: 1.2rem;">₹{{ number_format($order->total, 2) }}</strong>
+                    <strong style="color: var(--accent-color); font-size: 1.2rem;">Rs. {{ number_format($order->total, 2) }}</strong>
                 </div>
                 @php
                     $payment = $order->payments?->first();

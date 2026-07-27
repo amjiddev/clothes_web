@@ -96,11 +96,11 @@
                                     <div>
                                         @if($item['product']->hasDiscount())
                                         <span style="text-decoration: line-through; color: var(--text-muted); font-size: 0.9rem;">
-                                            ₹{{ number_format($item['product']->price, 2) }}
+                                            Rs. {{ number_format($item['product']->price, 2) }}
                                         </span>
                                         @endif
                                         <p style="margin: 0; color: var(--accent-gold); font-weight: 600; font-size: 1.1rem;">
-                                            ₹{{ number_format($item['price'], 2) }}
+                                            Rs. {{ number_format($item['price'], 2) }}
                                         </p>
                                     </div>
 
@@ -120,7 +120,7 @@
                                     <div style="text-align: right; min-width: 100px;">
                                         <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Line Total</p>
                                         <p style="margin: 0; color: var(--primary-dark); font-weight: 600; font-size: 1.1rem;">
-                                            ₹{{ number_format($item['line_total'], 2) }}
+                                            Rs. {{ number_format($item['line_total'], 2) }}
                                         </p>
                                     </div>
 
@@ -158,11 +158,11 @@
                         <div style="border-bottom: 1px solid #eee; padding-bottom: 15px;">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                                 <span style="color: var(--text-muted);">Subtotal</span>
-                                <span style="color: var(--primary-dark); font-weight: 600;">₹{{ number_format($total, 2) }}</span>
+                                <span style="color: var(--primary-dark); font-weight: 600;">Rs. {{ number_format($total, 2) }}</span>
                             </div>
                             <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                                 <span style="color: var(--text-muted);">Tax (5%)</span>
-                                <span style="color: var(--primary-dark); font-weight: 600;">₹{{ number_format($total * 0.05, 2) }}</span>
+                                <span style="color: var(--primary-dark); font-weight: 600;">Rs. {{ number_format($total * 0.05, 2) }}</span>
                             </div>
                             <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                                 <span style="color: var(--text-muted);">Shipping</span>
@@ -174,7 +174,7 @@
                             <div style="display: flex; justify-content: space-between; align-items: center;">
                                 <span style="color: var(--primary-dark); font-weight: 700; font-size: 1.2rem;">Total</span>
                                 <span style="color: var(--accent-gold); font-weight: 700; font-size: 1.5rem;">
-                                    ₹{{ number_format($total + ($total * 0.05), 2) }}
+                                    Rs. {{ number_format($total + ($total * 0.05), 2) }}
                                 </span>
                             </div>
                         </div>

@@ -99,7 +99,7 @@
                                 @foreach($category->products as $product)
                                 <tr>
                                     <td>{{ $product->name }}</td>
-                                    <td>₹{{ number_format($product->price, 2) }}</td>
+                                    <td>Rs. {{ number_format($product->price, 2) }}</td>
                                     <td>
                                         @if($product->is_active)
                                             <span class="badge bg-success">Active</span>

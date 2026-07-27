@@ -27,7 +27,7 @@
                     <div class="d-flex align-items-center">
                         <div class="flex-grow-1">
                             <p class="text-muted mb-1">Today's Revenue</p>
-                            <h3 class="mb-0">₹{{ number_format($todayRevenue, 2) }}</h3>
+                            <h3 class="mb-0">Rs. {{ number_format($todayRevenue, 2) }}</h3>
                             <small class="text-success">
                                 <i class="fas fa-arrow-up"></i>
                                 {{ number_format($revenueGrowth, 1) }}% from last month
@@ -48,7 +48,7 @@
                     <div class="d-flex align-items-center">
                         <div class="flex-grow-1">
                             <p class="text-muted mb-1">This Month Revenue</p>
-                            <h3 class="mb-0">₹{{ number_format($thisMonthRevenue, 2) }}</h3>
+                            <h3 class="mb-0">Rs. {{ number_format($thisMonthRevenue, 2) }}</h3>
                             <small class="text-success">
                                 <i class="fas fa-arrow-up"></i>
                                 {{ number_format($thisMonthRevenue - ($thisMonthRevenue - $todayRevenue), 2) }} today
@@ -211,7 +211,7 @@
                                 <tr>
                                     <td><a href="{{ route('admin.orders.show', $order->id) }}" class="text-decoration-none">#{{ $order->id }}</a></td>
                                     <td>{{ $order->user->name ?? 'N/A' }}</td>
-                                    <td>₹{{ number_format($order->total, 2) }}</td>
+                                    <td>Rs. {{ number_format($order->total, 2) }}</td>
                                     <td>
                                         <span class="badge bg-{{ $order->status === 'delivered' ? 'success' : 'warning' }}">
                                             {{ ucfirst($order->status) }}

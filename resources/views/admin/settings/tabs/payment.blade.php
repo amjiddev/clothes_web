@@ -78,7 +78,7 @@
                         <option value="GBP" {{ old('payment_currency', $settings->get('payment_currency')->value ?? 'USD') === 'GBP' ? 'selected' : '' }}>GBP (£)</option>
                         <option value="AUD" {{ old('payment_currency', $settings->get('payment_currency')->value ?? 'USD') === 'AUD' ? 'selected' : '' }}>AUD (A$)</option>
                         <option value="CAD" {{ old('payment_currency', $settings->get('payment_currency')->value ?? 'USD') === 'CAD' ? 'selected' : '' }}>CAD (C$)</option>
-                        <option value="INR" {{ old('payment_currency', $settings->get('payment_currency')->value ?? 'USD') === 'INR' ? 'selected' : '' }}>INR (₹)</option>
+                        <option value="INR" {{ old('payment_currency', $settings->get('payment_currency')->value ?? 'USD') === 'INR' ? 'selected' : '' }}>INR (Rs.)</option>
                     </select>
                     @error('payment_currency')
                         <div class="invalid-feedback d-block">{{ $message }}</div>

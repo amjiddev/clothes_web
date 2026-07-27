@@ -70,7 +70,7 @@
             <div class="card border-0 shadow">
                 <div class="card-body text-center">
                     <h6 class="text-muted mb-2">Total Collected</h6>
-                    <h3 class="mb-0 text-success">₹{{ number_format($summary['total_collected'], 2) }}</h3>
+                    <h3 class="mb-0 text-success">Rs. {{ number_format($summary['total_collected'], 2) }}</h3>
                     <small class="text-muted">amount</small>
                 </div>
             </div>
@@ -79,7 +79,7 @@
             <div class="card border-0 shadow">
                 <div class="card-body text-center">
                     <h6 class="text-muted mb-2">Total Pending</h6>
-                    <h3 class="mb-0 text-warning">₹{{ number_format($summary['total_pending'], 2) }}</h3>
+                    <h3 class="mb-0 text-warning">Rs. {{ number_format($summary['total_pending'], 2) }}</h3>
                     <small class="text-muted">to collect</small>
                 </div>
             </div>
@@ -133,7 +133,7 @@
                     </div>
                     <div class="mt-3 pt-3 border-top">
                         <h6 class="text-muted mb-2">Average Payment</h6>
-                        <h5 class="text-primary">₹{{ number_format($summary['average_payment'], 2) }}</h5>
+                        <h5 class="text-primary">Rs. {{ number_format($summary['average_payment'], 2) }}</h5>
                     </div>
                 </div>
             </div>
@@ -146,7 +146,7 @@
             <div class="card border-0 shadow">
                 <div class="card-body">
                     <h6 class="text-muted mb-2"><i class="fas fa-check text-success me-2"></i>Completed Payments</h6>
-                    <h4 class="text-success">₹{{ number_format($summary['total_collected'], 2) }}</h4>
+                    <h4 class="text-success">Rs. {{ number_format($summary['total_collected'], 2) }}</h4>
                     <p class="text-muted mb-0"><small>{{ $summary['completed_count'] }} transactions</small></p>
                 </div>
             </div>
@@ -155,7 +155,7 @@
             <div class="card border-0 shadow">
                 <div class="card-body">
                     <h6 class="text-muted mb-2"><i class="fas fa-hourglass text-warning me-2"></i>Pending Payments</h6>
-                    <h4 class="text-warning">₹{{ number_format($summary['total_pending'], 2) }}</h4>
+                    <h4 class="text-warning">Rs. {{ number_format($summary['total_pending'], 2) }}</h4>
                     <p class="text-muted mb-0"><small>{{ $summary['pending_count'] }} transactions</small></p>
                 </div>
             </div>
@@ -164,7 +164,7 @@
             <div class="card border-0 shadow">
                 <div class="card-body">
                     <h6 class="text-muted mb-2"><i class="fas fa-times text-danger me-2"></i>Failed Payments</h6>
-                    <h4 class="text-danger">₹{{ number_format($summary['total_failed'], 2) }}</h4>
+                    <h4 class="text-danger">Rs. {{ number_format($summary['total_failed'], 2) }}</h4>
                     <p class="text-muted mb-0"><small>{{ $summary['failed_count'] }} transactions</small></p>
                 </div>
             </div>
@@ -196,7 +196,7 @@
                         <td><strong>{{ substr($payment->transaction_id, 0, 12) }}...</strong></td>
                         <td>{{ $payment->order->order_number ?? 'N/A' }}</td>
                         <td>{{ $payment->order->user->name ?? 'Unknown' }}</td>
-                        <td><strong>₹{{ number_format($payment->amount, 2) }}</strong></td>
+                        <td><strong>Rs. {{ number_format($payment->amount, 2) }}</strong></td>
                         <td>
                             <span class="badge bg-light text-dark">
                                 {{ ucfirst(str_replace('_', ' ', $payment->payment_method)) }}
@@ -246,28 +246,28 @@
             labels: @json($chartData['labels'] ?? []),
             datasets: [
                 {
-                    label: 'Completed (₹)',
+                    label: 'Completed (Rs.)',
                     data: @json($chartData['completed'] ?? []),
                     backgroundColor: 'rgba(40, 167, 69, 0.7)',
                     borderColor: '#28a745',
                     borderWidth: 1,
                 },
                 {
-                    label: 'Pending (₹)',
+                    label: 'Pending (Rs.)',
                     data: @json($chartData['pending'] ?? []),
                     backgroundColor: 'rgba(255, 193, 7, 0.7)',
                     borderColor: '#ffc107',
                     borderWidth: 1,
                 },
                 {
-                    label: 'Failed (₹)',
+                    label: 'Failed (Rs.)',
                     data: @json($chartData['failed'] ?? []),
                     backgroundColor: 'rgba(220, 53, 69, 0.7)',
                     borderColor: '#dc3545',
                     borderWidth: 1,
                 },
                 {
-                    label: 'Refunded (₹)',
+                    label: 'Refunded (Rs.)',
                     data: @json($chartData['refunded'] ?? []),
                     backgroundColor: 'rgba(108, 117, 125, 0.7)',
                     borderColor: '#6c757d',
@@ -295,7 +295,7 @@
                     stacked: false,
                     title: {
                         display: true,
-                        text: 'Amount (₹)',
+                        text: 'Amount (Rs.)',
                     }
                 }
             }

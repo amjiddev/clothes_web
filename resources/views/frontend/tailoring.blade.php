@@ -40,7 +40,7 @@
 
                         <h6 class="fw-bold mb-2" style="color: var(--primary-dark);">Pricing:</h6>
                         <p class="mb-4" style="font-size: 1.2rem; color: var(--accent-gold); font-weight: 600;">
-                            <strong>Starting from ₹500</strong> + Fabric Cost
+                            <strong>Starting from Rs. 500</strong> + Fabric Cost
                         </p>
 
                         <button class="btn w-100" style="background: var(--accent-gold); color: var(--primary-dark); font-weight: 600; padding: 12px; border: none; border-radius: 5px; transition: all 0.3s ease;" onmouseover="this.style.background='white'; this.style.color='var(--accent-gold)'; this.style.border='2px solid var(--accent-gold)';" onmouseout="this.style.background='var(--accent-gold)'; this.style.color='var(--primary-dark)'; this.style.border='none';">
@@ -77,7 +77,7 @@
 
                         <h6 class="fw-bold mb-2" style="color: var(--primary-dark);">Pricing:</h6>
                         <p class="mb-4" style="font-size: 1.2rem; color: var(--accent-gold); font-weight: 600;">
-                            <strong>Starting from ₹300</strong>
+                            <strong>Starting from Rs. 300</strong>
                         </p>
 
                         <button class="btn w-100" style="background: var(--accent-gold); color: var(--primary-dark); font-weight: 600; padding: 12px; border: none; border-radius: 5px; transition: all 0.3s ease;" onmouseover="this.style.background='white'; this.style.color='var(--accent-gold)'; this.style.border='2px solid var(--accent-gold)';" onmouseout="this.style.background='var(--accent-gold)'; this.style.color='var(--primary-dark)'; this.style.border='none';">

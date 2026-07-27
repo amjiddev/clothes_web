@@ -52,7 +52,7 @@
                         </tr>
                         <tr>
                             <td class="fw-bold">Price:</td>
-                            <td class="fs-5 text-dark">₹{{ number_format($product->price, 2) }}</td>
+                            <td class="fs-5 text-dark">Rs. {{ number_format($product->price, 2) }}</td>
                         </tr>
                         <tr>
                             <td class="fw-bold">Stock:</td>
@@ -135,7 +135,7 @@
                                 </td>
                                 <td>{{ $item->order->user->name }}</td>
                                 <td>{{ $item->quantity }}</td>
-                                <td>₹{{ number_format($item->total, 2) }}</td>
+                                <td>Rs. {{ number_format($item->total, 2) }}</td>
                                 <td>{{ $item->created_at->format('M d, Y') }}</td>
                             </tr>
                             @endforeach

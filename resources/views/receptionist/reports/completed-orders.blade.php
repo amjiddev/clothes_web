@@ -69,7 +69,7 @@
             <div class="card border-0 shadow">
                 <div class="card-body text-center">
                     <h6 class="text-muted mb-2">Total Revenue</h6>
-                    <h3 class="mb-0 text-success">₹{{ number_format($summary['total_revenue'], 2) }}</h3>
+                    <h3 class="mb-0 text-success">Rs. {{ number_format($summary['total_revenue'], 2) }}</h3>
                     <small class="text-muted">generated</small>
                 </div>
             </div>
@@ -78,7 +78,7 @@
             <div class="card border-0 shadow">
                 <div class="card-body text-center">
                     <h6 class="text-muted mb-2">Avg Order Value</h6>
-                    <h3 class="mb-0 text-info">₹{{ number_format($summary['average_order_value'], 2) }}</h3>
+                    <h3 class="mb-0 text-info">Rs. {{ number_format($summary['average_order_value'], 2) }}</h3>
                     <small class="text-muted">per order</small>
                 </div>
             </div>
@@ -87,7 +87,7 @@
             <div class="card border-0 shadow">
                 <div class="card-body text-center">
                     <h6 class="text-muted mb-2">Total Stitching Charges</h6>
-                    <h3 class="mb-0 text-warning">₹{{ number_format($summary['total_stitching_charges'], 2) }}</h3>
+                    <h3 class="mb-0 text-warning">Rs. {{ number_format($summary['total_stitching_charges'], 2) }}</h3>
                     <small class="text-muted">charged</small>
                 </div>
             </div>
@@ -161,9 +161,9 @@
                                 <span class="badge bg-light text-dark">Cloth + Stitching</span>
                             @endif
                         </td>
-                        <td>₹{{ number_format($order->subtotal, 2) }}</td>
-                        <td>₹{{ number_format($order->stitching_charge, 2) }}</td>
-                        <td><strong>₹{{ number_format($order->total, 2) }}</strong></td>
+                        <td>Rs. {{ number_format($order->subtotal, 2) }}</td>
+                        <td>Rs. {{ number_format($order->stitching_charge, 2) }}</td>
+                        <td><strong>Rs. {{ number_format($order->total, 2) }}</strong></td>
                         <td>
                             <span class="badge bg-{{ $order->payment_status === 'paid' ? 'success' : 'warning' }}">
                                 {{ ucfirst($order->payment_status) }}
@@ -200,7 +200,7 @@
             labels: @json($chartData['labels'] ?? []),
             datasets: [
                 {
-                    label: 'Revenue (₹)',
+                    label: 'Revenue (Rs.)',
                     data: @json($chartData['sales'] ?? []),
                     borderColor: '#28a745',
                     backgroundColor: 'rgba(40, 167, 69, 0.1)',
@@ -238,7 +238,7 @@
                     position: 'left',
                     title: {
                         display: true,
-                        text: 'Revenue (₹)',
+                        text: 'Revenue (Rs.)',
                     }
                 },
                 y1: {

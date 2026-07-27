@@ -172,7 +172,7 @@
                                             <td>{{ $product->name }}</td>
                                             <td><span class="badge" style="background-color: {{ $product->color ?? '#ddd' }}">{{ $product->color }}</span></td>
                                             <td>{{ $product->size ?? 'N/A' }}</td>
-                                            <td>₹{{ number_format($product->final_price, 2) }}</td>
+                                            <td>Rs. {{ number_format($product->final_price, 2) }}</td>
                                             <td>
                                                 @if($product->stock_quantity > 0)
                                                     <span class="badge bg-success">{{ $product->stock_quantity }}</span>
@@ -287,17 +287,17 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <label for="stitching_charge" class="form-label fw-bold">Stitching Charge (₹)</label>
+                            <label for="stitching_charge" class="form-label fw-bold">Stitching Charge (Rs.)</label>
                             <input type="number" class="form-control" id="stitching_charge" name="stitching_charge" 
                                    value="0" min="0" step="0.01" placeholder="0.00">
                         </div>
                         <div class="col-md-6">
-                            <label for="tax" class="form-label fw-bold">Tax (₹)</label>
+                            <label for="tax" class="form-label fw-bold">Tax (Rs.)</label>
                             <input type="number" class="form-control" id="tax" name="tax" 
                                    value="0" min="0" step="0.01" placeholder="0.00">
                         </div>
                         <div class="col-md-6">
-                            <label for="discount" class="form-label fw-bold">Discount (₹)</label>
+                            <label for="discount" class="form-label fw-bold">Discount (Rs.)</label>
                             <input type="number" class="form-control" id="discount" name="discount" 
                                    value="0" min="0" step="0.01" placeholder="0.00">
                         </div>
@@ -332,22 +332,22 @@
                 <div class="card-body">
                     <div class="mb-3 pb-3 border-bottom">
                         <small class="text-muted d-block">Subtotal</small>
-                        <h5 id="subtotalDisplay" class="mb-0">₹0.00</h5>
+                        <h5 id="subtotalDisplay" class="mb-0">Rs. 0.00</h5>
                     </div>
 
                     <div class="mb-3 pb-3 border-bottom">
                         <small class="text-muted d-block">Charges & Tax</small>
                         <div class="d-flex justify-content-between">
                             <span>Stitching:</span>
-                            <span id="stitchingDisplay">₹0.00</span>
+                            <span id="stitchingDisplay">Rs. 0.00</span>
                         </div>
                         <div class="d-flex justify-content-between">
                             <span>Tax:</span>
-                            <span id="taxDisplay">₹0.00</span>
+                            <span id="taxDisplay">Rs. 0.00</span>
                         </div>
                         <div class="d-flex justify-content-between">
                             <span>Discount:</span>
-                            <span id="discountDisplay">-₹0.00</span>
+                            <span id="discountDisplay">-Rs. 0.00</span>
                         </div>
                     </div>
 
@@ -360,7 +360,7 @@
 
                     <div>
                         <small class="text-muted d-block">Total Amount</small>
-                        <h4 id="totalDisplay" class="text-primary mb-0">₹0.00</h4>
+                        <h4 id="totalDisplay" class="text-primary mb-0">Rs. 0.00</h4>
                     </div>
 
                     <input type="hidden" id="subtotal" name="subtotal" value="0">
@@ -499,11 +499,11 @@ function calculateTotals() {
 
     const total = subtotal + stitching + tax - discount;
 
-    document.getElementById('subtotalDisplay').textContent = '₹' + subtotal.toFixed(2);
-    document.getElementById('stitchingDisplay').textContent = '₹' + stitching.toFixed(2);
-    document.getElementById('taxDisplay').textContent = '₹' + tax.toFixed(2);
-    document.getElementById('discountDisplay').textContent = '-₹' + discount.toFixed(2);
-    document.getElementById('totalDisplay').textContent = '₹' + total.toFixed(2);
+    document.getElementById('subtotalDisplay').textContent = 'Rs. ' + subtotal.toFixed(2);
+    document.getElementById('stitchingDisplay').textContent = 'Rs. ' + stitching.toFixed(2);
+    document.getElementById('taxDisplay').textContent = 'Rs. ' + tax.toFixed(2);
+    document.getElementById('discountDisplay').textContent = '-Rs. ' + discount.toFixed(2);
+    document.getElementById('totalDisplay').textContent = 'Rs. ' + total.toFixed(2);
 
     document.getElementById('subtotal').value = subtotal.toFixed(2);
     document.getElementById('total').value = total.toFixed(2);

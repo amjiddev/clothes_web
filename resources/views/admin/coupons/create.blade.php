@@ -65,7 +65,7 @@
                             <select class="form-select @error('discount_type') is-invalid @enderror" id="discount_type" name="discount_type" required>
                                 <option value="">Select type...</option>
                                 <option value="percentage" {{ old('discount_type') == 'percentage' ? 'selected' : '' }}>Percentage (%)</option>
-                                <option value="fixed" {{ old('discount_type') == 'fixed' ? 'selected' : '' }}>Fixed Amount (₹)</option>
+                                <option value="fixed" {{ old('discount_type') == 'fixed' ? 'selected' : '' }}>Fixed Amount (Rs.)</option>
                             </select>
                             @error('discount_type')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
