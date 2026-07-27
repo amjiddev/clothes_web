@@ -578,20 +578,6 @@
     </div>
 </section>
 
-<!-- CTA Section -->
-<section class="section-padding" style="background: linear-gradient(135deg, #0B0B0B 0%, #0F172A 100%); color: white; border-top: 3px solid #D4AF37;">
-    <div class="container text-center">
-        <h2 style="font-size: 2.5rem; margin-bottom: 1rem; font-family: 'Playfair Display', serif;">Ready to Elevate Your Style?</h2>
-        <p style="font-size: 1.1rem; margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
-            Join thousands of satisfied customers and experience premium men's fashion with our exclusive collection and expert tailoring services.
-        </p>
-        <div class="d-flex gap-3 justify-content-center flex-wrap">
-            <a href="{{ route('shop') }}" class="btn-premium">Start Shopping</a>
-            <a href="{{ route('tailoring') }}" class="btn-outline-premium">Book Tailoring</a>
-        </div>
-    </div>
-</section>
-
 @endsection
 
 @section('scripts')

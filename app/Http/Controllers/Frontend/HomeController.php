@@ -45,9 +45,16 @@ class HomeController extends Controller
             });
         }
 
-        // Filter by category
+        // Filter by category - search by ID, slug, name, or product name
         if ($request->has('category') && $request->category) {
-            $query->where('category_id', $request->category);
+            $categoryValue = $request->category;
+            $query->where(function ($q) use ($categoryValue) {
+                // Try to find by category_id first
+                $q->where('category_id', $categoryValue)
+                  // Also search by category name or slug in product name/description
+                  ->orWhere('name', 'like', "%{$categoryValue}%")
+                  ->orWhere('description', 'like', "%{$categoryValue}%");
+            });
         }
 
         // Filter by price range
@@ -136,9 +143,19 @@ class HomeController extends Controller
         return view('frontend.shop', compact('products', 'categories', 'colors', 'sizes', 'fabrics'));
     }
 
-    public function productDetail($slug)
+    public function productDetail($identifier)
     {
-        $product = Product::where('slug', $slug)->where('is_active', true)->firstOrFail();
+        // Try to find by slug first, then by ID
+        $product = Product::where('slug', $identifier)
+                         ->where('is_active', true)
+                         ->first();
+        
+        // If not found by slug, try by ID
+        if (!$product) {
+            $product = Product::where('id', $identifier)
+                             ->where('is_active', true)
+                             ->firstOrFail();
+        }
         
         $relatedProducts = Product::where('category_id', $product->category_id)
                                  ->where('id', '!=', $product->id)
