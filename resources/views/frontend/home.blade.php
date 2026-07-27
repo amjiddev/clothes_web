@@ -192,77 +192,197 @@
     </div>
 </section>
 
-<!-- Why Choose Us Section -->
-<section class="section-padding" style="background: white;">
+<!-- Men's Collection Section -->
+<section class="section-padding" style="background: #F8F5EF;">
     <div class="container">
         <div class="section-title">
-            <h2>Why Choose Us</h2>
+            <h2>Shalwar Kameez Collection</h2>
             <div class="divider"></div>
-            <p>What makes us the preferred choice for men's fashion</p>
+            <p>Explore our premium range of men's fashion</p>
         </div>
 
         <div class="row g-4">
-            <div class="col-lg-3 col-md-6">
-                <div class="why-choose-us-card">
-                    <i class="fas fa-gem"></i>
-                    <h3>Premium Quality</h3>
-                    <p>Only the finest fabrics and materials. Each piece crafted with attention to detail and superior quality standards.</p>
+            <!-- Card 1 - COTTON -->
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div style="cursor: pointer; text-align: center;">
+                    <div class="card-image-hover" style="width: 100%; height: 400px; background: #e9e9e9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin-bottom: 0.5rem;">
+                        <img class="img-primary" src="{{ asset('frontend/images/images.jfif') }}" alt="Premium Cotton Suit" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 1;">
+                        <img class="img-secondary" src="{{ asset('frontend/images/images (1).jfif') }}" alt="Premium Cotton Suit" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0;">
+                        <div class="card-action-buttons" style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; opacity: 0; transition: opacity 0.3s ease;">
+                            <button onclick="toggleWishlist(1, this); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;">
+                                <i class="far fa-heart"></i>
+                            </button>
+                            <button onclick="addToCart(1); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                            <button onclick="window.location.href='{{ route('product.detail', 1) }}'; event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.2rem; line-height: 1.4;">Premium Cotton Suit</h3>
+                    <p style="font-size: 1.1rem; font-weight: 700; color: #D4AF37; margin: 0;">Rs. 8,990</p>
                 </div>
             </div>
 
-            <div class="col-lg-3 col-md-6">
-                <div class="why-choose-us-card">
-                    <i class="fas fa-users"></i>
-                    <h3>Expert Tailors</h3>
-                    <p>20+ years of combined experience. Our tailors are skilled craftspeople dedicated to perfection in every stitch.</p>
+            <!-- Card 2 - COTTON -->
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div style="cursor: pointer; text-align: center;">
+                    <div class="card-image-hover" style="width: 100%; height: 400px; background: #e9e9e9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin-bottom: 0.5rem;">
+                        <img class="img-primary" src="{{ asset('frontend/images/images (1).jfif') }}" alt="Cotton Formal Shirt" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 1;">
+                        <img class="img-secondary" src="{{ asset('frontend/images/images (2).jfif') }}" alt="Cotton Formal Shirt" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0;">
+                        <div class="card-action-buttons" style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; opacity: 0; transition: opacity 0.3s ease;">
+                            <button onclick="toggleWishlist(2, this); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;">
+                                <i class="far fa-heart"></i>
+                            </button>
+                            <button onclick="addToCart(2); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                            <button onclick="window.location.href='{{ route('product.detail', 2) }}'; event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.2rem; line-height: 1.4;">Cotton Formal Shirt</h3>
+                    <p style="font-size: 1.1rem; font-weight: 700; color: #D4AF37; margin: 0;">Rs. 2,490</p>
                 </div>
             </div>
 
-            <div class="col-lg-3 col-md-6">
-                <div class="why-choose-us-card">
-                    <i class="fas fa-ruler"></i>
-                    <h3>Perfect Fit</h3>
-                    <p>Custom measurements and multiple fittings. We ensure your garments fit perfectly and flatter your physique.</p>
+            <!-- Card 3 - WASH & WEAR -->
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div style="cursor: pointer; text-align: center;">
+                    <div class="card-image-hover" style="width: 100%; height: 400px; background: #e9e9e9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin-bottom: 0.5rem;">
+                        <img class="img-primary" src="{{ asset('frontend/images/images (2).jfif') }}" alt="Wash & Wear Kurta" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 1;">
+                        <img class="img-secondary" src="{{ asset('frontend/images/images (3).jfif') }}" alt="Wash & Wear Kurta" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0;">
+                        <div class="card-action-buttons" style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; opacity: 0; transition: opacity 0.3s ease;">
+                            <button onclick="toggleWishlist(3, this); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;">
+                                <i class="far fa-heart"></i>
+                            </button>
+                            <button onclick="addToCart(3); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                            <button onclick="window.location.href='{{ route('product.detail', 3) }}'; event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.2rem; line-height: 1.4;">Wash & Wear Kurta</h3>
+                    <p style="font-size: 1.1rem; font-weight: 700; color: #D4AF37; margin: 0;">Rs. 3,590</p>
                 </div>
             </div>
 
-            <div class="col-lg-3 col-md-6">
-                <div class="why-choose-us-card">
-                    <i class="fas fa-truck"></i>
-                    <h3>Fast Delivery</h3>
-                    <p>Quick turnaround time without compromising quality. Standard orders delivered within 5-7 business days.</p>
+            <!-- Card 4 - KHADDAR -->
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div style="cursor: pointer; text-align: center;">
+                    <div class="card-image-hover" style="width: 100%; height: 400px; background: #e9e9e9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin-bottom: 0.5rem;">
+                        <img class="img-primary" src="{{ asset('frontend/images/images (3).jfif') }}" alt="Khaddar Formal Suit" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 1;">
+                        <img class="img-secondary" src="{{ asset('frontend/images/images (4).jfif') }}" alt="Khaddar Formal Suit" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0;">
+                        <div class="card-action-buttons" style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; opacity: 0; transition: opacity 0.3s ease;">
+                            <button onclick="toggleWishlist(4, this); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;">
+                                <i class="far fa-heart"></i>
+                            </button>
+                            <button onclick="addToCart(4); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                            <button onclick="window.location.href='{{ route('product.detail', 4) }}'; event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.2rem; line-height: 1.4;">Khaddar Formal Suit</h3>
+                    <p style="font-size: 1.1rem; font-weight: 700; color: #D4AF37; margin: 0;">Rs. 5,990</p>
                 </div>
             </div>
 
-            <div class="col-lg-3 col-md-6">
-                <div class="why-choose-us-card">
-                    <i class="fas fa-headset"></i>
-                    <h3>Expert Support</h3>
-                    <p>Dedicated customer service team ready to assist. We're here to answer questions and ensure satisfaction.</p>
+            <!-- Card 5 - WEDDING WEAR -->
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div style="cursor: pointer; text-align: center;">
+                    <div class="card-image-hover" style="width: 100%; height: 400px; background: #e9e9e9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin-bottom: 0.5rem;">
+                        <img class="img-primary" src="{{ asset('frontend/images/images (4).jfif') }}" alt="Wedding Sherwani" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 1;">
+                        <img class="img-secondary" src="{{ asset('frontend/images/images (5).jfif') }}" alt="Wedding Sherwani" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0;">
+                        <div class="card-action-buttons" style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; opacity: 0; transition: opacity 0.3s ease;">
+                            <button onclick="toggleWishlist(5, this); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;">
+                                <i class="far fa-heart"></i>
+                            </button>
+                            <button onclick="addToCart(5); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                            <button onclick="window.location.href='{{ route('product.detail', 5) }}'; event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.2rem; line-height: 1.4;">Wedding Sherwani</h3>
+                    <p style="font-size: 1.1rem; font-weight: 700; color: #D4AF37; margin: 0;">Rs. 7,490</p>
                 </div>
             </div>
 
-            <div class="col-lg-3 col-md-6">
-                <div class="why-choose-us-card">
-                    <i class="fas fa-lock"></i>
-                    <h3>Secure Payments</h3>
-                    <p>Safe and secure payment options. Your transactions are protected with latest encryption technology.</p>
+            <!-- Card 6 - EID WEAR -->
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div style="cursor: pointer; text-align: center;">
+                    <div class="card-image-hover" style="width: 100%; height: 400px; background: #e9e9e9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin-bottom: 0.5rem;">
+                        <img class="img-primary" src="{{ asset('frontend/images/images (5).jfif') }}" alt="Eid Pyjama" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 1;">
+                        <img class="img-secondary" src="{{ asset('frontend/images/images.jfif') }}" alt="Eid Pyjama" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0;">
+                        <div class="card-action-buttons" style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; opacity: 0; transition: opacity 0.3s ease;">
+                            <button onclick="toggleWishlist(6, this); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;">
+                                <i class="far fa-heart"></i>
+                            </button>
+                            <button onclick="addToCart(6); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                            <button onclick="window.location.href='{{ route('product.detail', 6) }}'; event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.2rem; line-height: 1.4;">Eid Pyjama</h3>
+                    <p style="font-size: 1.1rem; font-weight: 700; color: #D4AF37; margin: 0;">Rs. 1,290</p>
                 </div>
             </div>
 
-            <div class="col-lg-3 col-md-6">
-                <div class="why-choose-us-card">
-                    <i class="fas fa-sync-alt"></i>
-                    <h3>Easy Alterations</h3>
-                    <p>Need adjustments? We offer free minor alterations within 30 days of delivery to ensure perfection.</p>
+            <!-- Card 7 - COTTON -->
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div style="cursor: pointer; text-align: center;">
+                    <div class="card-image-hover" style="width: 100%; height: 400px; background: #e9e9e9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin-bottom: 0.5rem;">
+                        <img class="img-primary" src="{{ asset('frontend/images/images.jfif') }}" alt="Cotton Casual Shirt" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 1;">
+                        <img class="img-secondary" src="{{ asset('frontend/images/images (1).jfif') }}" alt="Cotton Casual Shirt" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0;">
+                        <div class="card-action-buttons" style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; opacity: 0; transition: opacity 0.3s ease;">
+                            <button onclick="toggleWishlist(7, this); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;">
+                                <i class="far fa-heart"></i>
+                            </button>
+                            <button onclick="addToCart(7); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                            <button onclick="window.location.href='{{ route('product.detail', 7) }}'; event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.2rem; line-height: 1.4;">Cotton Casual Shirt</h3>
+                    <p style="font-size: 1.1rem; font-weight: 700; color: #D4AF37; margin: 0;">Rs. 2,890</p>
                 </div>
             </div>
 
-            <div class="col-lg-3 col-md-6">
-                <div class="why-choose-us-card">
-                    <i class="fas fa-star"></i>
-                    <h3>Satisfaction Guaranteed</h3>
-                    <p>Not satisfied? We offer hassle-free returns and refunds. Your satisfaction is our top priority.</p>
+            <!-- Card 8 - KHADDAR -->
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div style="cursor: pointer; text-align: center;">
+                    <div class="card-image-hover" style="width: 100%; height: 400px; background: #e9e9e9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin-bottom: 0.5rem;">
+                        <img class="img-primary" src="{{ asset('frontend/images/images (1).jfif') }}" alt="Khaddar Designer Kurta" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 1;">
+                        <img class="img-secondary" src="{{ asset('frontend/images/images (2).jfif') }}" alt="Khaddar Designer Kurta" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0;">
+                        <div class="card-action-buttons" style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; opacity: 0; transition: opacity 0.3s ease;">
+                            <button onclick="toggleWishlist(8, this); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;">
+                                <i class="far fa-heart"></i>
+                            </button>
+                            <button onclick="addToCart(8); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                            <button onclick="window.location.href='{{ route('product.detail', 8) }}'; event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.2rem; line-height: 1.4;">Khaddar Designer Kurta</h3>
+                    <p style="font-size: 1.1rem; font-weight: 700; color: #D4AF37; margin: 0;">Rs. 4,690</p>
                 </div>
             </div>
         </div>
@@ -420,6 +540,27 @@
         width: 30px !important;
         background: rgba(255,255,255,0.95) !important;
     }
+
+    /* Men's Collection Card Hover Effect */
+    .card-image-hover:hover .img-primary {
+        opacity: 0 !important;
+    }
+
+    .card-image-hover:hover .img-secondary {
+        opacity: 1 !important;
+    }
+
+    .img-primary, .img-secondary {
+        transition: opacity 0.3s ease;
+    }
+
+    .card-image-hover:hover .card-action-buttons {
+        opacity: 1 !important;
+    }
+
+    .card-action-buttons button:hover {
+        transform: scale(1.05);
+    }
 </style>
 
 <script>
@@ -501,6 +642,20 @@ function addToCart(productId) {
     alert('Product added to cart! (Demo)');
     // Update cart badge
     document.querySelector('.cart-badge').textContent = parseInt(document.querySelector('.cart-badge').textContent) + 1;
+}
+
+function toggleWishlist(productId, button) {
+    // Toggle between outlined and filled heart
+    const icon = button.querySelector('i');
+    if (icon.classList.contains('far')) {
+        icon.classList.remove('far');
+        icon.classList.add('fas');
+        button.style.backgroundColor = '#D4AF37';
+    } else {
+        icon.classList.remove('fas');
+        icon.classList.add('far');
+        button.style.backgroundColor = '#D4AF37';
+    }
 }
 </script>
 @endsection
