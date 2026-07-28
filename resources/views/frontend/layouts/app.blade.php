@@ -578,21 +578,17 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('shop') }}">Shop</a>
                     </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown">
-                            Categories
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="categoriesDropdown">
-                            @foreach($categories ?? [] as $cat)
-                            <li><a class="dropdown-item" href="{{ route('shop') }}?category={{ $cat->id }}">{{ $cat->name }}</a></li>
-                            @endforeach
-                        </ul>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('new-in') }}">NEW IN</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('summer-sale') }}">Summer Sale</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('collections') }}">Collections</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('tailoring.service') }}">Tailoring Service</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('about') }}">About Us</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('contact') }}">Contact</a>
@@ -641,8 +637,8 @@
                     <ul>
                         <li><a href="{{ route('home') }}">Home</a></li>
                         <li><a href="{{ route('shop') }}">Shop</a></li>
+                        <li><a href="{{ route('collections') }}">Collections</a></li>
                         <li><a href="{{ route('tailoring') }}">Tailoring</a></li>
-                        <li><a href="{{ route('about') }}">About Us</a></li>
                         <li><a href="{{ route('contact') }}">Contact</a></li>
                     </ul>
                 </div>

@@ -13,9 +13,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/shop', [HomeController::class, 'shop'])->name('shop');
+Route::get('/new-in', [HomeController::class, 'newIn'])->name('new-in');
+Route::get('/summer-sale', [HomeController::class, 'summerSale'])->name('summer-sale');
+Route::get('/collections', [HomeController::class, 'collections'])->name('collections');
+Route::get('/collections/best-sellers', [HomeController::class, 'bestSellers'])->name('collections.best-sellers');
+Route::get('/collections/summer-2026', [HomeController::class, 'summer2026'])->name('collections.summer-2026');
+Route::get('/collections/featured', [HomeController::class, 'featured'])->name('collections.featured');
 Route::get('/product/{identifier}', [HomeController::class, 'productDetail'])->name('product.detail');
 Route::get('/tailoring', [HomeController::class, 'tailoring'])->name('tailoring');
-Route::get('/about', [HomeController::class, 'about'])->name('about');
 Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
 Route::get('/disclaimer', [HomeController::class, 'disclaimer'])->name('disclaimer');
 Route::get('/return-exchange', [HomeController::class, 'returnExchange'])->name('return-exchange');

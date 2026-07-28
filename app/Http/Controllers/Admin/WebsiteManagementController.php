@@ -57,13 +57,10 @@ class WebsiteManagementController extends Controller
     {
         $validated = $request->validate([
             'section_type' => 'required|in:contact,contact_location',
-            'page_title' => 'required|string|max:255',
-            'page_content' => 'nullable|string',
             'contact_email' => 'nullable|email',
             'contact_phone' => 'nullable|string',
             'contact_address' => 'nullable|string',
             'contact_timings' => 'nullable|string',
-            'contact_map_url' => 'nullable|url',
             'is_published' => 'boolean',
             'display_order' => 'nullable|integer|min:0',
             'locations.*.title' => 'nullable|string',
@@ -85,14 +82,13 @@ class WebsiteManagementController extends Controller
             'phone' => $request->contact_phone,
             'address' => $request->contact_address,
             'timings' => $request->contact_timings,
-            'map_url' => $request->contact_map_url,
         ];
         
         $cmsData = [
             'section_type' => $validated['section_type'],
             'page_slug' => 'contact-information',
-            'page_title' => $validated['page_title'],
-            'page_content' => $validated['page_content'],
+            'page_title' => 'Contact Information',
+            'page_content' => null,
             'data' => $data,
             'is_published' => $request->has('is_published'),
             'display_order' => $validated['display_order'] ?? 0,
@@ -180,13 +176,10 @@ class WebsiteManagementController extends Controller
         $cms = WebsiteCms::findOrFail($id);
         
         $validated = $request->validate([
-            'page_title' => 'required|string|max:255',
-            'page_content' => 'nullable|string',
             'contact_email' => 'nullable|email',
             'contact_phone' => 'nullable|string',
             'contact_address' => 'nullable|string',
             'contact_timings' => 'nullable|string',
-            'contact_map_url' => 'nullable|url',
             'is_published' => 'boolean',
             'display_order' => 'nullable|integer|min:0',
         ]);
@@ -197,12 +190,11 @@ class WebsiteManagementController extends Controller
             'phone' => $request->contact_phone,
             'address' => $request->contact_address,
             'timings' => $request->contact_timings,
-            'map_url' => $request->contact_map_url,
         ];
         
         $cmsData = [
-            'page_title' => $validated['page_title'],
-            'page_content' => $validated['page_content'],
+            'page_title' => 'Contact Information',
+            'page_content' => null,
             'data' => $data,
             'is_published' => $request->has('is_published'),
             'display_order' => $validated['display_order'] ?? $cms->display_order,

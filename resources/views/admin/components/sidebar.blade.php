@@ -101,14 +101,6 @@
             </a>
         </div>
 
-        <!-- Website CMS -->
-        <div class="nav-item">
-            <a href="{{ route('admin.cms.index') }}" class="nav-link {{ request()->routeIs('admin.cms.*') && !request()->routeIs('admin.website-management.*') ? 'active' : '' }}">
-                <i class="fas fa-file-alt"></i>
-                <span>Website CMS</span>
-            </a>
-        </div>
-
         <!-- Website Management -->
         <div class="nav-item">
             <a href="#" class="nav-link nav-toggle {{ request()->routeIs('admin.website-management.*') ? 'active' : '' }} collapsed">

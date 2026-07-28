@@ -171,9 +171,155 @@ class HomeController extends Controller
         return view('frontend.tailoring');
     }
 
-    public function about()
+    public function collections()
     {
-        return view('frontend.about');
+        // Get best sellers (products with high stock movement - for now, most recent active products)
+        $bestSellers = Product::where('is_active', true)
+                             ->where('stock_quantity', '>', 0)
+                             ->orderByDesc('created_at')
+                             ->take(8)
+                             ->get();
+
+        // Get summer 2026 collection (recent products - can be tagged with a category later)
+        $summerCollection = Product::where('is_active', true)
+                                  ->where('stock_quantity', '>', 0)
+                                  ->orderByDesc('created_at')
+                                  ->skip(8)
+                                  ->take(8)
+                                  ->get();
+
+        // Get featured collection (highlighted products)
+        $featuredCollection = Product::where('is_active', true)
+                                    ->where('stock_quantity', '>', 0)
+                                    ->orderByDesc('created_at')
+                                    ->skip(16)
+                                    ->take(8)
+                                    ->get();
+
+        return view('frontend.collections', compact('bestSellers', 'summerCollection', 'featuredCollection'));
+    }
+
+    public function bestSellers(Request $request)
+    {
+        // Get best selling products
+        $query = Product::where('is_active', true)
+                       ->where('stock_quantity', '>', 0)
+                       ->orderByDesc('created_at');
+
+        // Apply search filter
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // Apply sorting
+        $sort = $request->get('sort', 'popular');
+        switch ($sort) {
+            case 'price-low':
+                $query->orderBy('discount_price', 'asc')->orderBy('price', 'asc');
+                break;
+            case 'price-high':
+                $query->orderByDesc('discount_price')->orderByDesc('price');
+                break;
+            case 'popular':
+            default:
+                $query->orderByDesc('created_at');
+                break;
+        }
+
+        $products = $query->paginate(12)->appends($request->query());
+
+        return view('frontend.collection-detail', [
+            'products' => $products,
+            'title' => 'Best Sellers',
+            'description' => 'Our most popular items that customers love',
+            'collectionType' => 'best-sellers'
+        ]);
+    }
+
+    public function summer2026(Request $request)
+    {
+        // Get summer 2026 collection products
+        $query = Product::where('is_active', true)
+                       ->where('stock_quantity', '>', 0)
+                       ->orderByDesc('created_at');
+
+        // Apply search filter
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // Apply sorting
+        $sort = $request->get('sort', 'latest');
+        switch ($sort) {
+            case 'price-low':
+                $query->orderBy('discount_price', 'asc')->orderBy('price', 'asc');
+                break;
+            case 'price-high':
+                $query->orderByDesc('discount_price')->orderByDesc('price');
+                break;
+            case 'latest':
+            default:
+                $query->orderByDesc('created_at');
+                break;
+        }
+
+        $products = $query->paginate(12)->appends($request->query());
+
+        return view('frontend.collection-detail', [
+            'products' => $products,
+            'title' => 'Summer 2026 Collection',
+            'description' => 'Fresh styles for the warm season - lightweight, breathable, and effortlessly stylish',
+            'collectionType' => 'summer-2026'
+        ]);
+    }
+
+    public function featured(Request $request)
+    {
+        // Get featured collection products
+        $query = Product::where('is_active', true)
+                       ->where('stock_quantity', '>', 0)
+                       ->orderByDesc('created_at');
+
+        // Apply search filter
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // Apply sorting
+        $sort = $request->get('sort', 'featured');
+        switch ($sort) {
+            case 'price-low':
+                $query->orderBy('discount_price', 'asc')->orderBy('price', 'asc');
+                break;
+            case 'price-high':
+                $query->orderByDesc('discount_price')->orderByDesc('price');
+                break;
+            case 'featured':
+            default:
+                $query->orderByDesc('created_at');
+                break;
+        }
+
+        $products = $query->paginate(12)->appends($request->query());
+
+        return view('frontend.collection-detail', [
+            'products' => $products,
+            'title' => 'Featured Collection',
+            'description' => 'Handpicked pieces that define this season\'s elegance',
+            'collectionType' => 'featured'
+        ]);
     }
 
     public function contact()
@@ -225,5 +371,85 @@ class HomeController extends Controller
     public function termsOfService()
     {
         return view('frontend.terms-of-service');
+    }
+
+    public function newIn(Request $request)
+    {
+        // Get the latest products (created in the last 30 days or newest 12 products)
+        $query = Product::where('is_active', true)
+                       ->where('created_at', '>=', now()->subDays(30))
+                       ->orderByDesc('created_at');
+
+        // If no products in last 30 days, just show the newest products
+        if ($query->count() == 0) {
+            $query = Product::where('is_active', true)
+                           ->orderByDesc('created_at');
+        }
+
+        // Apply search filter if provided
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // Apply sorting
+        $sort = $request->get('sort', 'latest');
+        switch ($sort) {
+            case 'price-low':
+                $query->orderBy('discount_price', 'asc')->orderBy('price', 'asc');
+                break;
+            case 'price-high':
+                $query->orderByDesc('discount_price')->orderByDesc('price');
+                break;
+            case 'latest':
+            default:
+                $query->orderByDesc('created_at');
+                break;
+        }
+
+        $products = $query->paginate(12)->appends($request->query());
+
+        return view('frontend.new-in', compact('products'));
+    }
+
+    public function summerSale(Request $request)
+    {
+        // Get products with discount (sale items)
+        $query = Product::where('is_active', true)
+                       ->whereNotNull('discount_price')
+                       ->where('discount_price', '<', \DB::raw('price'))
+                       ->orderByDesc('created_at');
+
+        // Apply search filter if provided
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // Apply sorting
+        $sort = $request->get('sort', 'discount');
+        switch ($sort) {
+            case 'price-low':
+                $query->orderBy('discount_price', 'asc');
+                break;
+            case 'price-high':
+                $query->orderByDesc('discount_price');
+                break;
+            case 'discount':
+            default:
+                // Sort by discount percentage (highest discount first)
+                $query->orderByRaw('((price - discount_price) / price) DESC');
+                break;
+        }
+
+        $products = $query->paginate(12)->appends($request->query());
+
+        return view('frontend.summer-sale', compact('products'));
     }
 }

@@ -7,7 +7,6 @@ use App\Http\Controllers\Admin\ReceptionistController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\PaymentController;
-use App\Http\Controllers\Admin\WebsiteCmsController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SettingsController;
 use Illuminate\Support\Facades\Route;
@@ -48,9 +47,6 @@ Route::middleware(['auth', 'verified', 'admin.only'])->prefix('admin')->name('ad
     // Payment Management
     Route::resource('payments', PaymentController::class)->only(['index', 'show']);
     Route::post('payments/{payment}/update-status', [PaymentController::class, 'updateStatus'])->name('payments.update-status');
-
-    // Website CMS
-    Route::resource('cms', WebsiteCmsController::class);
 
     // Reports
     Route::get('reports', [ReportController::class, 'index'])->name('reports.index');

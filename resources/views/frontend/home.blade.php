@@ -150,11 +150,11 @@
                             <span class="original">Rs. {{ number_format($product->price, 0) }}</span>
                             @endif
                         </div>
-                        <div class="product-actions">
-                            <button class="btn-add-cart" onclick="addToCart({{ $product->id }})">
-                                <i class="fas fa-cart-plus"></i> Add
+                        <div style="display: flex; gap: 10px; justify-content: center; align-items: center;">
+                            <button onclick="addToCart({{ $product->id }}); event.stopPropagation();" style="flex: 1; background: var(--accent-gold); border: none; color: #0B0B0B; padding: 12px; border-radius: 4px; cursor: pointer; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s ease;">
+                                <i class="fas fa-shopping-cart"></i> Add to Cart
                             </button>
-                            <a href="{{ route('product.detail', $product->slug) }}" class="btn-view-detail">
+                            <a href="{{ route('product.detail', $product->slug) }}" style="width: 45px; height: 45px; background: white; border: 2px solid var(--accent-gold); color: var(--accent-gold); border-radius: 4px; cursor: pointer; font-weight: 700; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.3s ease;">
                                 <i class="fas fa-eye"></i>
                             </a>
                         </div>

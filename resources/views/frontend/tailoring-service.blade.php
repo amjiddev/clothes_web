@@ -4,11 +4,15 @@
 
 @section('content')
 
-<!-- Page Header -->
-<div style="background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%); color: white; padding: 60px 0; text-align: center; border-bottom: 3px solid var(--accent-gold);">
-    <h1 style="font-size: 2.5rem; font-weight: 700; font-family: 'Playfair Display', serif;">Custom Tailoring Service</h1>
-    <p>Professional Men's Custom Stitching Service</p>
-</div>
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" style="background: #f8f9fa; padding: 15px 0; border-bottom: 1px solid #e0e0e0;">
+    <div class="container">
+        <ol class="breadcrumb mb-0" style="background: transparent; padding: 0;">
+            <li class="breadcrumb-item"><a href="{{ route('home') }}" style="color: var(--primary-dark); text-decoration: none;"><i class="fas fa-home"></i> Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page" style="color: var(--accent-gold); font-weight: 600;">Tailoring Service</li>
+        </ol>
+    </div>
+</nav>
 
 <section class="section-padding" style="background: white;">
     <div class="container">
