@@ -95,11 +95,9 @@ Route::middleware(['auth', 'verified', 'admin.only'])->prefix('admin')->name('ad
 
     // Website Management - Frontend Pages
     Route::prefix('website-management')->name('website-management.')->group(function () {
-        Route::get('/home', [\App\Http\Controllers\Admin\WebsitePageController::class, 'home'])->name('home');
-        Route::get('/shop', [\App\Http\Controllers\Admin\WebsitePageController::class, 'shop'])->name('shop');
-        Route::get('/categories', [\App\Http\Controllers\Admin\WebsitePageController::class, 'categories'])->name('categories');
-        Route::get('/tailoring-service', [\App\Http\Controllers\Admin\WebsitePageController::class, 'tailoringService'])->name('tailoring-service');
-        Route::get('/about-us', [\App\Http\Controllers\Admin\WebsitePageController::class, 'aboutUs'])->name('about-us');
-        Route::get('/contact', [\App\Http\Controllers\Admin\WebsitePageController::class, 'contact'])->name('contact');
+        Route::get('/contact', [\App\Http\Controllers\Admin\WebsiteManagementController::class, 'contact'])->name('contact');
+        Route::post('/contact/store', [\App\Http\Controllers\Admin\WebsiteManagementController::class, 'storeContact'])->name('contact.store');
+        Route::put('/contact/{id}/update', [\App\Http\Controllers\Admin\WebsiteManagementController::class, 'updateContact'])->name('contact.update');
+        Route::delete('/contact/{id}/delete', [\App\Http\Controllers\Admin\WebsiteManagementController::class, 'deleteContact'])->name('contact.delete');
     });
 });

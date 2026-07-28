@@ -735,14 +735,14 @@
                 @endif
 
                 @if (session('success'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <div class="alert alert-success alert-dismissible fade show" role="alert" id="success-alert">
                         <i class="fas fa-check-circle"></i> {{ session('success') }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 @endif
 
                 @if (session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert" id="error-alert">
                         <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
@@ -764,6 +764,26 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 
     <script>
+        // Auto-hide alerts after 2 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const successAlert = document.getElementById('success-alert');
+            const errorAlert = document.getElementById('error-alert');
+            
+            if (successAlert) {
+                setTimeout(function() {
+                    const bsAlert = new bootstrap.Alert(successAlert);
+                    bsAlert.close();
+                }, 2000);
+            }
+            
+            if (errorAlert) {
+                setTimeout(function() {
+                    const bsAlert = new bootstrap.Alert(errorAlert);
+                    bsAlert.close();
+                }, 2000);
+            }
+        });
+
         // Mobile Sidebar Toggle
         document.querySelector('.mobile-toggle')?.addEventListener('click', function() {
             document.querySelector('.sidebar').classList.toggle('show');

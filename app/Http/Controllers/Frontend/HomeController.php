@@ -178,7 +178,18 @@ class HomeController extends Controller
 
     public function contact()
     {
-        return view('frontend.contact');
+        // Get contact information from CMS
+        $contactInfo = \App\Models\WebsiteCms::where('section_type', 'contact')
+                                             ->where('is_published', true)
+                                             ->first();
+        
+        // Get contact locations (multiple contact entries)
+        $locations = \App\Models\WebsiteCms::where('section_type', 'contact_location')
+                                          ->where('is_published', true)
+                                          ->orderBy('display_order')
+                                          ->get();
+        
+        return view('frontend.contact', compact('contactInfo', 'locations'));
     }
 
     public function disclaimer()

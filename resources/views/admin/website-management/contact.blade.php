@@ -2,288 +2,323 @@
 
 @section('title', 'Contact Page Management')
 
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
+    <li class="breadcrumb-item active">Contact Page</li>
+@endsection
+
 @section('content')
-<div class="page-header">
-    <div class="d-flex justify-content-between align-items-center">
-        <div>
-            <h1 class="page-title">{{ $pageTitle }}</h1>
-            <p class="page-subtitle">{{ $pageDescription }}</p>
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header mb-4">
+        <div class="row align-items-center">
+            <div class="col">
+                <h1 class="page-title">
+                    <i class="fas fa-address-book me-2"></i>Contact Page Management
+                </h1>
+                <p class="text-muted">Update contact page information directly from this form</p>
+            </div>
         </div>
-        <a href="#" class="btn btn-accent">
-            <i class="fas fa-save"></i> Save Changes
-        </a>
     </div>
+
+    <form action="{{ $contactInfo ? route('admin.website-management.contact.update', $contactInfo->id) : route('admin.website-management.contact.store') }}" method="POST">
+        @csrf
+        @if($contactInfo)
+            @method('PUT')
+        @endif
+        <input type="hidden" name="section_type" value="contact">
+
+        <div class="row">
+            <!-- Main Contact Information -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Main Contact Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Page Title <span class="text-danger">*</span></label>
+                            <input type="text" name="page_title" class="form-control @error('page_title') is-invalid @enderror" value="{{ old('page_title', $contactInfo->page_title ?? 'Contact Us') }}" required>
+                            @error('page_title')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Page Description</label>
+                            <textarea name="page_content" class="form-control @error('page_content') is-invalid @enderror" rows="2" placeholder="We'd love to hear from you!">{{ old('page_content', $contactInfo->page_content ?? '') }}</textarea>
+                            @error('page_content')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">This will appear below the page title</small>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Email Address</label>
+                                <input type="email" name="contact_email" class="form-control @error('contact_email') is-invalid @enderror" value="{{ old('contact_email', $contactInfo->data['email'] ?? '') }}" placeholder="info@example.com">
+                                @error('contact_email')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Phone Number</label>
+                                <input type="text" name="contact_phone" class="form-control @error('contact_phone') is-invalid @enderror" value="{{ old('contact_phone', $contactInfo->data['phone'] ?? '') }}" placeholder="+91-XXXXXXXXXX">
+                                @error('contact_phone')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Address</label>
+                            <textarea name="contact_address" class="form-control @error('contact_address') is-invalid @enderror" rows="3" placeholder="Street, City, State, Pincode">{{ old('contact_address', $contactInfo->data['address'] ?? '') }}</textarea>
+                            @error('contact_address')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Business Hours / Timings</label>
+                            <input type="text" name="contact_timings" class="form-control @error('contact_timings') is-invalid @enderror" value="{{ old('contact_timings', $contactInfo->data['timings'] ?? '') }}" placeholder="Mon - Fri: 10 AM - 6 PM">
+                            @error('contact_timings')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Google Maps URL</label>
+                            <input type="url" name="contact_map_url" class="form-control @error('contact_map_url') is-invalid @enderror" value="{{ old('contact_map_url', $contactInfo->data['map_url'] ?? '') }}" placeholder="https://maps.google.com/...">
+                            @error('contact_map_url')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">Optional: Link to your location on Google Maps</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Store Locations -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Store Locations</h5>
+                        <button type="button" class="btn btn-sm btn-success" onclick="addLocation()">
+                            <i class="fas fa-plus me-1"></i>Add Location
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="locations-container">
+                            @if($locations && $locations->count() > 0)
+                                @foreach($locations as $index => $location)
+                                    <div class="location-item border rounded p-3 mb-3 position-relative">
+                                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2" onclick="removeLocation({{ $location->id }}, this)">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                        <input type="hidden" name="locations[{{ $index }}][id]" value="{{ $location->id }}">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-2">
+                                                <label class="form-label small fw-bold">Location Name</label>
+                                                <input type="text" name="locations[{{ $index }}][title]" class="form-control form-control-sm" value="{{ $location->page_title }}" placeholder="Main Store" required>
+                                            </div>
+                                            <div class="col-md-6 mb-2">
+                                                <label class="form-label small fw-bold">Phone</label>
+                                                <input type="text" name="locations[{{ $index }}][phone]" class="form-control form-control-sm" value="{{ $location->data['phone'] ?? '' }}">
+                                            </div>
+                                            <div class="col-md-6 mb-2">
+                                                <label class="form-label small fw-bold">Email</label>
+                                                <input type="email" name="locations[{{ $index }}][email]" class="form-control form-control-sm" value="{{ $location->data['email'] ?? '' }}">
+                                            </div>
+                                            <div class="col-md-6 mb-2">
+                                                <label class="form-label small fw-bold">Timings</label>
+                                                <input type="text" name="locations[{{ $index }}][timings]" class="form-control form-control-sm" value="{{ $location->data['timings'] ?? '' }}">
+                                            </div>
+                                            <div class="col-12 mb-2">
+                                                <label class="form-label small fw-bold">Address</label>
+                                                <textarea name="locations[{{ $index }}][address]" class="form-control form-control-sm" rows="2">{{ $location->data['address'] ?? '' }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @else
+                                <p class="text-muted text-center py-3">No locations added yet. Click "Add Location" to add store locations.</p>
+                            @endif
+                        </div>
+                        <div class="alert alert-info mt-3 mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Note:</strong> After adding or editing locations, click the "Save Contact Page" button below to save all changes.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Publishing Options -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Publishing</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check form-switch mb-3">
+                            <input type="checkbox" name="is_published" class="form-check-input" id="is_published" value="1" {{ old('is_published', $contactInfo->is_published ?? true) ? 'checked' : '' }}>
+                            <label class="form-check-label fw-bold" for="is_published">Publish Contact Page</label>
+                        </div>
+                        @if($contactInfo && $contactInfo->published_at)
+                            <small class="text-muted d-block">
+                                <i class="fas fa-calendar me-1"></i>Published on {{ $contactInfo->published_at->format('M d, Y H:i') }}
+                            </small>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <button type="submit" class="btn btn-primary btn-lg w-100 mb-2">
+                            <i class="fas fa-save me-2"></i>{{ $contactInfo ? 'Update' : 'Save' }} Contact Page
+                        </button>
+                        <a href="{{ route('contact') }}" class="btn btn-outline-secondary w-100" target="_blank">
+                            <i class="fas fa-eye me-2"></i>Preview Contact Page
+                        </a>
+                        <div class="alert alert-warning mt-3 mb-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Important:</strong> Click this button to save all contact information and locations together.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Help Card -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0"><i class="fas fa-question-circle me-2"></i>Help</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="fw-bold">Tips:</h6>
+                        <ul class="small ps-3 mb-0">
+                            <li>Fill in main contact info that appears in sidebar</li>
+                            <li>Add multiple store locations if needed</li>
+                            <li>Use Google Maps share link for map URL</li>
+                            <li>Check "Publish" to make changes live</li>
+                            <li>Click "Preview" to see before publishing</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
 </div>
 
-<!-- Main Content -->
-<div class="row">
-    <!-- Left Column - Settings -->
-    <div class="col-lg-8">
-        <!-- Page Header -->
-        <div class="card rounded-lg border-0 shadow-sm mb-4">
-            <div class="card-header bg-light border-bottom">
-                <h5 class="mb-0">
-                    <i class="fas fa-heading text-accent"></i> Page Header
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="form-group">
-                    <label class="form-label">Page Title</label>
-                    <input type="text" class="form-control" placeholder="Enter page title" value="Contact Us">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Page Description</label>
-                    <textarea class="form-control" rows="3" placeholder="Enter page description"></textarea>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Header Image</label>
-                    <input type="file" class="form-control" accept="image/*">
-                </div>
-            </div>
-        </div>
+<script>
+let locationIndex = {{ $locations ? $locations->count() : 0 }};
+let deletedLocations = [];
 
-        <!-- Contact Information -->
-        <div class="card rounded-lg border-0 shadow-sm mb-4">
-            <div class="card-header bg-light border-bottom">
-                <h5 class="mb-0">
-                    <i class="fas fa-info-circle text-accent"></i> Contact Information
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="form-group">
-                    <label class="form-label">Company Name</label>
-                    <input type="text" class="form-control" placeholder="Enter company name">
+function addLocation() {
+    const container = document.getElementById('locations-container');
+    
+    // Remove "no locations" message if exists
+    const noLocationsMsg = container.querySelector('p.text-muted');
+    if (noLocationsMsg) {
+        noLocationsMsg.remove();
+    }
+    
+    const locationHtml = `
+        <div class="location-item border rounded p-3 mb-3 position-relative" data-location-index="${locationIndex}">
+            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2" onclick="removeNewLocation(this)">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="row">
+                <div class="col-md-6 mb-2">
+                    <label class="form-label small fw-bold">Location Name</label>
+                    <input type="text" name="new_locations[${locationIndex}][title]" class="form-control form-control-sm" placeholder="Main Store" required>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Phone Number</label>
-                    <input type="tel" class="form-control" placeholder="Enter phone number">
+                <div class="col-md-6 mb-2">
+                    <label class="form-label small fw-bold">Phone</label>
+                    <input type="text" name="new_locations[${locationIndex}][phone]" class="form-control form-control-sm">
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Email Address</label>
-                    <input type="email" class="form-control" placeholder="Enter email address">
+                <div class="col-md-6 mb-2">
+                    <label class="form-label small fw-bold">Email</label>
+                    <input type="email" name="new_locations[${locationIndex}][email]" class="form-control form-control-sm">
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Address Line 1</label>
-                    <input type="text" class="form-control" placeholder="Enter address">
+                <div class="col-md-6 mb-2">
+                    <label class="form-label small fw-bold">Timings</label>
+                    <input type="text" name="new_locations[${locationIndex}][timings]" class="form-control form-control-sm">
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Address Line 2</label>
-                    <input type="text" class="form-control" placeholder="Enter address line 2 (optional)">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">City, State, Country</label>
-                    <input type="text" class="form-control" placeholder="e.g., Lahore, Punjab, Pakistan">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Postal Code</label>
-                    <input type="text" class="form-control" placeholder="Enter postal code">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Business Hours</label>
-                    <textarea class="form-control" rows="3" placeholder="e.g., Monday - Friday: 9:00 AM - 6:00 PM&#10;Saturday: 10:00 AM - 4:00 PM&#10;Sunday: Closed"></textarea>
+                <div class="col-12 mb-2">
+                    <label class="form-label small fw-bold">Address</label>
+                    <textarea name="new_locations[${locationIndex}][address]" class="form-control form-control-sm" rows="2"></textarea>
                 </div>
             </div>
         </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', locationHtml);
+    locationIndex++;
+}
 
-        <!-- Contact Form Settings -->
-        <div class="card rounded-lg border-0 shadow-sm mb-4">
-            <div class="card-header bg-light border-bottom">
-                <h5 class="mb-0">
-                    <i class="fas fa-envelope text-accent"></i> Contact Form
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="form-group">
-                    <label class="form-label">Form Title</label>
-                    <input type="text" class="form-control" placeholder="e.g., Send us a Message" value="">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Form Description</label>
-                    <textarea class="form-control" rows="2" placeholder="Enter form description"></textarea>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Submit Button Text</label>
-                    <input type="text" class="form-control" placeholder="e.g., Send Message" value="Send Message">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Email Recipient (for contact form submissions)</label>
-                    <input type="email" class="form-control" placeholder="Enter recipient email">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Form Fields</label>
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="field1" checked>
-                        <label class="form-check-label" for="field1">Name</label>
-                    </div>
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="field2" checked>
-                        <label class="form-check-label" for="field2">Email</label>
-                    </div>
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="field3" checked>
-                        <label class="form-check-label" for="field3">Phone (Optional)</label>
-                    </div>
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="field4" checked>
-                        <label class="form-check-label" for="field4">Subject</label>
-                    </div>
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="field5" checked>
-                        <label class="form-check-label" for="field5">Message</label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-check-label">
-                        <input type="checkbox" class="form-check-input" checked>
-                        Show contact form
-                    </label>
-                </div>
-            </div>
-        </div>
+function removeNewLocation(button) {
+    if (confirm('Remove this location?')) {
+        button.closest('.location-item').remove();
+        
+        // Check if container is empty
+        const container = document.getElementById('locations-container');
+        if (container.children.length === 0) {
+            container.innerHTML = '<p class="text-muted text-center py-3">No locations added yet. Click "Add Location" to add store locations.</p>';
+        }
+    }
+}
 
-        <!-- Map Section -->
-        <div class="card rounded-lg border-0 shadow-sm mb-4">
-            <div class="card-header bg-light border-bottom">
-                <h5 class="mb-0">
-                    <i class="fas fa-map text-accent"></i> Location Map
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="form-group">
-                    <label class="form-label">Show Map</label>
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="showMap" checked>
-                        <label class="form-check-label" for="showMap">
-                            Display location map
-                        </label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Map Type</label>
-                    <select class="form-select">
-                        <option value="google">Google Maps</option>
-                        <option value="embed">Embedded Map</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Map Latitude</label>
-                    <input type="text" class="form-control" placeholder="e.g., 31.5497">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Map Longitude</label>
-                    <input type="text" class="form-control" placeholder="e.g., 74.3436">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Map Zoom Level</label>
-                    <input type="number" class="form-control" placeholder="Enter zoom level (1-20)" value="15">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Embed Map Code</label>
-                    <textarea class="form-control" rows="2" placeholder="Paste Google Map embed code here"></textarea>
-                </div>
-            </div>
-        </div>
+function removeLocation(locationId, button) {
+    if (confirm('Are you sure you want to delete this location? This will be permanent after saving.')) {
+        // Add to deleted list
+        deletedLocations.push(locationId);
+        
+        // Add hidden input to track deletion
+        const form = button.closest('form');
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'delete_locations[]';
+        input.value = locationId;
+        form.appendChild(input);
+        
+        // Remove the location item
+        button.closest('.location-item').remove();
+        
+        // Check if container is empty
+        const container = document.getElementById('locations-container');
+        if (container.children.length === 0) {
+            container.innerHTML = '<p class="text-muted text-center py-3">No locations added yet. Click "Add Location" to add store locations.</p>';
+        }
+    }
+}
+</script>
 
-        <!-- Social Links -->
-        <div class="card rounded-lg border-0 shadow-sm mb-4">
-            <div class="card-header bg-light border-bottom">
-                <h5 class="mb-0">
-                    <i class="fas fa-share-alt text-accent"></i> Social Media Links
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="form-group">
-                    <label class="form-label">Facebook URL</label>
-                    <input type="url" class="form-control" placeholder="Enter Facebook page URL">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Twitter URL</label>
-                    <input type="url" class="form-control" placeholder="Enter Twitter profile URL">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Instagram URL</label>
-                    <input type="url" class="form-control" placeholder="Enter Instagram profile URL">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">LinkedIn URL</label>
-                    <input type="url" class="form-control" placeholder="Enter LinkedIn profile URL">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">WhatsApp Number</label>
-                    <input type="tel" class="form-control" placeholder="Enter WhatsApp number (with country code)">
-                </div>
-                <div class="form-group">
-                    <label class="form-check-label">
-                        <input type="checkbox" class="form-check-input" checked>
-                        Show social media links
-                    </label>
-                </div>
-            </div>
-        </div>
-    </div>
+<style>
+.page-header {
+    padding: 20px 0;
+    border-bottom: 1px solid #e9ecef;
+}
 
-    <!-- Right Column - Info -->
-    <div class="col-lg-4">
-        <!-- Quick Preview -->
-        <div class="card rounded-lg border-0 shadow-sm sticky-top" style="top: 100px;">
-            <div class="card-header bg-light border-bottom">
-                <h5 class="mb-0">
-                    <i class="fas fa-eye text-accent"></i> Preview
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="alert alert-info" role="alert">
-                    <i class="fas fa-info-circle"></i>
-                    <strong>Note:</strong> Changes will be reflected on the contact page after you save them.
-                </div>
-                <button class="btn btn-primary w-100 mb-2">
-                    <i class="fas fa-link"></i> View Contact Page
-                </button>
-                <button class="btn btn-outline-secondary w-100">
-                    <i class="fas fa-sync"></i> Preview Changes
-                </button>
-            </div>
-        </div>
+.page-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0;
+}
 
-        <!-- Help Card -->
-        <div class="card rounded-lg border-0 shadow-sm mt-4">
-            <div class="card-header bg-light border-bottom">
-                <h5 class="mb-0">
-                    <i class="fas fa-question-circle text-accent"></i> Tips
-                </h5>
-            </div>
-            <div class="card-body">
-                <ul class="list-unstyled">
-                    <li class="mb-3">
-                        <strong>Contact Info:</strong> Make it easy to find
-                    </li>
-                    <li class="mb-3">
-                        <strong>Contact Form:</strong> Keep it simple and short
-                    </li>
-                    <li class="mb-3">
-                        <strong>Map:</strong> Include your business location
-                    </li>
-                    <li>
-                        <strong>Social Links:</strong> Link to active accounts
-                    </li>
-                </ul>
-            </div>
-        </div>
+.location-item {
+    background: #f8f9fa;
+    transition: all 0.2s;
+}
 
-        <!-- Support Card -->
-        <div class="card rounded-lg border-0 shadow-sm mt-4">
-            <div class="card-header bg-light border-bottom">
-                <h5 class="mb-0">
-                    <i class="fas fa-headset text-accent"></i> Support
-                </h5>
-            </div>
-            <div class="card-body">
-                <p class="small">Need help with contact page setup? Check our documentation or contact support.</p>
-                <button class="btn btn-sm btn-outline-primary w-100">
-                    <i class="fas fa-book"></i> View Documentation
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+.location-item:hover {
+    background: #e9ecef;
+}
+
+.card {
+    transition: box-shadow 0.2s;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+</style>
 @endsection
