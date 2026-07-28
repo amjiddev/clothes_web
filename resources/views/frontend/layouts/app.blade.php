@@ -629,10 +629,10 @@
                     <h4><i class="fas fa-crown"></i> CLOTHES STORE</h4>
                     <p>Premium men's fashion with custom tailoring services. Your style, our expertise.</p>
                     <div class="social-links">
-                        <a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" title="Facebook"><i class="fab fa-tiktok"></i></a>
                         <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
-                        <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
-                        <a href="#" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" title="Twitter"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" title="LinkedIn"><i class="fab fa-youtube"></i></a>
                     </div>
                 </div>
 
@@ -648,13 +648,13 @@
                 </div>
 
                 <div class="col-lg-3 col-md-6 footer-section">
-                    <h4>Categories</h4>
+                    <h4>Customer Service</h4>
                     <ul>
-                        <li><a href="#">Formal Wear</a></li>
-                        <li><a href="#">Casual Wear</a></li>
-                        <li><a href="#">Ethnic Wear</a></li>
-                        <li><a href="#">Accessories</a></li>
-                        <li><a href="#">Special Occasions</a></li>
+                        <li><a href="{{ route('disclaimer') }}">Disclaimer</a></li>
+                        <li><a href="{{ route('return-exchange') }}">Return & Exchange</a></li>
+                        <li><a href="{{ route('shipping-policy') }}">Shipping Policy</a></li>
+                        <li><a href="{{ route('track-order') }}">Track Your Order</a></li>
+                        <li><a href="{{ route('feedback-survey') }}">Take our feedback survey</a></li>
                     </ul>
                 </div>
 
@@ -683,7 +683,7 @@
             </div>
 
             <div class="footer-bottom">
-                <p>&copy; 2024 CLOTHES STORE. All rights reserved. | <a href="#" style="color: var(--accent-gold);">Privacy Policy</a> | <a href="#" style="color: var(--accent-gold);">Terms of Service</a></p>
+                <p>&copy; 2024 CLOTHES STORE. All rights reserved. | <a href="{{ route('privacy-policy') }}" style="color: var(--accent-gold);">Privacy Policy</a> | <a href="{{ route('terms-of-service') }}" style="color: var(--accent-gold);">Terms of Service</a></p>
             </div>
         </div>
     </footer>

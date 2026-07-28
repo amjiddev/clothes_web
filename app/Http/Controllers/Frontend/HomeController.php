@@ -180,4 +180,39 @@ class HomeController extends Controller
     {
         return view('frontend.contact');
     }
+
+    public function disclaimer()
+    {
+        return view('frontend.disclaimer');
+    }
+
+    public function returnExchange()
+    {
+        return view('frontend.return-exchange');
+    }
+
+    public function shippingPolicy()
+    {
+        return view('frontend.shipping-policy');
+    }
+
+    public function trackOrder()
+    {
+        return view('frontend.track-order');
+    }
+
+    public function feedbackSurvey()
+    {
+        return view('frontend.feedback-survey');
+    }
+
+    public function privacyPolicy()
+    {
+        return view('frontend.privacy-policy');
+    }
+
+    public function termsOfService()
+    {
+        return view('frontend.terms-of-service');
+    }
 }

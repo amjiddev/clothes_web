@@ -17,6 +17,13 @@ Route::get('/product/{identifier}', [HomeController::class, 'productDetail'])->n
 Route::get('/tailoring', [HomeController::class, 'tailoring'])->name('tailoring');
 Route::get('/about', [HomeController::class, 'about'])->name('about');
 Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
+Route::get('/disclaimer', [HomeController::class, 'disclaimer'])->name('disclaimer');
+Route::get('/return-exchange', [HomeController::class, 'returnExchange'])->name('return-exchange');
+Route::get('/shipping-policy', [HomeController::class, 'shippingPolicy'])->name('shipping-policy');
+Route::get('/track-order', [HomeController::class, 'trackOrder'])->name('track-order');
+Route::get('/feedback-survey', [HomeController::class, 'feedbackSurvey'])->name('feedback-survey');
+Route::get('/privacy-policy', [HomeController::class, 'privacyPolicy'])->name('privacy-policy');
+Route::get('/terms-of-service', [HomeController::class, 'termsOfService'])->name('terms-of-service');
 
 // Tailoring Service Routes
 Route::get('/tailoring-service', [TailoringServiceController::class, 'show'])->name('tailoring.service');
