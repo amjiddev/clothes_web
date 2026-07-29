@@ -16,11 +16,22 @@ class HomeController extends Controller
                              ->orderBy('sort_order')
                              ->get();
 
-        // Get featured products (all active products for now)
+        // Get featured products from product_display_sections
         $featuredProducts = Product::where('is_active', true)
                                    ->where('stock_quantity', '>', 0)
+                                   ->whereHas('displaySections', function ($query) {
+                                       $query->where('section', 'home_featured')
+                                             ->where('is_active', true);
+                                   })
+                                   ->with(['images', 'category', 'displaySections'])
+                                   ->orderBy('created_at', 'desc')
                                    ->take(8)
                                    ->get();
+
+        // If no products are assigned to home_featured, show none
+        if ($featuredProducts->isEmpty()) {
+            $featuredProducts = collect();
+        }
 
         // Get categories with product count
         $categoriesWithCount = Category::where('is_active', true)
@@ -34,7 +45,12 @@ class HomeController extends Controller
 
     public function shop(Request $request)
     {
-        $query = Product::where('is_active', true);
+                // Only show products explicitly assigned to the Shop Page section.
+                $query = Product::where('is_active', true)
+                                                ->whereHas('displaySections', function ($q) {
+                                                        $q->where('section', 'shop_page')
+                                                            ->where('is_active', true);
+                                                });
 
         // Search by product name or description
         if ($request->has('search') && $request->search) {
@@ -118,7 +134,7 @@ class HomeController extends Controller
                 break;
         }
 
-        $products = $query->paginate(12)->appends($request->query());
+        $products = $query->with(['images', 'category'])->paginate(12)->appends($request->query());
 
         // Get filter data
         $categories = Category::where('is_active', true)
@@ -148,18 +164,21 @@ class HomeController extends Controller
         // Try to find by slug first, then by ID
         $product = Product::where('slug', $identifier)
                          ->where('is_active', true)
+                         ->with(['images', 'category', 'displaySections'])
                          ->first();
         
         // If not found by slug, try by ID
         if (!$product) {
             $product = Product::where('id', $identifier)
                              ->where('is_active', true)
+                             ->with(['images', 'category', 'displaySections'])
                              ->firstOrFail();
         }
         
         $relatedProducts = Product::where('category_id', $product->category_id)
                                  ->where('id', '!=', $product->id)
                                  ->where('is_active', true)
+                                 ->with(['images', 'category'])
                                  ->take(4)
                                  ->get();
 
@@ -173,26 +192,39 @@ class HomeController extends Controller
 
     public function collections()
     {
-        // Get best sellers (products with high stock movement - for now, most recent active products)
+        // Get best sellers from product sections
         $bestSellers = Product::where('is_active', true)
                              ->where('stock_quantity', '>', 0)
+                             ->whereHas('displaySections', function ($q) {
+                                 $q->where('section', 'best_sellers')
+                                   ->where('is_active', true);
+                             })
+                             ->with(['images', 'category'])
                              ->orderByDesc('created_at')
                              ->take(8)
                              ->get();
 
-        // Get summer 2026 collection (recent products - can be tagged with a category later)
+        // Get summer 2026 collection from product sections
         $summerCollection = Product::where('is_active', true)
                                   ->where('stock_quantity', '>', 0)
+                                  ->whereHas('displaySections', function ($q) {
+                                      $q->where('section', 'summer_2026')
+                                        ->where('is_active', true);
+                                  })
+                                  ->with(['images', 'category'])
                                   ->orderByDesc('created_at')
-                                  ->skip(8)
                                   ->take(8)
                                   ->get();
 
-        // Get featured collection (highlighted products)
+        // Get collections page products from product sections
         $featuredCollection = Product::where('is_active', true)
                                     ->where('stock_quantity', '>', 0)
+                                    ->whereHas('displaySections', function ($q) {
+                                        $q->where('section', 'collections')
+                                          ->where('is_active', true);
+                                    })
+                                    ->with(['images', 'category'])
                                     ->orderByDesc('created_at')
-                                    ->skip(16)
                                     ->take(8)
                                     ->get();
 
@@ -201,9 +233,13 @@ class HomeController extends Controller
 
     public function bestSellers(Request $request)
     {
-        // Get best selling products
+        // Get best selling products from product sections
         $query = Product::where('is_active', true)
                        ->where('stock_quantity', '>', 0)
+                       ->whereHas('displaySections', function ($q) {
+                           $q->where('section', 'best_sellers')
+                             ->where('is_active', true);
+                       })
                        ->orderByDesc('created_at');
 
         // Apply search filter
@@ -219,10 +255,10 @@ class HomeController extends Controller
         $sort = $request->get('sort', 'popular');
         switch ($sort) {
             case 'price-low':
-                $query->orderBy('discount_price', 'asc')->orderBy('price', 'asc');
+                $query->orderBy('sale_price', 'asc')->orderBy('regular_price', 'asc');
                 break;
             case 'price-high':
-                $query->orderByDesc('discount_price')->orderByDesc('price');
+                $query->orderByDesc('sale_price')->orderByDesc('regular_price');
                 break;
             case 'popular':
             default:
@@ -230,7 +266,7 @@ class HomeController extends Controller
                 break;
         }
 
-        $products = $query->paginate(12)->appends($request->query());
+        $products = $query->with(['images', 'category'])->paginate(12)->appends($request->query());
 
         return view('frontend.collection-detail', [
             'products' => $products,
@@ -242,9 +278,13 @@ class HomeController extends Controller
 
     public function summer2026(Request $request)
     {
-        // Get summer 2026 collection products
+        // Get summer 2026 collection products from product sections
         $query = Product::where('is_active', true)
                        ->where('stock_quantity', '>', 0)
+                       ->whereHas('displaySections', function ($q) {
+                           $q->where('section', 'summer_2026')
+                             ->where('is_active', true);
+                       })
                        ->orderByDesc('created_at');
 
         // Apply search filter
@@ -260,10 +300,10 @@ class HomeController extends Controller
         $sort = $request->get('sort', 'latest');
         switch ($sort) {
             case 'price-low':
-                $query->orderBy('discount_price', 'asc')->orderBy('price', 'asc');
+                $query->orderBy('sale_price', 'asc')->orderBy('regular_price', 'asc');
                 break;
             case 'price-high':
-                $query->orderByDesc('discount_price')->orderByDesc('price');
+                $query->orderByDesc('sale_price')->orderByDesc('regular_price');
                 break;
             case 'latest':
             default:
@@ -271,7 +311,7 @@ class HomeController extends Controller
                 break;
         }
 
-        $products = $query->paginate(12)->appends($request->query());
+        $products = $query->with(['images', 'category'])->paginate(12)->appends($request->query());
 
         return view('frontend.collection-detail', [
             'products' => $products,
@@ -283,10 +323,14 @@ class HomeController extends Controller
 
     public function featured(Request $request)
     {
-        // Get featured collection products
-        $query = Product::where('is_active', true)
-                       ->where('stock_quantity', '>', 0)
-                       ->orderByDesc('created_at');
+                // Only get products assigned to the Collections feature section
+                $query = Product::where('is_active', true)
+                                             ->where('stock_quantity', '>', 0)
+                                             ->whereHas('displaySections', function ($q) {
+                                                     $q->where('section', 'collections')
+                                                         ->where('is_active', true);
+                                             })
+                                             ->orderByDesc('created_at');
 
         // Apply search filter
         if ($request->has('search') && $request->search) {
@@ -375,15 +419,17 @@ class HomeController extends Controller
 
     public function newIn(Request $request)
     {
-        // Get the latest products (created in the last 30 days or newest 12 products)
+        // Get products assigned to "New In" section
         $query = Product::where('is_active', true)
-                       ->where('created_at', '>=', now()->subDays(30))
+                       ->whereHas('displaySections', function ($q) {
+                           $q->where('section', 'new_in')
+                             ->where('is_active', true);
+                       })
                        ->orderByDesc('created_at');
 
-        // If no products in last 30 days, just show the newest products
+        // If no products are assigned to this section, return an empty result
         if ($query->count() == 0) {
-            $query = Product::where('is_active', true)
-                           ->orderByDesc('created_at');
+            $query = Product::whereRaw('0 = 1');
         }
 
         // Apply search filter if provided
@@ -399,10 +445,10 @@ class HomeController extends Controller
         $sort = $request->get('sort', 'latest');
         switch ($sort) {
             case 'price-low':
-                $query->orderBy('discount_price', 'asc')->orderBy('price', 'asc');
+                $query->orderBy('sale_price', 'asc')->orderBy('regular_price', 'asc');
                 break;
             case 'price-high':
-                $query->orderByDesc('discount_price')->orderByDesc('price');
+                $query->orderByDesc('sale_price')->orderByDesc('regular_price');
                 break;
             case 'latest':
             default:
@@ -410,18 +456,25 @@ class HomeController extends Controller
                 break;
         }
 
-        $products = $query->paginate(12)->appends($request->query());
+        $products = $query->with(['images', 'category'])->paginate(12)->appends($request->query());
 
         return view('frontend.new-in', compact('products'));
     }
 
     public function summerSale(Request $request)
     {
-        // Get products with discount (sale items)
+        // Get products assigned to "Summer Sale" section
         $query = Product::where('is_active', true)
-                       ->whereNotNull('discount_price')
-                       ->where('discount_price', '<', \DB::raw('price'))
+                       ->whereHas('displaySections', function ($q) {
+                           $q->where('section', 'summer_sale')
+                             ->where('is_active', true);
+                       })
                        ->orderByDesc('created_at');
+
+        // If no products are assigned to this section, return an empty result
+        if ($query->count() == 0) {
+            $query = Product::whereRaw('0 = 1');
+        }
 
         // Apply search filter if provided
         if ($request->has('search') && $request->search) {
@@ -436,19 +489,19 @@ class HomeController extends Controller
         $sort = $request->get('sort', 'discount');
         switch ($sort) {
             case 'price-low':
-                $query->orderBy('discount_price', 'asc');
+                $query->orderBy('sale_price', 'asc');
                 break;
             case 'price-high':
-                $query->orderByDesc('discount_price');
+                $query->orderByDesc('sale_price');
                 break;
             case 'discount':
             default:
                 // Sort by discount percentage (highest discount first)
-                $query->orderByRaw('((price - discount_price) / price) DESC');
+                $query->orderByRaw('CASE WHEN sale_price IS NOT NULL THEN ((regular_price - sale_price) / regular_price) ELSE 0 END DESC');
                 break;
         }
 
-        $products = $query->paginate(12)->appends($request->query());
+        $products = $query->with(['images', 'category'])->paginate(12)->appends($request->query());
 
         return view('frontend.summer-sale', compact('products'));
     }

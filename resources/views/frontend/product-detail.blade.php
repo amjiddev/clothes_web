@@ -15,78 +15,67 @@
                     <i class="fas fa-chevron-up" style="font-size: 1.5rem; color: #333;"></i>
                 </div>
 
-                <!-- Thumbnails Container with Scroll - Show Only 3 Images -->
+                <!-- Thumbnails Container with Scroll - Show Only Images That Exist -->
+                @php
+                    $allProductImages = [];
+                    
+                    // Add featured image if exists
+                    if ($product->featuredImage) {
+                        $allProductImages[] = $product->featuredImage;
+                    }
+                    
+                    // Add gallery images if exist
+                    if ($product->galleryImages && count($product->galleryImages) > 0) {
+                        $allProductImages = array_merge($allProductImages, $product->galleryImages->all());
+                    }
+                    
+                    $totalImages = count($allProductImages);
+                @endphp
+
                 <div style="width: 110px; height: 480px; overflow: hidden; position: relative;">
                     <div id="thumbnailGallery" style="display: flex; flex-direction: column; gap: 10px; transition: transform 0.4s ease; padding: 0;">
+                        @forelse($allProductImages as $index => $image)
+                        <div 
+                            style="width: 110px; height: 150px; background: #e0e0e0; cursor: pointer; overflow: hidden; border: 2px solid #ddd; flex-shrink: 0;" 
+                            onclick="selectThumbnail(this, {{ $index }})"
+                        >
+                            <img src="{{ $image->image_url }}" alt="Product Image {{ $index + 1 }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        @empty
                         <div 
                             style="width: 110px; height: 150px; background: #e0e0e0; cursor: pointer; overflow: hidden; border: 2px solid #ddd; flex-shrink: 0;" 
                             onclick="selectThumbnail(this, 0)"
                         >
-                            <img src="{{ asset('frontend/images/images.jfif') }}" alt="Image 1" style="width: 100%; height: 100%; object-fit: cover;">
+                            <img src="https://via.placeholder.com/110x150?text=No+Image" alt="No Image" style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
-                        <div 
-                            style="width: 110px; height: 150px; background: #e0e0e0; cursor: pointer; overflow: hidden; border: 2px solid #ddd; flex-shrink: 0;" 
-                            onclick="selectThumbnail(this, 1)"
-                        >
-                            <img src="{{ asset('frontend/images/images (1).jfif') }}" alt="Image 2" style="width: 100%; height: 100%; object-fit: cover;">
-                        </div>
-                        <div 
-                            style="width: 110px; height: 150px; background: #e0e0e0; cursor: pointer; overflow: hidden; border: 2px solid #ddd; flex-shrink: 0;" 
-                            onclick="selectThumbnail(this, 2)"
-                        >
-                            <img src="{{ asset('frontend/images/images (2).jfif') }}" alt="Image 3" style="width: 100%; height: 100%; object-fit: cover;">
-                        </div>
-                        <div 
-                            style="width: 110px; height: 150px; background: #e0e0e0; cursor: pointer; overflow: hidden; border: 2px solid #ddd; flex-shrink: 0;" 
-                            onclick="selectThumbnail(this, 3)"
-                        >
-                            <img src="{{ asset('frontend/images/images (3).jfif') }}" alt="Image 4" style="width: 100%; height: 100%; object-fit: cover;">
-                        </div>
-                        <div 
-                            style="width: 110px; height: 150px; background: #e0e0e0; cursor: pointer; overflow: hidden; border: 2px solid #ddd; flex-shrink: 0;" 
-                            onclick="selectThumbnail(this, 4)"
-                        >
-                            <img src="{{ asset('frontend/images/images (4).jfif') }}" alt="Image 5" style="width: 100%; height: 100%; object-fit: cover;">
-                        </div>
-                        <div 
-                            style="width: 110px; height: 150px; background: #e0e0e0; cursor: pointer; overflow: hidden; border: 2px solid #ddd; flex-shrink: 0;" 
-                            onclick="selectThumbnail(this, 5)"
-                        >
-                            <img src="{{ asset('frontend/images/images (5).jfif') }}" alt="Image 6" style="width: 100%; height: 100%; object-fit: cover;">
-                        </div>
-                        <!-- Clone first 3 images at the end for infinite loop -->
-                        <div 
-                            style="width: 110px; height: 150px; background: #e0e0e0; cursor: pointer; overflow: hidden; border: 2px solid #ddd; flex-shrink: 0;" 
-                            onclick="selectThumbnail(this, 0)"
-                        >
-                            <img src="{{ asset('frontend/images/images.jfif') }}" alt="Image 1 Clone" style="width: 100%; height: 100%; object-fit: cover;">
-                        </div>
-                        <div 
-                            style="width: 110px; height: 150px; background: #e0e0e0; cursor: pointer; overflow: hidden; border: 2px solid #ddd; flex-shrink: 0;" 
-                            onclick="selectThumbnail(this, 1)"
-                        >
-                            <img src="{{ asset('frontend/images/images (1).jfif') }}" alt="Image 2 Clone" style="width: 100%; height: 100%; object-fit: cover;">
-                        </div>
-                        <div 
-                            style="width: 110px; height: 150px; background: #e0e0e0; cursor: pointer; overflow: hidden; border: 2px solid #ddd; flex-shrink: 0;" 
-                            onclick="selectThumbnail(this, 2)"
-                        >
-                            <img src="{{ asset('frontend/images/images (2).jfif') }}" alt="Image 3 Clone" style="width: 100%; height: 100%; object-fit: cover;">
-                        </div>
+                        @endforelse
                     </div>
                 </div>
 
                 <!-- Down Arrow -->
+                @if($totalImages > 3)
                 <div style="text-align: center; cursor: pointer;" onclick="scrollGalleryDown()">
                     <i class="fas fa-chevron-down" style="font-size: 1.5rem; color: #333;"></i>
                 </div>
+                @endif
             </div>
 
             <!-- Center - Large Main Image with Zoom -->
             <div style="position: relative; overflow: hidden; cursor: zoom-in;">
+                @php
+                    $mainImageUrl = '';
+                    if ($product->featuredImage) {
+                        $mainImageUrl = $product->featuredImage->image_url;
+                    } elseif ($product->galleryImages && count($product->galleryImages) > 0) {
+                        $mainImageUrl = $product->galleryImages->first()->image_url;
+                    } else {
+                        $mainImageUrl = 'https://via.placeholder.com/500x650?text=No+Image';
+                    }
+                @endphp
+                
                 <img 
                     id="mainImage" 
-                    src="{{ asset('frontend/images/images.jfif') }}" 
+                    src="{{ $mainImageUrl }}" 
                     alt="{{ $product->name }}" 
                     style="width: 100%; height: 650px; object-fit: cover; background: #e0e0e0; transition: transform 0.1s ease-out; transform-origin: center;"
                     onmousemove="zoomImage(event)"
@@ -311,14 +300,34 @@ let currentImageIndex = 0;
 const imageHeight = 150;
 const gap = 10;
 const imagesPerView = 3;
-let totalUniqueImages = 6;
+let totalUniqueImages = {{ $totalImages }};
 let allImages = [];
 const zoomLevel = 2; // 200% zoom
 
 function initGallery() {
     // Get all image elements
     const gallery = document.getElementById('thumbnailGallery');
-    allImages = Array.from(gallery.querySelectorAll('div'));
+    const originalImages = Array.from(gallery.querySelectorAll('div'));
+    
+    // Store original images for infinite loop
+    allImages = originalImages;
+    totalUniqueImages = originalImages.length;
+    
+    // Duplicate images for infinite scroll effect
+    if (totalUniqueImages > 0) {
+        originalImages.forEach(img => {
+            const clone = img.cloneNode(true);
+            clone.onclick = function() {
+                selectThumbnail(this, originalImages.indexOf(img));
+            };
+            gallery.appendChild(clone);
+        });
+    }
+    
+    // Select first image
+    if (allImages.length > 0) {
+        selectThumbnail(allImages[0], 0);
+    }
 }
 
 function zoomImage(event) {
@@ -385,16 +394,21 @@ function selectThumbnail(element, index) {
     // Reset zoom when changing image
     resetZoom();
     
-    // Update selected state
-    document.querySelectorAll('#thumbnailGallery div').forEach(el => {
+    // Update selected state - only highlight original images, not duplicates
+    const gallery = document.getElementById('thumbnailGallery');
+    const allGalleryItems = Array.from(gallery.querySelectorAll('div'));
+    
+    allGalleryItems.forEach(el => {
         el.style.borderColor = '#ddd';
         el.style.borderWidth = '2px';
     });
+    
+    // Highlight both original and duplicate
     element.style.borderColor = '#000';
     element.style.borderWidth = '3px';
     
-    // Set current index to the original image index (not clone)
-    currentImageIndex = index % totalUniqueImages;
+    // Set current index
+    currentImageIndex = index;
     updateGalleryPosition();
 }
 

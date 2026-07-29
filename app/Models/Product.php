@@ -15,10 +15,14 @@ class Product extends Model
         'slug',
         'description',
         'short_description',
+        'full_description',
         'price',
+        'regular_price',
+        'sale_price',
         'discount_price',
         'sku',
         'stock_quantity',
+        'brand',
         'color',
         'material',
         'size',
@@ -50,12 +54,50 @@ class Product extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class)->ordered();
+    }
+
+    public function featuredImage()
+    {
+        return $this->hasOne(ProductImage::class)->where('is_featured', true);
+    }
+
+    public function galleryImages()
+    {
+        return $this->hasMany(ProductImage::class)->where('is_featured', false)->ordered();
+    }
+
+    public function displaySections()
+    {
+        return $this->hasMany(ProductDisplaySection::class);
+    }
+
+    public function activeSections()
+    {
+        return $this->hasMany(ProductDisplaySection::class)->where('is_active', true);
+    }
+
     // Accessors
     public function getImageUrlAttribute()
     {
+        // First, try to get from featured image relationship
+        if ($this->relationLoaded('featuredImage') && $this->featuredImage) {
+            return asset('storage/' . $this->featuredImage->image_path);
+        }
+        
+        // Try to load featured image if not loaded
+        $featuredImage = $this->featuredImage()->first();
+        if ($featuredImage) {
+            return asset('storage/' . $featuredImage->image_path);
+        }
+        
+        // Fallback to old image field
         if ($this->image) {
             return asset('storage/' . $this->image);
         }
+        
         return asset('images/placeholder.png');
     }
 

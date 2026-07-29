@@ -95,5 +95,9 @@ Route::middleware(['auth', 'verified', 'admin.only'])->prefix('admin')->name('ad
         Route::post('/contact/store', [\App\Http\Controllers\Admin\WebsiteManagementController::class, 'storeContact'])->name('contact.store');
         Route::put('/contact/{id}/update', [\App\Http\Controllers\Admin\WebsiteManagementController::class, 'updateContact'])->name('contact.update');
         Route::delete('/contact/{id}/delete', [\App\Http\Controllers\Admin\WebsiteManagementController::class, 'deleteContact'])->name('contact.delete');
+        
+        // Product Sections Management
+        Route::resource('product-sections', \App\Http\Controllers\Admin\ProductSectionController::class);
+        Route::delete('product-sections/{productSection}/images/{image}', [\App\Http\Controllers\Admin\ProductSectionController::class, 'deleteImage'])->name('product-sections.delete-image');
     });
 });
