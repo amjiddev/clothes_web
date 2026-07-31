@@ -192,43 +192,13 @@ class HomeController extends Controller
 
     public function collections()
     {
-        // Get best sellers from product sections
-        $bestSellers = Product::where('is_active', true)
-                             ->where('stock_quantity', '>', 0)
-                             ->whereHas('displaySections', function ($q) {
-                                 $q->where('section', 'best_sellers')
-                                   ->where('is_active', true);
-                             })
-                             ->with(['images', 'category'])
-                             ->orderByDesc('created_at')
-                             ->take(8)
-                             ->get();
+        // Get published collection sections
+        $collectionSections = \App\Models\CollectionSection::published()
+                                                          ->ordered()
+                                                          ->with('images')
+                                                          ->get();
 
-        // Get summer 2026 collection from product sections
-        $summerCollection = Product::where('is_active', true)
-                                  ->where('stock_quantity', '>', 0)
-                                  ->whereHas('displaySections', function ($q) {
-                                      $q->where('section', 'summer_2026')
-                                        ->where('is_active', true);
-                                  })
-                                  ->with(['images', 'category'])
-                                  ->orderByDesc('created_at')
-                                  ->take(8)
-                                  ->get();
-
-        // Get collections page products from product sections
-        $featuredCollection = Product::where('is_active', true)
-                                    ->where('stock_quantity', '>', 0)
-                                    ->whereHas('displaySections', function ($q) {
-                                        $q->where('section', 'collections')
-                                          ->where('is_active', true);
-                                    })
-                                    ->with(['images', 'category'])
-                                    ->orderByDesc('created_at')
-                                    ->take(8)
-                                    ->get();
-
-        return view('frontend.collections', compact('bestSellers', 'summerCollection', 'featuredCollection'));
+        return view('frontend.collections', compact('collectionSections'));
     }
 
     public function bestSellers(Request $request)

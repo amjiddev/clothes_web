@@ -112,6 +112,10 @@
                     <i class="fas fa-address-book"></i>
                     <span>Contact Page</span>
                 </a>
+                <a href="{{ route('admin.website-management.collections.index') }}" class="nav-link {{ request()->routeIs('admin.website-management.collections.*') ? 'active' : '' }}">
+                    <i class="fas fa-images"></i>
+                    <span>Collections Page</span>
+                </a>
                 <a href="{{ route('admin.website-management.product-sections.index') }}" class="nav-link {{ request()->routeIs('admin.website-management.product-sections.*') ? 'active' : '' }}">
                     <i class="fas fa-th-large"></i>
                     <span>Product Sections</span>

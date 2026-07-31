@@ -99,5 +99,16 @@ Route::middleware(['auth', 'verified', 'admin.only'])->prefix('admin')->name('ad
         // Product Sections Management
         Route::resource('product-sections', \App\Http\Controllers\Admin\ProductSectionController::class);
         Route::delete('product-sections/{productSection}/images/{image}', [\App\Http\Controllers\Admin\ProductSectionController::class, 'deleteImage'])->name('product-sections.delete-image');
+        
+        // Collection Sections Management
+        Route::prefix('collections')->name('collections.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\CollectionSectionController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Admin\CollectionSectionController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Admin\CollectionSectionController::class, 'store'])->name('store');
+            Route::get('/{section}/edit', [\App\Http\Controllers\Admin\CollectionSectionController::class, 'edit'])->name('edit');
+            Route::put('/{section}', [\App\Http\Controllers\Admin\CollectionSectionController::class, 'update'])->name('update');
+            Route::delete('/{section}', [\App\Http\Controllers\Admin\CollectionSectionController::class, 'destroy'])->name('destroy');
+            Route::post('/{section}/toggle-published', [\App\Http\Controllers\Admin\CollectionSectionController::class, 'togglePublished'])->name('toggle-published');
+        });
     });
 });
