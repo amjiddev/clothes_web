@@ -105,8 +105,8 @@
                                         <input 
                                             type="radio" 
                                             name="category" 
-                                            value="dhanakye"
-                                            {{ request('category') == 'dhanakye' ? 'checked' : '' }}
+                                            value="dhanak"
+                                            {{ request('category') == 'dhanak' ? 'checked' : '' }}
                                             onchange="document.getElementById('categoryForm').submit()"
                                         >
                                         <span style="color: var(--primary-dark);">Dhanak</span>

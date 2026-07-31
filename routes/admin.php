@@ -89,6 +89,12 @@ Route::middleware(['auth', 'verified', 'admin.only'])->prefix('admin')->name('ad
         Route::resource('permissions', \App\Http\Controllers\Apps\PermissionManagementController::class);
     });
 
+    // Brand Management
+    Route::post('brands', [\App\Http\Controllers\Admin\BrandController::class, 'store'])->name('brands.store');
+    Route::put('brands/{brand}', [\App\Http\Controllers\Admin\BrandController::class, 'update'])->name('brands.update');
+    Route::delete('brands/{brand}', [\App\Http\Controllers\Admin\BrandController::class, 'destroy'])->name('brands.destroy');
+    Route::get('brands/{brand}/get-by-id', [\App\Http\Controllers\Admin\BrandController::class, 'getById'])->name('brands.getById');
+
     // Website Management - Frontend Pages
     Route::prefix('website-management')->name('website-management.')->group(function () {
         Route::get('/contact', [\App\Http\Controllers\Admin\WebsiteManagementController::class, 'contact'])->name('contact');

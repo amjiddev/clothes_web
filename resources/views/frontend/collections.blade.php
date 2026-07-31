@@ -35,7 +35,7 @@
                                 {{ $section->title }}
                             </h2>
                             
-                            <p style="font-size: 1.1rem; {{ $section->badge_bg_color === 'dark' ? 'color: var(--text-cream);' : 'color: var(--text-muted);' }} margin-bottom: 2rem; line-height: 1.8;">
+                            <p style="font-size: 0.95rem; {{ $section->badge_bg_color === 'dark' ? 'color: var(--text-cream);' : 'color: var(--text-muted);' }} margin-bottom: 1.2rem; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; min-height: 4.8rem;">
                                 {{ $section->description }}
                             </p>
 
@@ -58,25 +58,25 @@
                     </div>
 
                     <!-- Images Grid -->
-                    <div class="col-lg-6 {{ $loop->even ? 'order-lg-2 order-1' : 'order-lg-1 order-2' }}" style="display: flex; align-items: stretch;">
-                        <div class="collection-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0; width: 100%;">
+                    <div class="col-lg-6 {{ $loop->even ? 'order-lg-2 order-1' : 'order-lg-1 order-2' }}" style="display: flex; align-items: stretch; min-height: 280px;">
+                        <div class="collection-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 0; width: 100%; height: 100%;">
                             @forelse($section->images as $image)
-                                <div style="position: relative; overflow: hidden; background: #f5f5f5; padding-bottom: 100%;">
+                                <div style="position: relative; overflow: hidden; background: #f5f5f5;">
                                     <img src="{{ $image->image_url }}" alt="{{ $image->image_alt_text ?? $image->product_name }}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;">
                                     <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.5), transparent); opacity: 0; transition: opacity 0.3s ease;">
-                                        <div style="position: absolute; bottom: 15px; left: 15px; color: white;">
+                                        <div style="position: absolute; bottom: 12px; left: 12px; color: white;">
                                             @if($image->product_name)
-                                                <div style="font-size: 0.85rem; font-weight: 600;">{{ strlen($image->product_name) > 20 ? substr($image->product_name, 0, 20) . '...' : $image->product_name }}</div>
+                                                <div style="font-size: 0.75rem; font-weight: 600;">{{ strlen($image->product_name) > 20 ? substr($image->product_name, 0, 20) . '...' : $image->product_name }}</div>
                                             @endif
                                             @if($image->product_price)
-                                                <div style="font-size: 0.9rem; font-weight: 700; color: var(--accent-gold);">{{ $image->product_price }}</div>
+                                                <div style="font-size: 0.8rem; font-weight: 700; color: var(--accent-gold);">{{ $image->product_price }}</div>
                                             @endif
                                         </div>
                                     </div>
                                 </div>
                             @empty
                                 @for($i = 0; $i < 4; $i++)
-                                    <div style="position: relative; overflow: hidden; background: #f5f5f5; padding-bottom: 100%;">
+                                    <div style="position: relative; overflow: hidden; background: #f5f5f5;">
                                         <img src="https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=400&h=400&fit=crop" alt="placeholder" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;">
                                     </div>
                                 @endfor

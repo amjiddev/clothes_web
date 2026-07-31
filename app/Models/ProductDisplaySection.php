@@ -23,7 +23,7 @@ class ProductDisplaySection extends Model
         'home_featured' => 'Home Page - Featured Products',
         'shop_page' => 'Shop Page',
         'new_in' => 'New In Page',
-        'summer_sale' => 'Summer Sale Page',
+        'brands_page' => 'Brands Page',
         'collections' => 'Collections Page',
         'best_sellers' => 'Best Sellers Page',
         'summer_2026' => 'Summer 2026 Collection Page',

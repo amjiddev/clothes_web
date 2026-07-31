@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Brand;
 use App\Models\ProductImage;
 use App\Models\ProductDisplaySection;
 use Illuminate\Http\Request;
@@ -25,6 +26,9 @@ class ProductSectionController extends Controller
                           ->latest()
                           ->paginate(15);
         
+        // Get all brands
+        $brands = Brand::all();
+        
         // Statistics
         $stats = [
             'total_products' => Product::count(),
@@ -37,6 +41,7 @@ class ProductSectionController extends Controller
             'pageTitle',
             'pageDescription',
             'products',
+            'brands',
             'stats'
         ));
     }
@@ -50,12 +55,14 @@ class ProductSectionController extends Controller
         $pageDescription = 'Create a new product and assign it to display sections';
         
         $categories = Category::where('is_active', true)->get();
+        $brands = Brand::where('is_active', true)->get();
         $sections = ProductDisplaySection::SECTIONS;
         
         return view('admin.website-management.product-sections.create', compact(
             'pageTitle',
             'pageDescription',
             'categories',
+            'brands',
             'sections'
         ));
     }
@@ -69,7 +76,7 @@ class ProductSectionController extends Controller
             'name' => 'required|string|max:255',
             'slug' => 'nullable|string|unique:products,slug',
             'category_id' => 'required|exists:categories,id',
-            'brand' => 'nullable|string|max:255',
+            'brand_id' => 'nullable|exists:brands,id',
             'regular_price' => 'required|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0|lt:regular_price',
             'short_description' => 'nullable|string',
@@ -106,13 +113,24 @@ class ProductSectionController extends Controller
             $discountPrice = $validated['sale_price'];
         }
         
+        // Handle brand from dropdown
+        $brandId = $validated['brand_id'] ?? null;
+        $brandName = null;
+        
+        // Get brand name if brand_id is selected
+        if ($brandId) {
+            $brand = Brand::find($brandId);
+            $brandName = $brand ? $brand->name : null;
+        }
+        
         // Create product
         $product = Product::create([
             'category_id' => $validated['category_id'],
+            'brand_id' => $brandId,
+            'brand' => $brandName,
             'name' => $validated['name'],
             'slug' => $validated['slug'],
             'sku' => $sku,
-            'brand' => $validated['brand'] ?? null,
             'price' => $validated['regular_price'],
             'regular_price' => $validated['regular_price'],
             'sale_price' => $validated['sale_price'] ?? null,
@@ -205,6 +223,7 @@ class ProductSectionController extends Controller
         $pageDescription = 'Update product information and display sections';
         
         $categories = Category::where('is_active', true)->get();
+        $brands = Brand::where('is_active', true)->get();
         $sections = ProductDisplaySection::SECTIONS;
         $selectedSections = $product->displaySections->pluck('section')->toArray();
         
@@ -213,6 +232,7 @@ class ProductSectionController extends Controller
             'pageDescription',
             'product',
             'categories',
+            'brands',
             'sections',
             'selectedSections'
         ));
@@ -229,7 +249,7 @@ class ProductSectionController extends Controller
             'name' => 'required|string|max:255',
             'slug' => 'nullable|string|unique:products,slug,' . $product->id,
             'category_id' => 'required|exists:categories,id',
-            'brand' => 'nullable|string|max:255',
+            'brand_id' => 'nullable|exists:brands,id',
             'regular_price' => 'required|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0|lt:regular_price',
             'short_description' => 'nullable|string',
@@ -272,13 +292,24 @@ class ProductSectionController extends Controller
             $discountPrice = $validated['sale_price'];
         }
         
+        // Handle brand from dropdown
+        $brandId = $validated['brand_id'] ?? null;
+        $brandName = null;
+        
+        // Get brand name if brand_id is selected
+        if ($brandId) {
+            $brand = Brand::find($brandId);
+            $brandName = $brand ? $brand->name : null;
+        }
+        
         // Update product
         $product->update([
             'category_id' => $validated['category_id'],
+            'brand_id' => $brandId,
+            'brand' => $brandName,
             'name' => $validated['name'],
             'slug' => $validated['slug'],
             'sku' => $sku,
-            'brand' => $validated['brand'] ?? null,
             'price' => $validated['regular_price'],
             'regular_price' => $validated['regular_price'],
             'sale_price' => $validated['sale_price'] ?? null,

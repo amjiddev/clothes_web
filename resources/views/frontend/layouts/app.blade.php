@@ -76,11 +76,13 @@
             transition: width 0.3s ease;
         }
 
-        .navbar-premium .nav-link:hover::after {
+        .navbar-premium .nav-link:hover::after,
+        .navbar-premium .nav-link.active::after {
             width: 100%;
         }
 
-        .navbar-premium .nav-link:hover {
+        .navbar-premium .nav-link:hover,
+        .navbar-premium .nav-link.active {
             color: var(--accent-gold) !important;
         }
 
@@ -582,7 +584,7 @@
                         <a class="nav-link" href="{{ route('new-in') }}">NEW IN</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('summer-sale') }}">Summer Sale</a>
+                        <a class="nav-link" href="{{ route('brands-page') }}">BRANDS</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('collections') }}">Collections</a>
@@ -694,6 +696,31 @@
         }
 
         updateCartCount();
+
+        // Set active nav link based on current page
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUrl = window.location.pathname;
+            const navLinks = document.querySelectorAll('.navbar-premium .nav-link');
+            
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                
+                // Check if the link's href matches the current URL
+                if (href && (
+                    (currentUrl === '/' && href === '{{ route("home") }}') ||
+                    (currentUrl.includes('/shop') && href === '{{ route("shop") }}') ||
+                    (currentUrl.includes('/new-in') && href === '{{ route("new-in") }}') ||
+                    (currentUrl.includes('/brands-page') && href === '{{ route("brands-page") }}') ||
+                    (currentUrl.includes('/collections') && href === '{{ route("collections") }}') ||
+                    (currentUrl.includes('/tailoring') && href === '{{ route("tailoring.service") }}') ||
+                    (currentUrl.includes('/contact') && href === '{{ route("contact") }}')
+                )) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        });
     </script>
 
     @yield('scripts')

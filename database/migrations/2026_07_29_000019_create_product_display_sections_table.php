@@ -18,7 +18,7 @@ return new class extends Migration
                 'home_featured',
                 'shop_page',
                 'new_in',
-                'summer_sale',
+                'brands_page',
                 'collections',
                 'best_sellers',
                 'summer_2026'

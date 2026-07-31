@@ -75,9 +75,16 @@
 
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">Product Brand</label>
-                                <input type="text" name="brand" class="form-control @error('brand') is-invalid @enderror" value="{{ old('brand') }}" placeholder="Enter brand name">
-                                @error('brand')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                <select name="brand_id" class="form-select @error('brand_id') is-invalid @enderror">
+                                    <option value="">-- Select Brand --</option>
+                                    @foreach($brands as $brand)
+                                        <option value="{{ $brand->id }}" {{ old('brand_id') == $brand->id ? 'selected' : '' }}>
+                                            {{ $brand->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('brand_id')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>

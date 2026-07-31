@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Brand;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -61,16 +62,20 @@ class HomeController extends Controller
             });
         }
 
-        // Filter by category - search by ID, slug, name, or product name
+        // Filter by category - search by ID, slug, or name
         if ($request->has('category') && $request->category) {
             $categoryValue = $request->category;
-            $query->where(function ($q) use ($categoryValue) {
-                // Try to find by category_id first
-                $q->where('category_id', $categoryValue)
-                  // Also search by category name or slug in product name/description
-                  ->orWhere('name', 'like', "%{$categoryValue}%")
-                  ->orWhere('description', 'like', "%{$categoryValue}%");
-            });
+            
+            // Find category by ID, slug, or name
+            $category = Category::where(function ($q) use ($categoryValue) {
+                $q->where('id', $categoryValue)
+                  ->orWhere('slug', $categoryValue)
+                  ->orWhere('name', 'like', "%{$categoryValue}%");
+            })->first();
+            
+            if ($category) {
+                $query->where('category_id', $category->id);
+            }
         }
 
         // Filter by price range
@@ -431,15 +436,23 @@ class HomeController extends Controller
         return view('frontend.new-in', compact('products'));
     }
 
-    public function summerSale(Request $request)
+    public function brandsPage(Request $request)
     {
-        // Get products assigned to "Summer Sale" section
+        // Get products assigned to "Brands Page" section with a specific brand
+        $brand = $request->get('brand');
+        
         $query = Product::where('is_active', true)
                        ->whereHas('displaySections', function ($q) {
-                           $q->where('section', 'summer_sale')
+                           $q->where('section', 'brands_page')
                              ->where('is_active', true);
-                       })
-                       ->orderByDesc('created_at');
+                       });
+
+        // Filter by brand if provided
+        if ($brand) {
+            $query->where('brand_id', $brand);
+        }
+
+        $query->orderByDesc('created_at');
 
         // If no products are assigned to this section, return an empty result
         if ($query->count() == 0) {
@@ -455,24 +468,87 @@ class HomeController extends Controller
             });
         }
 
+        // Filter by price range
+        if ($request->has('min_price') && $request->min_price) {
+            $query->where(function ($q) use ($request) {
+                $q->where('discount_price', '>=', $request->min_price)
+                  ->orWhere(function ($q2) use ($request) {
+                      $q2->whereNull('discount_price')
+                        ->where('price', '>=', $request->min_price);
+                  });
+            });
+        }
+
+        if ($request->has('max_price') && $request->max_price) {
+            $query->where(function ($q) use ($request) {
+                $q->where('discount_price', '<=', $request->max_price)
+                  ->orWhere(function ($q2) use ($request) {
+                      $q2->whereNull('discount_price')
+                        ->where('price', '<=', $request->max_price);
+                  });
+            });
+        }
+
+        // Filter by size
+        if ($request->has('size') && $request->size) {
+            $query->where(function ($q) use ($request) {
+                $q->where('size', $request->size)
+                  ->orWhereJsonContains('available_sizes', $request->size);
+            });
+        }
+
+        // Filter by color
+        if ($request->has('color') && $request->color) {
+            $query->where(function ($q) use ($request) {
+                $q->where('color', $request->color)
+                  ->orWhereJsonContains('available_colors', $request->color);
+            });
+        }
+
+        // Filter by fabric type
+        if ($request->has('fabric') && $request->fabric) {
+            $query->where('fabric_type', $request->fabric);
+        }
+
         // Apply sorting
-        $sort = $request->get('sort', 'discount');
+        $sort = $request->get('sort', 'latest');
         switch ($sort) {
             case 'price-low':
-                $query->orderBy('sale_price', 'asc');
+                $query->orderBy('discount_price', 'asc')->orderBy('price', 'asc');
                 break;
             case 'price-high':
-                $query->orderByDesc('sale_price');
+                $query->orderByDesc('discount_price')->orderByDesc('price');
                 break;
-            case 'discount':
+            case 'popular':
+                $query->orderByDesc('stock_quantity');
+                break;
+            case 'latest':
             default:
-                // Sort by discount percentage (highest discount first)
-                $query->orderByRaw('CASE WHEN sale_price IS NOT NULL THEN ((regular_price - sale_price) / regular_price) ELSE 0 END DESC');
+                $query->orderByDesc('created_at');
                 break;
         }
 
-        $products = $query->with(['images', 'category'])->paginate(12)->appends($request->query());
+        $products = $query->with(['images', 'category', 'brandModel'])->paginate(12)->appends($request->query());
 
-        return view('frontend.summer-sale', compact('products'));
+        // Get all brands for filter
+        $brands = Brand::where('is_active', true)->orderBy('sort_order')->get();
+
+        // Get filter data
+        $colors = Product::where('is_active', true)
+                        ->whereNotNull('color')
+                        ->distinct()
+                        ->pluck('color');
+
+        $sizes = Product::where('is_active', true)
+                       ->whereNotNull('size')
+                       ->distinct()
+                       ->pluck('size');
+
+        $fabrics = Product::where('is_active', true)
+                         ->whereNotNull('fabric_type')
+                         ->distinct()
+                         ->pluck('fabric_type');
+
+        return view('frontend.brands-page', compact('products', 'brands', 'colors', 'sizes', 'fabrics', 'brand'));
     }
 }

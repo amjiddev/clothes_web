@@ -92,7 +92,7 @@ class ProductSectionsSeeder extends Seeder
 
         ProductDisplaySection::create([
             'product_id' => $product2->id,
-            'section' => 'summer_sale',
+            'section' => 'brands_page',
             'display_order' => 1,
             'is_active' => true,
         ]);
