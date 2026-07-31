@@ -436,3 +436,40 @@ if (!function_exists('getIcon')) {
         return theme()->getIcon($name, $class, $type, $tag);
     }
 }
+
+
+
+if (!function_exists('currency_format')) {
+    /**
+     * Format currency value
+     *
+     * @param $amount
+     * @param $currency
+     *
+     * @return string
+     */
+    function currency_format($amount, $currency = '₹')
+    {
+        return $currency . number_format($amount, 2);
+    }
+}
+
+if (!function_exists('getDashboardRoute')) {
+    /**
+     * Get the appropriate dashboard route for the current user based on their role
+     *
+     * @return string
+     */
+    function getDashboardRoute()
+    {
+        if (auth()->check()) {
+            $user = auth()->user();
+            // Super Admin, Receptionist, Tailor go to admin dashboard
+            if ($user->hasRole('super_admin') || $user->hasRole('receptionist') || $user->hasRole('tailor')) {
+                return route('admin.dashboard');
+            }
+        }
+        // Customers and guests go to home
+        return route('home');
+    }
+}

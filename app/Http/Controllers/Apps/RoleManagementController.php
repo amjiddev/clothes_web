@@ -6,63 +6,188 @@ use App\DataTables\UsersAssignedRoleDataTable;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 class RoleManagementController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function __construct()
     {
-        return view('pages/apps.user-management.roles.list');
+        $this->middleware('auth');
+        $this->middleware('permission:view_roles', ['only' => ['index', 'show']]);
+        $this->middleware('permission:create_roles', ['only' => ['create', 'store']]);
+        $this->middleware('permission:edit_roles', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:delete_roles', ['only' => ['destroy']]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Display a listing of all roles with search and filter
+     */
+    public function index(Request $request)
+    {
+        $query = Role::query();
+
+        // Search by role name
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        $roles = $query->paginate(15)->appends($request->query());
+
+        // Get predefined roles count
+        $predefinedRoles = ['super_admin', 'receptionist', 'tailor', 'customer'];
+
+        return view('admin.roles.index', compact('roles', 'predefinedRoles'));
+    }
+
+    /**
+     * Show the form for creating a new role
      */
     public function create()
     {
-        //
+        $permissions = Permission::all();
+        $permissionGroups = $this->groupPermissions($permissions);
+
+        return view('admin.roles.create', compact('permissions', 'permissionGroups'));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created role in database
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|unique:roles,name|max:255',
+            'display_name' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:500',
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'exists:permissions,id',
+        ]);
+
+        // Create role
+        $role = Role::create([
+            'name' => $validated['name'],
+            'display_name' => $validated['display_name'] ?? ucfirst(str_replace('_', ' ', $validated['name'])),
+            'description' => $validated['description'] ?? '',
+            'guard_name' => 'web',
+        ]);
+
+        // Assign permissions
+        if (!empty($validated['permissions'])) {
+            $permissions = Permission::whereIn('id', $validated['permissions'])->get();
+            $role->givePermissionTo($permissions);
+        }
+
+        return redirect()->route('admin.user-management.roles.index')
+            ->with('success', 'Role created successfully!');
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified role with users
      */
     public function show(Role $role, UsersAssignedRoleDataTable $dataTable)
     {
+        $permissions = $role->permissions;
+        $permissionGroups = $this->groupPermissions($permissions);
+
         return $dataTable->with('role', $role)
-            ->render('pages/apps.user-management.roles.show', compact('role'));
+            ->render('admin.roles.show', compact('role', 'permissions', 'permissionGroups'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Show the form for editing the specified role
      */
     public function edit(Role $role)
     {
-        //
+        // Prevent editing system roles (only allow creation of custom roles)
+        $systemRoles = ['super_admin', 'receptionist', 'tailor', 'customer'];
+        $isSystemRole = in_array($role->name, $systemRoles);
+
+        $allPermissions = Permission::all();
+        $rolePermissions = $role->permissions->pluck('id')->toArray();
+        $permissionGroups = $this->groupPermissions($allPermissions);
+
+        return view('admin.roles.edit', compact('role', 'allPermissions', 'rolePermissions', 'permissionGroups', 'isSystemRole'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified role in database
      */
     public function update(Request $request, Role $role)
     {
-        //
+        // Prevent editing system roles
+        $systemRoles = ['super_admin', 'receptionist', 'tailor', 'customer'];
+        if (in_array($role->name, $systemRoles)) {
+            return redirect()->back()->with('error', 'Cannot edit system roles. Create custom roles instead.');
+        }
+
+        $validated = $request->validate([
+            'display_name' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:500',
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'exists:permissions,id',
+        ]);
+
+        // Update role
+        $role->update([
+            'display_name' => $validated['display_name'] ?? $role->display_name,
+            'description' => $validated['description'] ?? $role->description,
+        ]);
+
+        // Update permissions
+        $permissions = Permission::whereIn('id', $validated['permissions'] ?? [])->get();
+        $role->syncPermissions($permissions);
+
+        return redirect()->route('admin.user-management.roles.index')
+            ->with('success', 'Role updated successfully!');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified role from database
      */
     public function destroy(Role $role)
     {
-        //
+        // Prevent deleting system roles
+        $systemRoles = ['super_admin', 'receptionist', 'tailor', 'customer'];
+        if (in_array($role->name, $systemRoles)) {
+            return redirect()->back()->with('error', 'Cannot delete system roles.');
+        }
+
+        $role->delete();
+
+        return redirect()->route('admin.user-management.roles.index')
+            ->with('success', 'Role deleted successfully!');
+    }
+
+    /**
+     * Group permissions by category
+     */
+    private function groupPermissions($permissions)
+    {
+        $groups = [];
+
+        foreach ($permissions as $permission) {
+            $parts = explode('_', $permission->name);
+            $category = ucfirst($parts[0] ?? 'Other');
+
+            if (!isset($groups[$category])) {
+                $groups[$category] = [];
+            }
+
+            $groups[$category][] = $permission;
+        }
+
+        return $groups;
+    }
+
+    /**
+     * Get all available permissions for API
+     */
+    public function getPermissions()
+    {
+        $permissions = Permission::all();
+        $groups = $this->groupPermissions($permissions);
+
+        return response()->json($groups);
     }
 }

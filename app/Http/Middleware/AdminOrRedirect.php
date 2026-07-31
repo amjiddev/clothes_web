@@ -15,17 +15,17 @@ class AdminOrRedirect
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Check if user is authenticated and verified
-        if (!auth()->check() || !auth()->user()->hasVerifiedEmail()) {
-            return redirect()->route('login');
-        }
-
-        // Check if user has admin role
-        if (auth()->user()->hasRole('administrator')) {
+        // Allow guests to access frontend routes
+        if (!auth()->check()) {
             return $next($request);
         }
 
-        // If not admin, redirect to home
-        return redirect()->route('home');
+        // Check if user has verified email
+        if (!auth()->user()->hasVerifiedEmail()) {
+            return redirect()->route('verification.notice');
+        }
+
+        // Allow all authenticated users
+        return $next($request);
     }
 }

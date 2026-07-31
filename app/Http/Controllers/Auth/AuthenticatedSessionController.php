@@ -50,14 +50,16 @@ class AuthenticatedSessionController extends Controller
         ]);
 
         // Role based redirect
-        if ($user->hasRole('administrator')) {
-            // Admins go to dashboard
-            return redirect()->intended(route('dashboard'));
+        if ($user->hasRole('super_admin')) {
+            // Super Admins go to admin dashboard
+            return redirect()->route('admin.dashboard');
+        } elseif ($user->hasRole('receptionist') || $user->hasRole('tailor')) {
+            // Receptionists and Tailors go to admin dashboard
+            return redirect()->route('admin.dashboard');
         }
 
-        // Normal users go to home page
-        return redirect()->intended(route('home'));
-        // return redirect()->intended(RouteServiceProvider::HOME);
+        // Customers and other users go to home page
+        return redirect()->route('home');
     }
 
     /**
