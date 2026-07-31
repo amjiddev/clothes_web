@@ -20,26 +20,14 @@
             <!-- Sidebar Filters -->
             <div class="col-lg-3 col-md-4 mb-4">
                 <div class="sticky-top" style="top: 100px;">
-                    <!-- Filter: Brand -->
-                    <div class="card border-0 shadow-sm mb-3" style="border-top: 3px solid var(--accent-gold);">
-                        <div class="card-body p-3">
-                            <h6 class="card-title fw-bold mb-3" style="color: var(--primary-dark); border-bottom: 2px solid var(--accent-gold); padding-bottom: 10px;">
-                                <i class="fas fa-store"></i> Brands
-                            </h6>
-                            <form method="GET" action="{{ route('brands-page') }}" id="brandForm">
-                                <!-- Preserve other filter parameters -->
-                                @if(request('search'))
-                                    <input type="hidden" name="search" value="{{ request('search') }}">
-                                @endif
-                                @if(request('min_price'))
-                                    <input type="hidden" name="min_price" value="{{ request('min_price') }}">
-                                @endif
-                                @if(request('max_price'))
-                                    <input type="hidden" name="max_price" value="{{ request('max_price') }}">
-                                @endif
-                                @if(request('sort'))
-                                    <input type="hidden" name="sort" value="{{ request('sort') }}">
-                                @endif
+                    <!-- Main Filter Form -->
+                    <form method="GET" action="{{ route('brands-page') }}" id="mainFilterForm">
+                        <!-- Filter: Brand -->
+                        <div class="card border-0 shadow-sm mb-3" style="border-top: 3px solid var(--accent-gold);">
+                            <div class="card-body p-3">
+                                <h6 class="card-title fw-bold mb-3" style="color: var(--primary-dark); border-bottom: 2px solid var(--accent-gold); padding-bottom: 10px;">
+                                    <i class="fas fa-store"></i> Brands
+                                </h6>
 
                                 <div class="list-group list-group-flush">
                                     <a href="{{ route('brands-page') }}" class="list-group-item list-group-item-action p-2" style="border: none; color: var(--primary-dark);">
@@ -52,7 +40,7 @@
                                             name="brand" 
                                             value="{{ $brandOption->id }}"
                                             {{ request('brand') == $brandOption->id ? 'checked' : '' }}
-                                            onchange="document.getElementById('brandForm').submit()"
+                                            onchange="applyFilters()"
                                         >
                                         <span style="color: var(--primary-dark);">{{ $brandOption->name }}</span>
                                     </label>
@@ -62,362 +50,340 @@
                                     </div>
                                     @endforelse
                                 </div>
-                            </form>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Filter: Price Range -->
-                    <div class="card border-0 shadow-sm mb-3" style="border-top: 3px solid var(--accent-gold);">
-                        <div class="card-body p-3">
-                            <h6 class="card-title fw-bold mb-3" style="color: var(--primary-dark); border-bottom: 2px solid var(--accent-gold); padding-bottom: 10px;">
-                                <i class="fas fa-tag"></i> Price Range
-                            </h6>
-                            <form method="GET" action="{{ route('brands-page') }}" id="priceForm">
-                                @if(request('brand'))
-                                    <input type="hidden" name="brand" value="{{ request('brand') }}">
-                                @endif
-                                @if(request('search'))
-                                    <input type="hidden" name="search" value="{{ request('search') }}">
-                                @endif
-                                @if(request('sort'))
-                                    <input type="hidden" name="sort" value="{{ request('sort') }}">
-                                @endif
+                        <!-- Filter: Price Range -->
+                        <div class="card border-0 shadow-sm mb-3" style="border-top: 3px solid var(--accent-gold);">
+                            <div class="card-body p-3">
+                                <h6 class="card-title fw-bold mb-3" style="color: var(--primary-dark); border-bottom: 2px solid var(--accent-gold); padding-bottom: 10px;">
+                                    <i class="fas fa-tag"></i> Price Range
+                                </h6>
 
-                                <div class="mb-2">
-                                    <label style="font-size: 0.9rem; color: var(--text-muted);">Min Price</label>
-                                    <input type="number" name="min_price" class="form-control form-control-sm" placeholder="Min" value="{{ request('min_price') }}">
+                                <div class="mb-3">
+                                    <label class="form-label" style="color: var(--primary-dark); font-size: 0.9rem;">Min Price (Rs.)</label>
+                                    <input 
+                                        type="number" 
+                                        name="min_price" 
+                                        class="form-control"
+                                        placeholder="0"
+                                        value="{{ request('min_price') }}"
+                                        style="border-color: var(--accent-gold);"
+                                    >
                                 </div>
-                                <div class="mb-2">
-                                    <label style="font-size: 0.9rem; color: var(--text-muted);">Max Price</label>
-                                    <input type="number" name="max_price" class="form-control form-control-sm" placeholder="Max" value="{{ request('max_price') }}">
+                                <div class="mb-3">
+                                    <label class="form-label" style="color: var(--primary-dark); font-size: 0.9rem;">Max Price (Rs.)</label>
+                                    <input 
+                                        type="number" 
+                                        name="max_price" 
+                                        class="form-control"
+                                        placeholder="50000"
+                                        value="{{ request('max_price') }}"
+                                        style="border-color: var(--accent-gold);"
+                                    >
                                 </div>
-                                <button type="submit" class="btn btn-sm w-100" style="background: var(--accent-gold); color: var(--primary-dark); border: none;">
-                                    Apply
+                                <button type="button" class="btn w-100" style="background: var(--accent-gold); color: var(--primary-dark); font-weight: 600;" onclick="applyFilters()">
+                                    Apply Filter
                                 </button>
-                            </form>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Filter: Size -->
-                    @if($sizes->count() > 0)
-                    <div class="card border-0 shadow-sm mb-3" style="border-top: 3px solid var(--accent-gold);">
-                        <div class="card-body p-3">
-                            <h6 class="card-title fw-bold mb-3" style="color: var(--primary-dark); border-bottom: 2px solid var(--accent-gold); padding-bottom: 10px;">
-                                <i class="fas fa-ruler"></i> Size
-                            </h6>
-                            <form method="GET" action="{{ route('brands-page') }}" id="sizeForm">
-                                @if(request('brand'))
-                                    <input type="hidden" name="brand" value="{{ request('brand') }}">
-                                @endif
-                                @if(request('search'))
-                                    <input type="hidden" name="search" value="{{ request('search') }}">
-                                @endif
-                                @if(request('sort'))
-                                    <input type="hidden" name="sort" value="{{ request('sort') }}">
-                                @endif
+                        <!-- Filter: Size -->
+                        @if($sizes->count() > 0)
+                        <div class="card border-0 shadow-sm mb-3" style="border-top: 3px solid var(--accent-gold);">
+                            <div class="card-body p-3">
+                                <h6 class="card-title fw-bold mb-3" style="color: var(--primary-dark); border-bottom: 2px solid var(--accent-gold); padding-bottom: 10px;">
+                                    <i class="fas fa-ruler"></i> Size
+                                </h6>
 
                                 <div class="list-group list-group-flush">
                                     @foreach($sizes as $size)
                                     <label class="list-group-item list-group-item-action p-2" style="border: none;">
                                         <input 
-                                            type="radio" 
-                                            name="size" 
+                                            type="checkbox" 
+                                            name="sizes[]" 
                                             value="{{ $size }}"
-                                            {{ request('size') == $size ? 'checked' : '' }}
-                                            onchange="document.getElementById('sizeForm').submit()"
+                                            {{ in_array($size, (array)request('sizes', [])) ? 'checked' : '' }}
+                                            onchange="applyFilters()"
                                         >
                                         <span style="color: var(--primary-dark);">{{ $size }}</span>
                                     </label>
                                     @endforeach
                                 </div>
-                            </form>
+                            </div>
                         </div>
-                    </div>
-                    @endif
+                        @endif
 
-                    <!-- Filter: Color -->
-                    @if($colors->count() > 0)
-                    <div class="card border-0 shadow-sm mb-3" style="border-top: 3px solid var(--accent-gold);">
-                        <div class="card-body p-3">
-                            <h6 class="card-title fw-bold mb-3" style="color: var(--primary-dark); border-bottom: 2px solid var(--accent-gold); padding-bottom: 10px;">
-                                <i class="fas fa-palette"></i> Color
-                            </h6>
-                            <form method="GET" action="{{ route('brands-page') }}" id="colorForm">
-                                @if(request('brand'))
-                                    <input type="hidden" name="brand" value="{{ request('brand') }}">
-                                @endif
-                                @if(request('search'))
-                                    <input type="hidden" name="search" value="{{ request('search') }}">
-                                @endif
-                                @if(request('sort'))
-                                    <input type="hidden" name="sort" value="{{ request('sort') }}">
-                                @endif
+                        <!-- Filter: Color -->
+                        @if($colors->count() > 0)
+                        <div class="card border-0 shadow-sm mb-3" style="border-top: 3px solid var(--accent-gold);">
+                            <div class="card-body p-3">
+                                <h6 class="card-title fw-bold mb-3" style="color: var(--primary-dark); border-bottom: 2px solid var(--accent-gold); padding-bottom: 10px;">
+                                    <i class="fas fa-palette"></i> Color
+                                </h6>
 
                                 <div class="list-group list-group-flush">
                                     @foreach($colors as $color)
                                     <label class="list-group-item list-group-item-action p-2" style="border: none;">
                                         <input 
-                                            type="radio" 
-                                            name="color" 
+                                            type="checkbox" 
+                                            name="colors[]" 
                                             value="{{ $color }}"
-                                            {{ request('color') == $color ? 'checked' : '' }}
-                                            onchange="document.getElementById('colorForm').submit()"
+                                            {{ in_array($color, (array)request('colors', [])) ? 'checked' : '' }}
+                                            onchange="applyFilters()"
                                         >
                                         <span style="color: var(--primary-dark);">{{ $color }}</span>
                                     </label>
                                     @endforeach
                                 </div>
-                            </form>
+                            </div>
                         </div>
-                    </div>
-                    @endif
+                        @endif
 
-                    <!-- Filter: Fabric Type -->
-                    @if($fabrics->count() > 0)
-                    <div class="card border-0 shadow-sm mb-3" style="border-top: 3px solid var(--accent-gold);">
-                        <div class="card-body p-3">
-                            <h6 class="card-title fw-bold mb-3" style="color: var(--primary-dark); border-bottom: 2px solid var(--accent-gold); padding-bottom: 10px;">
-                                <i class="fas fa-layer-group"></i> Fabric Type
-                            </h6>
-                            <form method="GET" action="{{ route('brands-page') }}" id="fabricForm">
-                                @if(request('brand'))
-                                    <input type="hidden" name="brand" value="{{ request('brand') }}">
-                                @endif
-                                @if(request('search'))
-                                    <input type="hidden" name="search" value="{{ request('search') }}">
-                                @endif
-                                @if(request('sort'))
-                                    <input type="hidden" name="sort" value="{{ request('sort') }}">
-                                @endif
+                        <!-- Filter: Fabric Type -->
+                        @if($fabrics->count() > 0)
+                        <div class="card border-0 shadow-sm mb-3" style="border-top: 3px solid var(--accent-gold);">
+                            <div class="card-body p-3">
+                                <h6 class="card-title fw-bold mb-3" style="color: var(--primary-dark); border-bottom: 2px solid var(--accent-gold); padding-bottom: 10px;">
+                                    <i class="fas fa-layer-group"></i> Fabric Type
+                                </h6>
 
                                 <div class="list-group list-group-flush">
                                     @foreach($fabrics as $fabric)
                                     <label class="list-group-item list-group-item-action p-2" style="border: none;">
                                         <input 
-                                            type="radio" 
-                                            name="fabric" 
+                                            type="checkbox" 
+                                            name="fabrics[]" 
                                             value="{{ $fabric }}"
-                                            {{ request('fabric') == $fabric ? 'checked' : '' }}
-                                            onchange="document.getElementById('fabricForm').submit()"
+                                            {{ in_array($fabric, (array)request('fabrics', [])) ? 'checked' : '' }}
+                                            onchange="applyFilters()"
                                         >
                                         <span style="color: var(--primary-dark);">{{ $fabric }}</span>
                                     </label>
                                     @endforeach
                                 </div>
-                            </form>
+                            </div>
                         </div>
-                    </div>
-                    @endif
+                        @endif
 
-                    <!-- Reset Filters -->
-                    <a href="{{ route('brands-page') }}" class="btn btn-outline-secondary w-100" style="border-color: var(--accent-gold); color: var(--accent-gold);">
-                        <i class="fas fa-redo"></i> Reset Filters
-                    </a>
+                        <!-- Clear Filters -->
+                        @if(request()->anyFilled(['search', 'brand', 'min_price', 'max_price', 'sizes', 'colors', 'fabrics']))
+                        <div class="mt-3">
+                            <a href="{{ route('brands-page') }}" class="btn btn-outline-secondary w-100" style="border-color: var(--accent-gold); color: var(--accent-gold);">
+                                <i class="fas fa-times"></i> Clear All Filters
+                            </a>
+                        </div>
+                        @endif
+                    </form>
                 </div>
             </div>
 
-            <!-- Main Content -->
+            <!-- Products Grid -->
             <div class="col-lg-9 col-md-8">
-                <!-- Header with Search & Sort -->
-                <div class="mb-4" style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
-                    <div class="row align-items-center g-3">
-                        <!-- Search -->
-                        <div class="col-md-6">
-                            <form method="GET" action="{{ route('brands-page') }}" id="searchForm">
-                                @if(request('brand'))
-                                    <input type="hidden" name="brand" value="{{ request('brand') }}">
-                                @endif
-                                @if(request('sort'))
-                                    <input type="hidden" name="sort" value="{{ request('sort') }}">
-                                @endif
+                <!-- Top Bar: Sort & Results -->
+                <div class="row mb-4 align-items-center" style="border-bottom: 2px solid var(--accent-gold); padding-bottom: 15px;">
+                    <div class="col-md-6">
+                        <p class="mb-0" style="color: var(--primary-dark); font-weight: 500;">
+                            Showing <strong>{{ $products->count() }}</strong> of <strong>{{ $products->total() }}</strong> products
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <form method="GET" action="{{ route('brands-page') }}" class="d-flex justify-content-end align-items-center" style="gap: 12px;">
+                            <!-- Preserve other filter parameters -->
+                            @if(request('brand'))
+                                <input type="hidden" name="brand" value="{{ request('brand') }}">
+                            @endif
+                            @if(request('min_price'))
+                                <input type="hidden" name="min_price" value="{{ request('min_price') }}">
+                            @endif
+                            @if(request('max_price'))
+                                <input type="hidden" name="max_price" value="{{ request('max_price') }}">
+                            @endif
+                            @foreach((array)request('sizes', []) as $size)
+                                <input type="hidden" name="sizes[]" value="{{ $size }}">
+                            @endforeach
+                            @foreach((array)request('colors', []) as $color)
+                                <input type="hidden" name="colors[]" value="{{ $color }}">
+                            @endforeach
+                            @foreach((array)request('fabrics', []) as $fabric)
+                                <input type="hidden" name="fabrics[]" value="{{ $fabric }}">
+                            @endforeach
 
-                                <div class="input-group">
-                                    <input 
-                                        type="text" 
-                                        name="search" 
-                                        class="form-control" 
-                                        placeholder="Search products..."
-                                        value="{{ request('search') }}"
-                                    >
-                                    <button class="btn btn-outline-secondary" type="submit" style="border-color: var(--accent-gold); color: var(--accent-gold);">
-                                        <i class="fas fa-search"></i>
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
+                            <!-- Search Bar -->
+                            <div class="input-group" style="width: 250px; flex-shrink: 0; position: relative;">
+                                <input 
+                                    type="text" 
+                                    name="search" 
+                                    id="searchInput"
+                                    class="form-control" 
+                                    placeholder="Search products..."
+                                    value="{{ request('search') }}"
+                                    style="border-color: var(--accent-gold); font-size: 0.9rem; padding-right: 40px;"
+                                    oninput="toggleClearBtn()"
+                                >
+                                <!-- Clear Button (X icon) inside input -->
+                                <button type="button" id="clearSearchBtn" onclick="clearSearchText()" style="position: absolute; right: 45px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #999; cursor: pointer; font-size: 1.1rem; padding: 0; display: none; align-items: center; justify-content: center; z-index: 10;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                <button class="btn" type="submit" style="background: var(--accent-gold); color: var(--primary-dark); border: none;">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
 
-                        <!-- Sort -->
-                        <div class="col-md-6">
-                            <form method="GET" action="{{ route('brands-page') }}" id="sortForm">
-                                @if(request('brand'))
-                                    <input type="hidden" name="brand" value="{{ request('brand') }}">
-                                @endif
-                                @if(request('search'))
-                                    <input type="hidden" name="search" value="{{ request('search') }}">
-                                @endif
-
-                                <select name="sort" class="form-select" onchange="document.getElementById('sortForm').submit()" style="border-color: var(--accent-gold);">
-                                    <option value="latest" {{ request('sort') == 'latest' ? 'selected' : '' }}>Latest</option>
-                                    <option value="price-low" {{ request('sort') == 'price-low' ? 'selected' : '' }}>Price: Low to High</option>
-                                    <option value="price-high" {{ request('sort') == 'price-high' ? 'selected' : '' }}>Price: High to Low</option>
-                                    <option value="popular" {{ request('sort') == 'popular' ? 'selected' : '' }}>Popular</option>
-                                </select>
-                            </form>
-                        </div>
+                            <!-- Sort Dropdown -->
+                            <select name="sort" class="form-select" style="width: auto; border-color: var(--accent-gold); font-size: 0.9rem; flex-shrink: 0;" onchange="this.form.submit()">
+                                <option value="latest" {{ request('sort') == 'latest' || !request('sort') ? 'selected' : '' }}>Sort: Latest</option>
+                                <option value="price-low" {{ request('sort') == 'price-low' ? 'selected' : '' }}>Price: Low to High</option>
+                                <option value="price-high" {{ request('sort') == 'price-high' ? 'selected' : '' }}>Price: High to Low</option>
+                                <option value="popular" {{ request('sort') == 'popular' ? 'selected' : '' }}>Most Popular</option>
+                            </select>
+                        </form>
                     </div>
                 </div>
 
                 <!-- Products Grid -->
                 @if($products->count() > 0)
-                    <div class="row g-4">
-                        @foreach($products as $product)
-                            <div class="col-lg-4 col-md-6">
-                                <div class="product-card" style="
-                                    background: white;
-                                    border-radius: 12px;
-                                    overflow: hidden;
-                                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-                                    transition: all 0.4s ease;
-                                "
-                                onmouseenter="this.style.transform='translateY(-10px)'; this.style.boxShadow='0 15px 40px rgba(212, 175, 55, 0.2)'"
-                                onmouseleave="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0, 0, 0, 0.08)'">
-                                    
-                                    <!-- Product Image -->
-                                    <div class="product-image" style="
-                                        width: 100%;
-                                        height: 320px;
-                                        background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
-                                        display: flex;
-                                        align-items: center;
-                                        justify-content: center;
-                                        position: relative;
-                                        overflow: hidden;
-                                    ">
-                                        <img 
-                                            src="{{ $product->image_url }}" 
-                                            alt="{{ $product->name }}"
-                                            style="
-                                                width: 100%;
-                                                height: 100%;
-                                                object-fit: cover;
-                                                transition: transform 0.4s ease;
-                                            "
-                                            class="product-img"
-                                            onmouseenter="this.style.transform='scale(1.08)'"
-                                            onmouseleave="this.style.transform='scale(1)'"
-                                        >
-                                        
-                                        @if($product->discount_percentage > 0)
-                                            <span class="product-badge" style="
-                                                position: absolute;
-                                                top: 15px;
-                                                right: 15px;
-                                                background: var(--accent-gold);
-                                                color: var(--primary-dark);
-                                                padding: 6px 14px;
-                                                border-radius: 6px;
-                                                font-size: 0.75rem;
-                                                font-weight: 700;
-                                                letter-spacing: 0.5px;
-                                            ">
-                                                -{{ $product->discount_percentage }}%
-                                            </span>
-                                        @endif
+                <div class="row g-4">
+                    @forelse($products as $product)
+                    <div class="col-lg-4 col-md-6 col-sm-12">
+                        <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            <!-- Image Section -->
+                            <div style="position: relative; width: 100%; height: 320px; background: #e9e9e9; overflow: hidden;">
+                                @if($product->image)
+                                    <img src="{{ $product->image_url }}" alt="{{ $product->name }}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://via.placeholder.com/320x320?text=No+Image'">
+                                @else
+                                    <img src="https://via.placeholder.com/320x320?text={{ urlencode($product->name) }}" alt="{{ $product->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                @endif
+                                
+                                <!-- Discount Badge -->
+                                @if($product->discount_percentage > 0)
+                                    <span style="position: absolute; top: 15px; left: 15px; background: var(--accent-gold); color: var(--primary-dark); padding: 8px 15px; border-radius: 4px; font-size: 0.9rem; font-weight: 700; z-index: 5;">
+                                        -{{ $product->discount_percentage }}%
+                                    </span>
+                                @endif
+                            </div>
+
+                            <!-- Info Section -->
+                            <div style="padding: 20px; text-align: center;">
+                                <!-- Brand Name -->
+                                @if($product->brandModel)
+                                    <div style="color: var(--accent-gold); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 0.5rem; text-transform: uppercase;">
+                                        {{ $product->brandModel->name }}
                                     </div>
+                                @endif
 
-                                    <!-- Product Info -->
-                                    <div class="product-info" style="padding: 20px; text-align: center;">
-                                        <!-- Brand Name -->
-                                        @if($product->brandModel)
-                                            <div style="color: var(--accent-gold); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 0.5rem; text-transform: uppercase;">
-                                                {{ $product->brandModel->name }}
-                                            </div>
-                                        @endif
+                                <!-- Product Name -->
+                                <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.5rem; line-height: 1.4;">
+                                    {{ $product->name }}
+                                </h3>
 
-                                        <!-- Product Name -->
-                                        <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.5rem; line-height: 1.4;">
-                                            {{ $product->name }}
-                                        </h3>
+                                <!-- Pricing -->
+                                <div style="margin-bottom: 1.5rem;">
+                                    <span style="font-size: 1.1rem; font-weight: 700; color: var(--accent-gold);">
+                                        Rs. {{ number_format($product->final_price, 0) }}
+                                    </span>
+                                    @if($product->discount_percentage > 0)
+                                        <span style="font-size: 0.8rem; color: #999; text-decoration: line-through; margin-left: 0.5rem;">
+                                            Rs. {{ number_format($product->price, 0) }}
+                                        </span>
+                                    @endif
+                                </div>
 
-                                        <!-- Price -->
-                                        <div style="margin-bottom: 1.5rem;">
-                                            <span style="font-size: 1.1rem; font-weight: 700; color: var(--accent-gold);">
-                                                Rs. {{ number_format($product->final_price, 0) }}
-                                            </span>
-                                            @if($product->discount_price)
-                                                <span style="font-size: 0.8rem; color: #999; text-decoration: line-through; margin-left: 0.5rem;">
-                                                    Rs. {{ number_format($product->price, 0) }}
-                                                </span>
-                                            @endif
-                                        </div>
-
-                                        <!-- Actions -->
-                                        <div style="display: flex; gap: 10px; justify-content: center; align-items: center;">
-                                            <button onclick="addToCart({{ $product->id }}); event.stopPropagation();" style="flex: 1; background: var(--accent-gold); border: none; color: #0B0B0B; padding: 12px; border-radius: 4px; cursor: pointer; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                                                <i class="fas fa-shopping-cart"></i> Add
-                                            </button>
-                                            <a href="{{ route('product.detail', $product->slug) }}" style="width: 45px; height: 45px; background: white; border: 2px solid var(--accent-gold); color: var(--accent-gold); border-radius: 4px; cursor: pointer; font-weight: 700; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; text-decoration: none;">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                        </div>
-                                    </div>
+                                <!-- Action Buttons -->
+                                <div style="display: flex; gap: 10px; justify-content: center; align-items: center;">
+                                    <button onclick="addToCart({{ $product->id }}); event.stopPropagation();" style="flex: 1; background: var(--accent-gold); border: none; color: #0B0B0B; padding: 12px; border-radius: 4px; cursor: pointer; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                        <i class="fas fa-shopping-cart"></i> Add
+                                    </button>
+                                    <a href="{{ route('product.detail', $product->slug) }}" style="width: 45px; height: 45px; background: white; border: 2px solid var(--accent-gold); color: var(--accent-gold); border-radius: 4px; cursor: pointer; font-weight: 700; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; text-decoration: none;">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
                                 </div>
                             </div>
-                        @endforeach
-                    </div>
-
-                    <!-- Pagination -->
-                    <div style="margin-top: 40px;">
-                        {{ $products->links() }}
-                    </div>
-                @else
-                    <!-- Empty State -->
-                    <div style="
-                        text-align: center;
-                        padding: 80px 20px;
-                    ">
-                        <div style="
-                            font-size: 4rem;
-                            color: var(--accent-gold);
-                            margin-bottom: 1.5rem;
-                        ">
-                            <i class="fas fa-box-open"></i>
                         </div>
-                        <h2 style="
-                            font-size: 1.8rem;
-                            color: var(--primary-dark);
-                            margin-bottom: 0.5rem;
-                            font-weight: 700;
-                        ">
-                            No Products Found
-                        </h2>
-                        <p style="
-                            color: var(--text-muted);
-                            font-size: 1rem;
-                            margin-bottom: 2rem;
-                            max-width: 500px;
-                            margin-left: auto;
-                            margin-right: auto;
-                        ">
-                            Try adjusting your filters or search terms to find what you're looking for.
-                        </p>
-                        <a href="{{ route('brands-page') }}" style="
-                            display: inline-block;
-                            background: var(--accent-gold);
-                            color: var(--primary-dark);
-                            padding: 12px 30px;
-                            border-radius: 6px;
-                            text-decoration: none;
-                            font-weight: 600;
-                            transition: all 0.3s ease;
-                        ">
-                            View All Products
-                        </a>
                     </div>
+                    @empty
+                    <div class="col-12 text-center py-5">
+                        <i class="fas fa-inbox" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                        <p class="text-muted" style="font-size: 1.1rem;">No products found matching your criteria.</p>
+                        <a href="{{ route('brands-page') }}" class="btn" style="background: var(--accent-gold); color: var(--primary-dark); font-weight: 600;">View All Products</a>
+                    </div>
+                    @endforelse
+                </div>
+
+                <!-- Pagination -->
+                <div class="mt-5 d-flex justify-content-center">
+                    {{ $products->links() }}
+                </div>
+                @else
+                <div class="col-12 text-center py-5">
+                    <i class="fas fa-inbox" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                    <p class="text-muted" style="font-size: 1.1rem;">No products available at the moment.</p>
+                </div>
                 @endif
             </div>
         </div>
     </div>
 </section>
 
+<style>
+    .pagination .page-link {
+        color: var(--primary-dark);
+        border-color: var(--accent-gold);
+    }
+
+    .pagination .page-link:hover,
+    .pagination .page-link.active {
+        background: var(--accent-gold);
+        border-color: var(--accent-gold);
+        color: var(--primary-dark);
+    }
+
+    .sticky-top {
+        z-index: 100;
+    }
+
+    @media (max-width: 768px) {
+        .sticky-top {
+            position: static;
+        }
+    }
+</style>
+
+@endsection
+
+@section('scripts')
+<script>
+function applyFilters() {
+    document.getElementById('mainFilterForm').submit();
+}
+
+function addToCart(productId) {
+    // TODO: Implement add to cart functionality
+    alert('Product added to cart! (Demo)');
+}
+
+function toggleClearBtn() {
+    const searchInput = document.getElementById('searchInput');
+    const clearBtn = document.getElementById('clearSearchBtn');
+    if (searchInput.value.trim() !== '') {
+        clearBtn.style.display = 'flex';
+    } else {
+        clearBtn.style.display = 'none';
+    }
+}
+
+function clearSearchText() {
+    const searchInput = document.getElementById('searchInput');
+    searchInput.value = '';
+    document.getElementById('clearSearchBtn').style.display = 'none';
+    searchInput.focus();
+    // Redirect to brands page to show all products
+    window.location.href = "{{ route('brands-page') }}";
+}
+
+// Initialize clear button visibility on page load
+document.addEventListener('DOMContentLoaded', function() {
+    toggleClearBtn();
+});
+</script>
 @endsection

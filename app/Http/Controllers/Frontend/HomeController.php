@@ -489,25 +489,32 @@ class HomeController extends Controller
             });
         }
 
-        // Filter by size
-        if ($request->has('size') && $request->size) {
-            $query->where(function ($q) use ($request) {
-                $q->where('size', $request->size)
-                  ->orWhereJsonContains('available_sizes', $request->size);
+        // Filter by multiple sizes
+        $selectedSizes = $request->get('sizes', []);
+        if (!empty($selectedSizes)) {
+            $query->where(function ($q) use ($selectedSizes) {
+                foreach ($selectedSizes as $size) {
+                    $q->orWhere('size', $size)
+                      ->orWhereJsonContains('available_sizes', $size);
+                }
             });
         }
 
-        // Filter by color
-        if ($request->has('color') && $request->color) {
-            $query->where(function ($q) use ($request) {
-                $q->where('color', $request->color)
-                  ->orWhereJsonContains('available_colors', $request->color);
+        // Filter by multiple colors
+        $selectedColors = $request->get('colors', []);
+        if (!empty($selectedColors)) {
+            $query->where(function ($q) use ($selectedColors) {
+                foreach ($selectedColors as $color) {
+                    $q->orWhere('color', $color)
+                      ->orWhereJsonContains('available_colors', $color);
+                }
             });
         }
 
-        // Filter by fabric type
-        if ($request->has('fabric') && $request->fabric) {
-            $query->where('fabric_type', $request->fabric);
+        // Filter by multiple fabric types
+        $selectedFabrics = $request->get('fabrics', []);
+        if (!empty($selectedFabrics)) {
+            $query->whereIn('fabric_type', $selectedFabrics);
         }
 
         // Apply sorting
