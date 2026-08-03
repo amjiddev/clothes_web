@@ -42,8 +42,9 @@ class CollectionSectionController extends Controller
     {
         $pageTitle = 'Create Collection Section';
         $pageDescription = 'Add a new collection section with images';
+        $brands = \App\Models\Brand::active()->orderBy('name')->get();
 
-        return view('admin.website-management.collections-form', compact('pageTitle', 'pageDescription'));
+        return view('admin.website-management.collections-form', compact('pageTitle', 'pageDescription', 'brands'));
     }    /**
      * Store a new collection section
      */
@@ -127,8 +128,9 @@ class CollectionSectionController extends Controller
     {
         $pageTitle = 'Edit Collection Section';
         $pageDescription = 'Update collection section details and images';
+        $brands = \App\Models\Brand::active()->orderBy('name')->get();
 
-        return view('admin.website-management.collections-form', compact('pageTitle', 'pageDescription', 'section'));
+        return view('admin.website-management.collections-form', compact('pageTitle', 'pageDescription', 'section', 'brands'));
     }
 
     /**

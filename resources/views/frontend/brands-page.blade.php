@@ -34,7 +34,7 @@
                                         All Brands
                                     </a>
                                     @forelse($brands as $brandOption)
-                                    <label class="list-group-item list-group-item-action p-2" style="border: none;">
+                                    <label class="list-group-item list-group-item-action p-2 {{ request('brand') == $brandOption->id ? 'bg-light' : '' }}" style="border: none; {{ request('brand') == $brandOption->id ? 'border-left: 4px solid var(--accent-gold) !important;' : '' }}">
                                         <input 
                                             type="radio" 
                                             name="brand" 
@@ -42,7 +42,7 @@
                                             {{ request('brand') == $brandOption->id ? 'checked' : '' }}
                                             onchange="applyFilters()"
                                         >
-                                        <span style="color: var(--primary-dark);">{{ $brandOption->name }}</span>
+                                        <span style="color: {{ request('brand') == $brandOption->id ? 'var(--accent-gold)' : 'var(--primary-dark)' }}; font-weight: {{ request('brand') == $brandOption->id ? '600' : 'normal' }};">{{ $brandOption->name }}</span>
                                     </label>
                                     @empty
                                     <div class="text-muted p-2" style="font-size: 0.9rem;">

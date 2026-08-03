@@ -16,7 +16,6 @@ Route::get('/shop', [HomeController::class, 'shop'])->name('shop');
 Route::get('/new-in', [HomeController::class, 'newIn'])->name('new-in');
 Route::get('/brands-page', [HomeController::class, 'brandsPage'])->name('brands-page');
 Route::get('/brands', [\App\Http\Controllers\Frontend\BrandController::class, 'index'])->name('brands');
-Route::get('/brands/{slug}', [\App\Http\Controllers\Frontend\BrandController::class, 'show'])->name('brand.detail');
 Route::get('/collections', [HomeController::class, 'collections'])->name('collections');
 Route::get('/collections/best-sellers', [HomeController::class, 'bestSellers'])->name('collections.best-sellers');
 Route::get('/collections/summer-2026', [HomeController::class, 'summer2026'])->name('collections.summer-2026');

@@ -50,7 +50,39 @@
                                 </div>
                             @endif
 
-                            <a href="{{ $section->button_link ?? '#' }}" class="btn-premium" style="display: inline-flex; align-items: center; gap: 10px;">
+                            @php
+                                // Check if button_link contains a brand slug or path
+                                $buttonLink = $section->button_link ?? '#';
+                                
+                                // Extract brand slug from various formats
+                                if($buttonLink && $buttonLink !== '#') {
+                                    // Case 1: Already has /brands-page?brand= format
+                                    if(str_contains($buttonLink, 'brands-page')) {
+                                        // Already correct format, use as is
+                                    }
+                                    // Case 2: Has /brands/ path format (e.g., /brands/evan-strong)
+                                    elseif(str_contains($buttonLink, '/brands/')) {
+                                        $slug = str_replace('/brands/', '', $buttonLink);
+                                        $brand = \App\Models\Brand::where('slug', $slug)->first();
+                                        if($brand) {
+                                            $buttonLink = route('brands-page', ['brand' => $brand->id]);
+                                        } else {
+                                            $buttonLink = route('brands-page');
+                                        }
+                                    }
+                                    // Case 3: Just brand slug (e.g., 'evan-strong')
+                                    elseif(!str_contains($buttonLink, '/') && !str_contains($buttonLink, 'http')) {
+                                        $brand = \App\Models\Brand::where('slug', $buttonLink)->first();
+                                        if($brand) {
+                                            $buttonLink = route('brands-page', ['brand' => $brand->id]);
+                                        } else {
+                                            $buttonLink = route('brands-page');
+                                        }
+                                    }
+                                }
+                            @endphp
+                            
+                            <a href="{{ $buttonLink }}" class="btn-premium" style="display: inline-flex; align-items: center; gap: 10px;">
                                 {{ $section->button_text }}
                                 <i class="fas fa-arrow-right"></i>
                             </a>

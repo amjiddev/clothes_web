@@ -91,21 +91,32 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="mb-3">
-                                    <label class="form-label" for="button_text">Button Text *</label>
-                                    <input type="text" class="form-control @error('button_text') is-invalid @enderror" id="button_text" name="button_text" value="{{ old('button_text', $section->button_text ?? 'Shop Now') }}" placeholder="e.g., Shop Now" required>
+                                    <label class="form-label" for="button_text">Select Brand *</label>
+                                    <select class="form-control @error('button_text') is-invalid @enderror" id="button_text" name="button_text" required>
+                                        <option value="">-- Select Brand --</option>
+                                        @if(isset($brands) && $brands->count() > 0)
+                                            @foreach($brands as $brand)
+                                                <option value="{{ $brand->name }}" data-slug="{{ $brand->slug }}" {{ (old('button_text', $section->button_text ?? '') === $brand->name) ? 'selected' : '' }}>
+                                                    {{ $brand->name }}
+                                                </option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                    <small class="form-hint">When users click the button, they will be directed to this brand's page</small>
+                                    @if(isset($brands) && $brands->count() === 0)
+                                        <div class="text-warning small mt-1">
+                                            <i class="fas fa-exclamation-triangle"></i> No active brands found. Please add brands first.
+                                        </div>
+                                    @endif
                                     @error('button_text')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label" for="button_link">Button Link</label>
-                                    <input type="text" class="form-control @error('button_link') is-invalid @enderror" id="button_link" name="button_link" value="{{ old('button_link', $section->button_link ?? '') }}" placeholder="/shop">
-                                    @error('button_link')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                                </div>
-                            </div>
                         </div>
+
+                        <!-- Hidden field for button link that gets set automatically -->
+                        <input type="hidden" name="button_link" id="button_link" value="{{ old('button_link', $section->button_link ?? '') }}">
 
                         <div class="mb-3">
                             <label class="form-label" for="features">Features (comma-separated)</label>
@@ -243,6 +254,28 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Handle brand selection and auto-set button link
+    const brandSelect = document.getElementById('button_text');
+    const buttonLinkInput = document.getElementById('button_link');
+
+    brandSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption.value && selectedOption.dataset.slug) {
+            // Set the button link to the brand detail route
+            buttonLinkInput.value = '/brands/' + selectedOption.dataset.slug;
+        } else {
+            buttonLinkInput.value = '';
+        }
+    });
+
+    // Set button link on page load if brand is already selected
+    if (brandSelect.value) {
+        const selectedOption = brandSelect.options[brandSelect.selectedIndex];
+        if (selectedOption.dataset.slug) {
+            buttonLinkInput.value = '/brands/' + selectedOption.dataset.slug;
+        }
+    }
+
     // Handle image uploads
     document.querySelectorAll('.image-upload-card').forEach(card => {
         const fileInput = card.querySelector('.image-input');
