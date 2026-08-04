@@ -34,6 +34,28 @@ class HomeController extends Controller
             $featuredProducts = collect();
         }
 
+        // Get Shalwar Kameez Collection products
+        $shalwarKameezProducts = Product::where('is_active', true)
+                                        ->where('stock_quantity', '>', 0)
+                                        ->whereHas('displaySections', function ($query) {
+                                            $query->where('section', 'home_shalwar_kameez')
+                                                  ->where('is_active', true);
+                                        })
+                                        ->with(['images', 'category', 'displaySections'])
+                                        ->orderBy('created_at', 'desc')
+                                        ->take(8)
+                                        ->get();
+
+        // If no products assigned to home_shalwar_kameez, get all active products
+        if ($shalwarKameezProducts->isEmpty()) {
+            $shalwarKameezProducts = Product::where('is_active', true)
+                                            ->where('stock_quantity', '>', 0)
+                                            ->with(['images', 'category', 'displaySections'])
+                                            ->orderBy('created_at', 'desc')
+                                            ->take(8)
+                                            ->get();
+        }
+
         // Get categories with product count
         $categoriesWithCount = Category::where('is_active', true)
                                       ->withCount('products')
@@ -41,7 +63,7 @@ class HomeController extends Controller
                                       ->take(6)
                                       ->get();
 
-        return view('frontend.home', compact('categories', 'featuredProducts', 'categoriesWithCount'));
+        return view('frontend.home', compact('categories', 'featuredProducts', 'shalwarKameezProducts', 'categoriesWithCount'));
     }
 
     public function shop(Request $request)

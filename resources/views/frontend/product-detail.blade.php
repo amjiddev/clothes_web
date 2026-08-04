@@ -455,48 +455,32 @@ function addToCart(productId) {
         return;
     }
 
-    fetch(`/cart/add/${productId}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-        body: JSON.stringify({
-            quantity: qty,
-            size: size,
-            color: color
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            updateCartCount();
-            
-            const message = document.createElement('div');
-            message.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #2ecc71; color: white; padding: 15px 20px; border-radius: 5px; z-index: 9999; box-shadow: 0 4px 6px rgba(0,0,0,0.1);';
-            message.textContent = data.message;
-            document.body.appendChild(message);
-            
-            setTimeout(() => message.remove(), 3000);
-        } else {
-            alert('Error: ' + data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error adding to cart');
-    });
-}
+    // Get product details from the page
+    const productName = document.querySelector('h1').textContent;
+    const priceText = document.querySelector('[style*="font-size: 1.8rem"]').textContent;
+    const price = parseFloat(priceText.replace(/[^0-9.-]+/g, ''));
+    
+    // Get product image
+    const productImage = document.getElementById('mainImage').src;
 
-function updateCartCount() {
-    fetch('/cart/count')
-        .then(response => response.json())
-        .then(data => {
-            const badge = document.querySelector('.cart-badge');
-            if (badge) {
-                badge.textContent = data.count;
-            }
-        });
+    // Add to cart using the global function from layout
+    window.addToCart({
+        id: productId,
+        name: productName,
+        price: price,
+        image: productImage,
+        size: size,
+        color: color,
+        quantity: qty
+    });
+
+    // Show success message
+    const message = document.createElement('div');
+    message.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #2ecc71; color: white; padding: 15px 20px; border-radius: 5px; z-index: 9999; box-shadow: 0 4px 6px rgba(0,0,0,0.1);';
+    message.textContent = 'Product added to cart!';
+    document.body.appendChild(message);
+    
+    setTimeout(() => message.remove(), 3000);
 }
 
 // Initialize gallery when page loads

@@ -244,221 +244,39 @@
         </div>
 
         <div class="row g-4">
-            <!-- Card 1 - COTTON -->
+            @forelse($shalwarKameezProducts as $product)
             <div class="col-lg-3 col-md-4 col-sm-6">
                 <div style="cursor: pointer; text-align: center;">
                     <div class="card-image-hover" style="width: 100%; height: 400px; background: #e9e9e9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin-bottom: 0.5rem;">
-                        <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-40%</span>
-                        <img class="img-primary" src="{{ asset('frontend/images/images.jfif') }}" alt="Premium Cotton Suit" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 1;">
-                        <img class="img-secondary" src="{{ asset('frontend/images/images (1).jfif') }}" alt="Premium Cotton Suit" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0;">
+                        @if($product->hasDiscount())
+                        <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-{{ $product->discount_percentage }}%</span>
+                        @endif
+                        <img class="img-primary" src="{{ $product->images->first()?->image_url ?? asset('frontend/images/images.jfif') }}" alt="{{ $product->name }}" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 1;" onerror="this.src='{{ asset('frontend/images/images.jfif') }}'">
+                        <img class="img-secondary" src="{{ $product->images->skip(1)->first()?->image_url ?? asset('frontend/images/images (1).jfif') }}" alt="{{ $product->name }}" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0;" onerror="this.src='{{ asset('frontend/images/images (1).jfif') }}'">
                         <div class="card-action-buttons" style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; opacity: 0; transition: opacity 0.3s ease;">
-                            <button onclick="toggleWishlist(1, this); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Wishlist">
+                            <button onclick="toggleWishlist({{ $product->id }}, this); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Wishlist">
                                 <i class="far fa-heart"></i>
                             </button>
-                            <button onclick="addToCart(1); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Cart">
+                            <button onclick="addToCart({{ $product->id }}); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Cart">
                                 <i class="fas fa-shopping-cart"></i>
                             </button>
-                            <button onclick="window.location.href='{{ route('product.detail', 1) }}'; event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="View Details">
+                            <a href="{{ route('product.detail', $product->slug) }}" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem; text-decoration: none;" title="View Details">
                                 <i class="fas fa-eye"></i>
-                            </button>
+                            </a>
                             <button style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="In Stock">
                                 <i class="fas fa-check"></i>
                             </button>
                         </div>
                     </div>
-                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.2rem; line-height: 1.4;">Premium Cotton Suit</h3>
-                    <p style="font-size: 1.1rem; font-weight: 700; color: #D4AF37; margin: 0;">Rs. 8,990</p>
+                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.2rem; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $product->name }}</h3>
+                    <p style="font-size: 1.1rem; font-weight: 700; color: #D4AF37; margin: 0;">Rs. {{ number_format($product->final_price, 0) }}</p>
                 </div>
             </div>
-
-            <!-- Card 2 - COTTON -->
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div style="cursor: pointer; text-align: center;">
-                    <div class="card-image-hover" style="width: 100%; height: 400px; background: #e9e9e9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin-bottom: 0.5rem;">
-                        <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-17%</span>
-                        <img class="img-primary" src="{{ asset('frontend/images/images (1).jfif') }}" alt="Cotton Formal Shirt" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 1;">
-                        <img class="img-secondary" src="{{ asset('frontend/images/images (2).jfif') }}" alt="Cotton Formal Shirt" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0;">
-                        <div class="card-action-buttons" style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; opacity: 0; transition: opacity 0.3s ease;">
-                            <button onclick="toggleWishlist(2, this); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                            <button onclick="addToCart(2); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Cart">
-                                <i class="fas fa-shopping-cart"></i>
-                            </button>
-                            <button onclick="window.location.href='{{ route('product.detail', 2) }}'; event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="In Stock">
-                                <i class="fas fa-check"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.2rem; line-height: 1.4;">Cotton Formal Shirt</h3>
-                    <p style="font-size: 1.1rem; font-weight: 700; color: #D4AF37; margin: 0;">Rs. 2,490</p>
-                </div>
+            @empty
+            <div class="col-12">
+                <p class="text-center text-muted">No products available in this collection</p>
             </div>
-
-            <!-- Card 3 - WASH & WEAR -->
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div style="cursor: pointer; text-align: center;">
-                    <div class="card-image-hover" style="width: 100%; height: 400px; background: #e9e9e9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin-bottom: 0.5rem;">
-                        <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-20%</span>
-                        <img class="img-primary" src="{{ asset('frontend/images/images (2).jfif') }}" alt="Wash & Wear Kurta" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 1;">
-                        <img class="img-secondary" src="{{ asset('frontend/images/images (3).jfif') }}" alt="Wash & Wear Kurta" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0;">
-                        <div class="card-action-buttons" style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; opacity: 0; transition: opacity 0.3s ease;">
-                            <button onclick="toggleWishlist(3, this); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                            <button onclick="addToCart(3); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Cart">
-                                <i class="fas fa-shopping-cart"></i>
-                            </button>
-                            <button onclick="window.location.href='{{ route('product.detail', 3) }}'; event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="In Stock">
-                                <i class="fas fa-check"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.2rem; line-height: 1.4;">Wash & Wear Kurta</h3>
-                    <p style="font-size: 1.1rem; font-weight: 700; color: #D4AF37; margin: 0;">Rs. 3,590</p>
-                </div>
-            </div>
-
-            <!-- Card 4 - KHADDAR -->
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div style="cursor: pointer; text-align: center;">
-                    <div class="card-image-hover" style="width: 100%; height: 400px; background: #e9e9e9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin-bottom: 0.5rem;">
-                        <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-17%</span>
-                        <img class="img-primary" src="{{ asset('frontend/images/images (3).jfif') }}" alt="Khaddar Formal Suit" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 1;">
-                        <img class="img-secondary" src="{{ asset('frontend/images/images (4).jfif') }}" alt="Khaddar Formal Suit" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0;">
-                        <div class="card-action-buttons" style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; opacity: 0; transition: opacity 0.3s ease;">
-                            <button onclick="toggleWishlist(4, this); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                            <button onclick="addToCart(4); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Cart">
-                                <i class="fas fa-shopping-cart"></i>
-                            </button>
-                            <button onclick="window.location.href='{{ route('product.detail', 4) }}'; event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="In Stock">
-                                <i class="fas fa-check"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.2rem; line-height: 1.4;">Khaddar Formal Suit</h3>
-                    <p style="font-size: 1.1rem; font-weight: 700; color: #D4AF37; margin: 0;">Rs. 5,990</p>
-                </div>
-            </div>
-
-            <!-- Card 5 - WEDDING WEAR -->
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div style="cursor: pointer; text-align: center;">
-                    <div class="card-image-hover" style="width: 100%; height: 400px; background: #e9e9e9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin-bottom: 0.5rem;">
-                        <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-10%</span>
-                        <img class="img-primary" src="{{ asset('frontend/images/images (4).jfif') }}" alt="Wedding Sherwani" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 1;">
-                        <img class="img-secondary" src="{{ asset('frontend/images/images (5).jfif') }}" alt="Wedding Sherwani" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0;">
-                        <div class="card-action-buttons" style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; opacity: 0; transition: opacity 0.3s ease;">
-                            <button onclick="toggleWishlist(5, this); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                            <button onclick="addToCart(5); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Cart">
-                                <i class="fas fa-shopping-cart"></i>
-                            </button>
-                            <button onclick="window.location.href='{{ route('product.detail', 5) }}'; event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="In Stock">
-                                <i class="fas fa-check"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.2rem; line-height: 1.4;">Wedding Sherwani</h3>
-                    <p style="font-size: 1.1rem; font-weight: 700; color: #D4AF37; margin: 0;">Rs. 7,490</p>
-                </div>
-            </div>
-
-            <!-- Card 6 - EID WEAR -->
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div style="cursor: pointer; text-align: center;">
-                    <div class="card-image-hover" style="width: 100%; height: 400px; background: #e9e9e9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin-bottom: 0.5rem;">
-                        <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-65%</span>
-                        <img class="img-primary" src="{{ asset('frontend/images/images (5).jfif') }}" alt="Eid Pyjama" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 1;">
-                        <img class="img-secondary" src="{{ asset('frontend/images/images.jfif') }}" alt="Eid Pyjama" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0;">
-                        <div class="card-action-buttons" style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; opacity: 0; transition: opacity 0.3s ease;">
-                            <button onclick="toggleWishlist(6, this); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                            <button onclick="addToCart(6); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Cart">
-                                <i class="fas fa-shopping-cart"></i>
-                            </button>
-                            <button onclick="window.location.href='{{ route('product.detail', 6) }}'; event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="In Stock">
-                                <i class="fas fa-check"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.2rem; line-height: 1.4;">Eid Pyjama</h3>
-                    <p style="font-size: 1.1rem; font-weight: 700; color: #D4AF37; margin: 0;">Rs. 1,290</p>
-                </div>
-            </div>
-
-            <!-- Card 7 - COTTON -->
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div style="cursor: pointer; text-align: center;">
-                    <div class="card-image-hover" style="width: 100%; height: 400px; background: #e9e9e9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin-bottom: 0.5rem;">
-                    <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-65%</span>    
-                    <img class="img-primary" src="{{ asset('frontend/images/images.jfif') }}" alt="Cotton Casual Shirt" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 1;">
-                        <img class="img-secondary" src="{{ asset('frontend/images/images (1).jfif') }}" alt="Cotton Casual Shirt" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0;">
-                        <div class="card-action-buttons" style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; opacity: 0; transition: opacity 0.3s ease;">
-                            <button onclick="toggleWishlist(7, this); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                            <button onclick="addToCart(7); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Cart">
-                                <i class="fas fa-shopping-cart"></i>
-                            </button>
-                            <button onclick="window.location.href='{{ route('product.detail', 7) }}'; event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="In Stock">
-                                <i class="fas fa-check"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.2rem; line-height: 1.4;">Cotton Casual Shirt</h3>
-                    <p style="font-size: 1.1rem; font-weight: 700; color: #D4AF37; margin: 0;">Rs. 2,890</p>
-                </div>
-            </div>
-
-            <!-- Card 8 - KHADDAR -->
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div style="cursor: pointer; text-align: center;">
-                    <div class="card-image-hover" style="width: 100%; height: 400px; background: #e9e9e9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin-bottom: 0.5rem;">
-                    <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-65%</span>   
-                    <img class="img-primary" src="{{ asset('frontend/images/images (1).jfif') }}" alt="Khaddar Designer Kurta" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 1;">
-                        <img class="img-secondary" src="{{ asset('frontend/images/images (2).jfif') }}" alt="Khaddar Designer Kurta" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0;">
-                        <div class="card-action-buttons" style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; opacity: 0; transition: opacity 0.3s ease;">
-                            <button onclick="toggleWishlist(8, this); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                            <button onclick="addToCart(8); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Cart">
-                                <i class="fas fa-shopping-cart"></i>
-                            </button>
-                            <button onclick="window.location.href='{{ route('product.detail', 8) }}'; event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="In Stock">
-                                <i class="fas fa-check"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.2rem; line-height: 1.4;">Khaddar Designer Kurta</h3>
-                    <p style="font-size: 1.1rem; font-weight: 700; color: #D4AF37; margin: 0;">Rs. 4,690</p>
-                </div>
-            </div>
+            @endforelse
         </div>
     </div>
 </section>

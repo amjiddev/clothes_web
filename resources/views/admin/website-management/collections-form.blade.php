@@ -33,7 +33,7 @@
         @endif
 
         <div class="row">
-            <div class="col-lg-8">
+            <div class="col-lg-12">
                 <!-- Basic Information -->
                 <div class="card mb-3">
                     <div class="card-header">
@@ -142,35 +142,6 @@
                                     </label>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-4">
-                <!-- Preview -->
-                <div class="card mb-3 sticky-top" style="top: 20px;">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Preview</h5>
-                    </div>
-                    <div class="card-body">
-                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center;">
-                            @if(isset($section) && $section?->badge_text)
-                                <div style="display: inline-block; background: {{ $section->badge_bg_color === 'gold' ? '#d4af37' : '#1a1a1a' }}; color: {{ $section->badge_bg_color === 'gold' ? '#000' : '#fff' }}; padding: 5px 15px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-bottom: 10px;">
-                                    {{ $section->badge_text }}
-                                </div>
-                            @endif
-                            <h4 id="title-preview">{{ isset($section) ? $section->title : 'Section Title' }}</h4>
-                            <p id="description-preview" style="font-size: 0.9rem; color: #666;">
-                                @if(isset($section) && $section->description)
-                                    {{ strlen($section->description) > 100 ? substr($section->description, 0, 100) . '...' : $section->description }}
-                                @else
-                                    Section description appears here
-                                @endif
-                            </p>
-                        </div>
-                        <div class="mt-3 text-center">
-                            <small class="text-muted">Images: <strong id="images-count">0</strong>/4</small>
                         </div>
                     </div>
                 </div>
@@ -310,21 +281,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function updateImageCount() {
-        const count = document.querySelectorAll('.image-upload-card .preview-img').length +
-                      document.querySelectorAll('#existing-images .card').length;
-        document.getElementById('images-count').textContent = count;
+        const count = document.querySelectorAll('.image-upload-card .preview-img[style*="display: block"]').length;
+        const existingCount = document.querySelectorAll('#existing-images .card').length;
+        document.getElementById('images-count').textContent = count + existingCount;
     }
-
-    // Update preview on title change
-    document.getElementById('title').addEventListener('input', function() {
-        document.getElementById('title-preview').textContent = this.value || 'Section Title';
-    });
-
-    // Update preview on description change
-    document.getElementById('description').addEventListener('input', function() {
-        const desc = this.value ? this.value.substring(0, 100) + (this.value.length > 100 ? '...' : '') : 'Section description appears here';
-        document.getElementById('description-preview').textContent = desc;
-    });
 
     // Initialize counts
     updateImageCount();
