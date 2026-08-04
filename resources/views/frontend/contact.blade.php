@@ -26,9 +26,6 @@
                                 <i class="fas fa-phone" style="font-size: 2rem; color: var(--accent-gold); margin-bottom: 1rem;"></i>
                                 <h5 class="fw-bold" style="color: var(--primary-dark);">Phone</h5>
                                 <p><a href="tel:{{ $contactInfo->data['phone'] }}" style="text-decoration: none; color: var(--primary-dark);">{{ $contactInfo->data['phone'] }}</a></p>
-                                @if(!empty($contactInfo->data['timings']))
-                                    <p class="text-muted small">{{ $contactInfo->data['timings'] }}</p>
-                                @endif
                             </div>
                         </div>
                     @endif
@@ -39,7 +36,9 @@
                                 <i class="fas fa-envelope" style="font-size: 2rem; color: var(--accent-gold); margin-bottom: 1rem;"></i>
                                 <h5 class="fw-bold" style="color: var(--primary-dark);">Email</h5>
                                 <p><a href="mailto:{{ $contactInfo->data['email'] }}" style="text-decoration: none; color: var(--primary-dark);">{{ $contactInfo->data['email'] }}</a></p>
-                                <p class="text-muted small">Response time: 2-4 hours</p>
+                                @if(!empty($contactInfo->data['response_time']))
+                                    <p class="text-muted small">Response time: {{ $contactInfo->data['response_time'] }}</p>
+                                @endif
                             </div>
                         </div>
                     @endif
@@ -50,9 +49,6 @@
                                 <i class="fas fa-map-marker-alt" style="font-size: 2rem; color: var(--accent-gold); margin-bottom: 1rem;"></i>
                                 <h5 class="fw-bold" style="color: var(--primary-dark);">Address</h5>
                                 <p>{!! nl2br(e($contactInfo->data['address'])) !!}</p>
-                                @if(!empty($contactInfo->data['timings']))
-                                    <p class="text-muted small">{{ $contactInfo->data['timings'] }}</p>
-                                @endif
                             </div>
                         </div>
                     @endif

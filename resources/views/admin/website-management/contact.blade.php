@@ -62,12 +62,14 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Business Hours / Timings</label>
-                            <input type="text" name="contact_timings" class="form-control @error('contact_timings') is-invalid @enderror" value="{{ old('contact_timings', $contactInfo->data['timings'] ?? '') }}" placeholder="Mon - Fri: 10 AM - 6 PM">
-                            @error('contact_timings')
+                            <label class="form-label fw-bold">Response Time</label>
+                            <input type="text" name="contact_response_time" class="form-control @error('contact_response_time') is-invalid @enderror" value="{{ old('contact_response_time', $contactInfo->data['response_time'] ?? '') }}" placeholder="2-4 hours">
+                            @error('contact_response_time')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+
+
                     </div>
                 </div>
             </div>

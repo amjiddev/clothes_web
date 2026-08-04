@@ -60,7 +60,7 @@ class WebsiteManagementController extends Controller
             'contact_email' => 'nullable|email',
             'contact_phone' => 'nullable|string',
             'contact_address' => 'nullable|string',
-            'contact_timings' => 'nullable|string',
+            'contact_response_time' => 'nullable|string',
             'is_published' => 'boolean',
             'display_order' => 'nullable|integer|min:0',
             'locations.*.title' => 'nullable|string',
@@ -81,7 +81,7 @@ class WebsiteManagementController extends Controller
             'email' => $request->contact_email,
             'phone' => $request->contact_phone,
             'address' => $request->contact_address,
-            'timings' => $request->contact_timings,
+            'response_time' => $request->contact_response_time,
         ];
         
         $cmsData = [
@@ -179,7 +179,7 @@ class WebsiteManagementController extends Controller
             'contact_email' => 'nullable|email',
             'contact_phone' => 'nullable|string',
             'contact_address' => 'nullable|string',
-            'contact_timings' => 'nullable|string',
+            'contact_response_time' => 'nullable|string',
             'is_published' => 'boolean',
             'display_order' => 'nullable|integer|min:0',
         ]);
@@ -189,7 +189,7 @@ class WebsiteManagementController extends Controller
             'email' => $request->contact_email,
             'phone' => $request->contact_phone,
             'address' => $request->contact_address,
-            'timings' => $request->contact_timings,
+            'response_time' => $request->contact_response_time,
         ];
         
         $cmsData = [

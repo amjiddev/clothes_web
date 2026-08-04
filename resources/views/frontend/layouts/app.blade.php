@@ -909,23 +909,55 @@
                 <div class="col-lg-3 col-md-6 footer-section">
                     <h4>Contact Info</h4>
                     <ul>
-                        <li>
-                            <i class="fas fa-phone"></i>
-                            <a href="tel:+91-XXXXXXXXXX">+91-XXXXXXXXXX</a>
-                        </li>
-                        <li>
-                            <i class="fas fa-envelope"></i>
-                            <a href="mailto:info@clothes.com">info@clothes.com</a>
-                        </li>
-                        <li>
-                            <i class="fas fa-map-marker-alt"></i>
-                            123 Fashion Street, City Center
-                        </li>
-                        <li style="margin-top: 1rem;">
-                            <strong>Hours:</strong><br>
-                            Mon - Fri: 10 AM - 8 PM<br>
-                            Sat - Sun: 11 AM - 9 PM
-                        </li>
+                        @php
+                            $contactInfo = \App\Models\WebsiteCms::where('section_type', 'contact')
+                                                                  ->where('is_published', true)
+                                                                  ->first();
+                        @endphp
+                        
+                        @if($contactInfo && $contactInfo->data)
+                            @if(isset($contactInfo->data['phone']) && $contactInfo->data['phone'])
+                                <li>
+                                    <i class="fas fa-phone"></i>
+                                    <a href="tel:{{ $contactInfo->data['phone'] }}">{{ $contactInfo->data['phone'] }}</a>
+                                </li>
+                            @endif
+                            
+                            @if(isset($contactInfo->data['email']) && $contactInfo->data['email'])
+                                <li>
+                                    <i class="fas fa-envelope"></i>
+                                    <a href="mailto:{{ $contactInfo->data['email'] }}">{{ $contactInfo->data['email'] }}</a>
+                                </li>
+                            @endif
+                            
+                            @if(isset($contactInfo->data['address']) && $contactInfo->data['address'])
+                                <li>
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    {{ $contactInfo->data['address'] }}
+                                </li>
+                            @endif
+
+                            @if(isset($contactInfo->data['response_time']) && $contactInfo->data['response_time'])
+                                <li>
+                                    <i class="fas fa-clock"></i>
+                                    {{ $contactInfo->data['response_time'] }}
+                                </li>
+                            @endif
+                        @else
+                            <!-- Default/Fallback contact info if nothing is configured -->
+                            <li>
+                                <i class="fas fa-phone"></i>
+                                <a href="tel:+91-XXXXXXXXXX">+91-XXXXXXXXXX</a>
+                            </li>
+                            <li>
+                                <i class="fas fa-envelope"></i>
+                                <a href="mailto:info@clothes.com">info@clothes.com</a>
+                            </li>
+                            <li>
+                                <i class="fas fa-map-marker-alt"></i>
+                                123 Fashion Street, City Center
+                            </li>
+                        @endif
                     </ul>
                 </div>
             </div>
