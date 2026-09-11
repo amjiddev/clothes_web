@@ -752,6 +752,69 @@
             visibility: visible;
         }
 
+        .login-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 1100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.65);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+        }
+
+        .login-modal-backdrop.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .login-modal-dialog {
+            position: relative;
+            width: min(560px, 100%);
+            height: min(460px, calc(100vh - 2rem));
+            overflow: hidden;
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+        }
+
+        .login-modal-dialog.forgot-active {
+            height: min(520px, calc(100vh - 2rem));
+        }
+
+        .login-modal-dialog iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        .login-modal-dialog iframe.auth-frame-hidden {
+            display: none;
+        }
+
+        .login-modal-dialog iframe.auth-frame-loading {
+            visibility: hidden;
+        }
+
+        .login-modal-close {
+            position: absolute;
+            top: 12px;
+            right: 14px;
+            z-index: 2;
+            width: 38px;
+            height: 38px;
+            border: 0;
+            border-radius: 50%;
+            background: rgba(11, 11, 11, 0.75);
+            color: #fff;
+            font-size: 1.8rem;
+            line-height: 1;
+            cursor: pointer;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .hero-section h1 {
@@ -826,7 +889,7 @@
                             <a class="nav-link" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
                             <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
                         @else
-                            <a class="nav-link" href="{{ route('login') }}">Login</a>
+                            <a class="nav-link auth-login-trigger" href="{{ route('login') }}" data-login-url="{{ route('login') }}">Login</a>
                             <a class="nav-link" href="{{ route('register') }}">Register</a>
                         @endif
                     </li>
@@ -868,6 +931,14 @@
 
     <!-- Cart Overlay -->
     <div class="cart-overlay" id="cartOverlay"></div>
+
+    <div class="login-modal-backdrop" id="loginModal" aria-hidden="true">
+        <div class="login-modal-dialog" role="dialog" aria-modal="true" aria-label="Login">
+            <button type="button" class="login-modal-close" id="closeLoginModal" aria-label="Close">&times;</button>
+            <iframe id="loginModalFrame" class="auth-frame-loading" src="{{ route('login') }}" title="Login form"></iframe>
+            <iframe id="forgotPasswordModalFrame" class="auth-frame-hidden auth-frame-loading" src="{{ route('password.request') }}" title="Forgot password form"></iframe>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="footer">
@@ -1130,6 +1201,88 @@
         }
 
         updateCartCount();
+
+        const loginModal = document.getElementById('loginModal');
+        const loginModalFrame = document.getElementById('loginModalFrame');
+        const forgotPasswordModalFrame = document.getElementById('forgotPasswordModalFrame');
+        const closeLoginModal = document.getElementById('closeLoginModal');
+
+        function showLoginFrame() {
+            document.querySelector('.login-modal-dialog').classList.remove('forgot-active');
+            loginModalFrame.classList.remove('auth-frame-hidden');
+            forgotPasswordModalFrame.classList.add('auth-frame-hidden');
+        }
+
+        function showForgotPasswordFrame(email = '') {
+            document.querySelector('.login-modal-dialog').classList.add('forgot-active');
+            loginModalFrame.classList.add('auth-frame-hidden');
+            forgotPasswordModalFrame.classList.remove('auth-frame-hidden');
+
+            const forgotEmail = forgotPasswordModalFrame.contentDocument?.querySelector('[name="email"]');
+            if (forgotEmail && email) {
+                forgotEmail.value = email.trim();
+            }
+        }
+
+        function bindForgotPasswordLink() {
+            const forgotLink = loginModalFrame.contentDocument?.getElementById('forgot-password-link');
+
+            if (forgotLink && !forgotLink.dataset.modalBound) {
+                forgotLink.dataset.modalBound = 'true';
+                forgotLink.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    const email = loginModalFrame.contentDocument?.querySelector('[name="email"]')?.value || '';
+                    showForgotPasswordFrame(email);
+                });
+            }
+
+            const cancelLink = forgotPasswordModalFrame.contentDocument?.querySelector('a[href*="/login"]');
+            if (cancelLink && !cancelLink.dataset.modalBound) {
+                cancelLink.dataset.modalBound = 'true';
+                cancelLink.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    showLoginFrame();
+                });
+            }
+        }
+
+        loginModalFrame.addEventListener('load', function () {
+            loginModalFrame.classList.remove('auth-frame-loading');
+            bindForgotPasswordLink();
+        });
+        forgotPasswordModalFrame.addEventListener('load', function () {
+            forgotPasswordModalFrame.classList.remove('auth-frame-loading');
+            bindForgotPasswordLink();
+        });
+
+        function openLoginModal(url) {
+            showLoginFrame();
+            bindForgotPasswordLink();
+            if (!loginModalFrame.src || loginModalFrame.src === 'about:blank') {
+                loginModalFrame.src = url;
+            }
+            loginModal.classList.add('active');
+            loginModal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLoginModalWindow() {
+            loginModal.classList.remove('active');
+            loginModal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+        }
+
+        document.querySelectorAll('.auth-login-trigger').forEach(trigger => {
+            trigger.addEventListener('click', function (event) {
+                event.preventDefault();
+                openLoginModal(this.dataset.loginUrl);
+            });
+        });
+
+        closeLoginModal.addEventListener('click', closeLoginModalWindow);
+        loginModal.addEventListener('click', function (event) {
+            if (event.target === loginModal) closeLoginModalWindow();
+        });
 
         // Set active nav link based on current page
         document.addEventListener('DOMContentLoaded', function() {

@@ -1,8 +1,8 @@
 <x-auth-layout>
 
     <!--begin::Form-->
-    <form class="form w-100" novalidate="novalidate" id="kt_sign_in_form" data-kt-redirect-url="{{ route('dashboard') }}"
-        action="{{ route('login') }}">
+    <form class="form w-100" method="POST" autocomplete="off" novalidate="novalidate" id="kt_sign_in_form" data-kt-redirect-url="{{ route('dashboard') }}"
+        action="{{ route('login') }}" target="_top">
         @csrf
         <!--begin::Heading-->
         <div class="text-center mb-11">
@@ -45,7 +45,7 @@
         <!--begin::Input group--->
         <div class="fv-row mb-8 position-relative">
             <!--begin::Email-->
-            <input type="text" placeholder="Email" name="email" autocomplete="off"
+            <input type="email" placeholder="Email" name="email" autocomplete="new-password"
                 class="form-control bg-transparent" value="" />
             <!--end::Email-->
         </div>
@@ -53,7 +53,7 @@
         <!--end::Input group--->
         <div class="fv-row mb-3 position-relative">
             <!--begin::Password-->
-            <input type="password" placeholder="Password" name="password" autocomplete="off"
+            <input type="password" placeholder="Password" name="password" autocomplete="new-password"
                 class="form-control bg-transparent" value="" id="login_password" />
             <span class="btn btn-sm btn-icon position-absolute translate-middle top-50 end-0 me-n2" 
                 onclick="togglePasswordVisibility('login_password', this)" style="cursor: pointer; z-index: 10;">
@@ -69,7 +69,7 @@
             <div></div>
 
             <!--begin::Link-->
-            <a href="{{ route('password.request') }}" class="link-primary">
+            <a href="{{ route('password.request') }}" class="link-primary" id="forgot-password-link">
                 Forgot Password ?
             </a>
             <!--end::Link-->
@@ -116,6 +116,31 @@
         
         // Remove duplicate validation error messages
         document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.querySelector('#kt_sign_in_form');
+            if (loginForm) {
+                loginForm.reset();
+                loginForm.querySelector('[name="email"]').value = '';
+                loginForm.querySelector('[name="password"]').value = '';
+
+                const forgotPasswordLink = document.getElementById('forgot-password-link');
+                const emailInput = loginForm.querySelector('[name="email"]');
+
+                if (forgotPasswordLink && emailInput) {
+                    forgotPasswordLink.addEventListener('click', function () {
+                        const email = emailInput.value.trim();
+                        const url = new URL(forgotPasswordLink.href, window.location.origin);
+
+                        if (email) {
+                            url.searchParams.set('email', email);
+                        } else {
+                            url.searchParams.delete('email');
+                        }
+
+                        forgotPasswordLink.href = url.toString();
+                    });
+                }
+            }
+
             // Use MutationObserver to watch for dynamically added error messages
             const observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {
@@ -151,3 +176,19 @@
     @endpush
 
 </x-auth-layout>
+
+<style>
+    #kt_sign_in_form {
+        width: min(430px, calc(100vw - 48px)) !important;
+        max-width: none !important;
+        margin-inline: auto !important;
+    }
+
+    #kt_sign_in_form .fv-row,
+    #kt_sign_in_form .form-control,
+    #kt_sign_in_form #kt_sign_in_submit {
+        width: 100% !important;
+        max-width: none !important;
+        box-sizing: border-box;
+    }
+</style>

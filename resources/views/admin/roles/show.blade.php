@@ -18,9 +18,11 @@
             </div>
             <div class="col-auto">
                 <div class="d-flex gap-2">
+                    @if($role->name !== 'super_admin')
                     <a href="{{ route('admin.user-management.roles.edit', $role) }}" class="btn btn-warning">
                         <i class="fas fa-edit me-2"></i>Edit Role
                     </a>
+                    @endif
                     <a href="{{ route('admin.user-management.roles.index') }}" class="btn btn-outline-secondary">
                         <i class="fas fa-arrow-left me-2"></i>Back
                     </a>

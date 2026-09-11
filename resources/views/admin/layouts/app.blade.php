@@ -579,6 +579,17 @@
             color: var(--info);
         }
 
+        .admin-toast {
+            position: fixed;
+            top: 86px;
+            right: 24px;
+            z-index: 1080;
+            min-width: 280px;
+            max-width: min(420px, calc(100vw - 32px));
+            margin: 0;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.16);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
@@ -735,14 +746,14 @@
                 @endif
 
                 @if (session('success'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert" id="success-alert">
+                    <div class="alert alert-success alert-dismissible fade show admin-toast" role="alert" id="success-alert">
                         <i class="fas fa-check-circle"></i> {{ session('success') }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 @endif
 
                 @if (session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert" id="error-alert">
+                    <div class="alert alert-danger alert-dismissible fade show admin-toast" role="alert" id="error-alert">
                         <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
@@ -764,7 +775,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 
     <script>
-        // Auto-hide alerts after 2 seconds
+        // Auto-hide toast messages after a short delay.
         document.addEventListener('DOMContentLoaded', function() {
             const successAlert = document.getElementById('success-alert');
             const errorAlert = document.getElementById('error-alert');
@@ -773,14 +784,14 @@
                 setTimeout(function() {
                     const bsAlert = new bootstrap.Alert(successAlert);
                     bsAlert.close();
-                }, 2000);
+                }, 3000);
             }
             
             if (errorAlert) {
                 setTimeout(function() {
                     const bsAlert = new bootstrap.Alert(errorAlert);
                     bsAlert.close();
-                }, 2000);
+                }, 3000);
             }
         });
 

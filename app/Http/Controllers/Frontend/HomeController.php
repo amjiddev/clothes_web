@@ -12,6 +12,11 @@ class HomeController extends Controller
 {
     public function index()
     {
+        // Get home page CMS content
+        $homePageContent = \App\Models\WebsiteCms::where('section_type', 'home_page')
+                                                 ->where('page_slug', 'home-page')
+                                                 ->first();
+
         // Get active categories
         $categories = Category::where('is_active', true)
                              ->orderBy('sort_order')
@@ -63,7 +68,7 @@ class HomeController extends Controller
                                       ->take(6)
                                       ->get();
 
-        return view('frontend.home', compact('categories', 'featuredProducts', 'shalwarKameezProducts', 'categoriesWithCount'));
+        return view('frontend.home', compact('categories', 'featuredProducts', 'shalwarKameezProducts', 'categoriesWithCount', 'homePageContent'));
     }
 
     public function shop(Request $request)

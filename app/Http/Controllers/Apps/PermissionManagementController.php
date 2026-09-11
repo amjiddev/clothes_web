@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Apps;
 
-use App\DataTables\PermissionsDataTable;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class PermissionManagementController extends Controller
 {
@@ -70,12 +70,16 @@ class PermissionManagementController extends Controller
             'description' => 'nullable|string|max:500',
         ]);
 
-        Permission::create([
+        $permission = Permission::create([
             'name' => $validated['name'],
             'display_name' => $validated['display_name'] ?? ucfirst(str_replace('_', ' ', $validated['name'])),
             'description' => $validated['description'] ?? '',
             'guard_name' => 'web',
         ]);
+
+        Role::where('name', 'super_admin')
+            ->where('guard_name', 'web')
+            ->first()?->givePermissionTo($permission);
 
         return redirect()->route('admin.user-management.permissions.index')
             ->with('success', 'Permission created successfully!');

@@ -42,7 +42,6 @@ class AddUserModal extends Component
         $roles = Role::all();
 
         $roles_description = [
-            'administrator' => 'Best for business owners and company administrators',
             'developer' => 'Best for developers or people primarily using the API',
             'analyst' => 'Best for people who need full access to analytics data, but don\'t need to update business settings',
             'support' => 'Best for employees who regularly refund payments and respond to disputes',
