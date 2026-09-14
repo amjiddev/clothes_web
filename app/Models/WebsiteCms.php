@@ -169,4 +169,14 @@ class WebsiteCms extends Model
                    ->where('is_published', true)
                    ->first();
     }
+
+    /**
+     * Get home page content
+     */
+    public static function getHomePageContent()
+    {
+        return self::where('section_type', 'home_page')
+                   ->where('is_published', true)
+                   ->first();
+    }
 }

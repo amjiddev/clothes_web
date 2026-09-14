@@ -7,7 +7,6 @@ use App\Models\StitchingOrder;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Coupon;
-use App\Models\Inventory;
 use App\Models\Payment;
 use Carbon\Carbon;
 
@@ -23,7 +22,7 @@ class DashboardController extends Controller
         }
 
         // Check if user is admin
-        if (!$user->hasRole('administrator') && !$user->hasRole('super_admin')) {
+        if (!$user->hasRole('super_admin')) {
             return redirect()->route('home');
         }
 

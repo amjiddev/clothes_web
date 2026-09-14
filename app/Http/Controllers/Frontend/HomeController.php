@@ -12,6 +12,11 @@ class HomeController extends Controller
 {
     public function index()
     {
+        // Get home page CMS content
+        $homePageContent = \App\Models\WebsiteCms::where('section_type', 'home_page')
+                                                 ->where('page_slug', 'home-page')
+                                                 ->first();
+
         // Get active categories
         $categories = Category::where('is_active', true)
                              ->orderBy('sort_order')
@@ -34,6 +39,28 @@ class HomeController extends Controller
             $featuredProducts = collect();
         }
 
+        // Get Shalwar Kameez Collection products
+        $shalwarKameezProducts = Product::where('is_active', true)
+                                        ->where('stock_quantity', '>', 0)
+                                        ->whereHas('displaySections', function ($query) {
+                                            $query->where('section', 'home_shalwar_kameez')
+                                                  ->where('is_active', true);
+                                        })
+                                        ->with(['images', 'category', 'displaySections'])
+                                        ->orderBy('created_at', 'desc')
+                                        ->take(8)
+                                        ->get();
+
+        // If no products assigned to home_shalwar_kameez, get all active products
+        if ($shalwarKameezProducts->isEmpty()) {
+            $shalwarKameezProducts = Product::where('is_active', true)
+                                            ->where('stock_quantity', '>', 0)
+                                            ->with(['images', 'category', 'displaySections'])
+                                            ->orderBy('created_at', 'desc')
+                                            ->take(8)
+                                            ->get();
+        }
+
         // Get categories with product count
         $categoriesWithCount = Category::where('is_active', true)
                                       ->withCount('products')
@@ -41,7 +68,7 @@ class HomeController extends Controller
                                       ->take(6)
                                       ->get();
 
-        return view('frontend.home', compact('categories', 'featuredProducts', 'categoriesWithCount'));
+        return view('frontend.home', compact('categories', 'featuredProducts', 'shalwarKameezProducts', 'categoriesWithCount', 'homePageContent'));
     }
 
     public function shop(Request $request)
@@ -489,25 +516,32 @@ class HomeController extends Controller
             });
         }
 
-        // Filter by size
-        if ($request->has('size') && $request->size) {
-            $query->where(function ($q) use ($request) {
-                $q->where('size', $request->size)
-                  ->orWhereJsonContains('available_sizes', $request->size);
+        // Filter by multiple sizes
+        $selectedSizes = $request->get('sizes', []);
+        if (!empty($selectedSizes)) {
+            $query->where(function ($q) use ($selectedSizes) {
+                foreach ($selectedSizes as $size) {
+                    $q->orWhere('size', $size)
+                      ->orWhereJsonContains('available_sizes', $size);
+                }
             });
         }
 
-        // Filter by color
-        if ($request->has('color') && $request->color) {
-            $query->where(function ($q) use ($request) {
-                $q->where('color', $request->color)
-                  ->orWhereJsonContains('available_colors', $request->color);
+        // Filter by multiple colors
+        $selectedColors = $request->get('colors', []);
+        if (!empty($selectedColors)) {
+            $query->where(function ($q) use ($selectedColors) {
+                foreach ($selectedColors as $color) {
+                    $q->orWhere('color', $color)
+                      ->orWhereJsonContains('available_colors', $color);
+                }
             });
         }
 
-        // Filter by fabric type
-        if ($request->has('fabric') && $request->fabric) {
-            $query->where('fabric_type', $request->fabric);
+        // Filter by multiple fabric types
+        $selectedFabrics = $request->get('fabrics', []);
+        if (!empty($selectedFabrics)) {
+            $query->whereIn('fabric_type', $selectedFabrics);
         }
 
         // Apply sorting

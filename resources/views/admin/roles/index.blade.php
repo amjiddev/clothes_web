@@ -24,22 +24,6 @@
         </div>
     </div>
 
-    <!-- Success Message -->
-    @if ($message = Session::get('success'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="fas fa-check-circle me-2"></i>{{ $message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    @endif
-
-    <!-- Error Message -->
-    @if ($message = Session::get('error'))
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="fas fa-exclamation-circle me-2"></i>{{ $message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    @endif
-
     <!-- Search Section -->
     <div class="card border-0 shadow mb-4">
         <div class="card-body">
@@ -115,7 +99,7 @@
                         <a href="{{ route('admin.user-management.roles.show', $role) }}" class="btn btn-sm btn-info flex-grow-1">
                             <i class="fas fa-eye me-1"></i>View
                         </a>
-                        @if(!in_array($role->name, $predefinedRoles))
+                        @if($role->name !== 'super_admin')
                         <a href="{{ route('admin.user-management.roles.edit', $role) }}" class="btn btn-sm btn-warning flex-grow-1">
                             <i class="fas fa-edit me-1"></i>Edit
                         </a>

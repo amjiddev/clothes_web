@@ -108,6 +108,10 @@
                 <span>Website Management</span>
             </a>
             <div class="nav-submenu {{ request()->routeIs('admin.website-management.*') ? 'show' : '' }}">
+                <a href="{{ route('admin.website-management.home-page') }}" class="nav-link {{ request()->routeIs('admin.website-management.home-page') ? 'active' : '' }}">
+                    <i class="fas fa-home"></i>
+                    <span>Home Page</span>
+                </a>
                 <a href="{{ route('admin.website-management.contact') }}" class="nav-link {{ request()->routeIs('admin.website-management.contact') ? 'active' : '' }}">
                     <i class="fas fa-address-book"></i>
                     <span>Contact Page</span>

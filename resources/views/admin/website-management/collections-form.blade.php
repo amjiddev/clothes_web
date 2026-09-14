@@ -33,7 +33,7 @@
         @endif
 
         <div class="row">
-            <div class="col-lg-8">
+            <div class="col-lg-12">
                 <!-- Basic Information -->
                 <div class="card mb-3">
                     <div class="card-header">
@@ -91,21 +91,32 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="mb-3">
-                                    <label class="form-label" for="button_text">Button Text *</label>
-                                    <input type="text" class="form-control @error('button_text') is-invalid @enderror" id="button_text" name="button_text" value="{{ old('button_text', $section->button_text ?? 'Shop Now') }}" placeholder="e.g., Shop Now" required>
+                                    <label class="form-label" for="button_text">Select Brand *</label>
+                                    <select class="form-control @error('button_text') is-invalid @enderror" id="button_text" name="button_text" required>
+                                        <option value="">-- Select Brand --</option>
+                                        @if(isset($brands) && $brands->count() > 0)
+                                            @foreach($brands as $brand)
+                                                <option value="{{ $brand->name }}" data-slug="{{ $brand->slug }}" {{ (old('button_text', $section->button_text ?? '') === $brand->name) ? 'selected' : '' }}>
+                                                    {{ $brand->name }}
+                                                </option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                    <small class="form-hint">When users click the button, they will be directed to this brand's page</small>
+                                    @if(isset($brands) && $brands->count() === 0)
+                                        <div class="text-warning small mt-1">
+                                            <i class="fas fa-exclamation-triangle"></i> No active brands found. Please add brands first.
+                                        </div>
+                                    @endif
                                     @error('button_text')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label" for="button_link">Button Link</label>
-                                    <input type="text" class="form-control @error('button_link') is-invalid @enderror" id="button_link" name="button_link" value="{{ old('button_link', $section->button_link ?? '') }}" placeholder="/shop">
-                                    @error('button_link')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                                </div>
-                            </div>
                         </div>
+
+                        <!-- Hidden field for button link that gets set automatically -->
+                        <input type="hidden" name="button_link" id="button_link" value="{{ old('button_link', $section->button_link ?? '') }}">
 
                         <div class="mb-3">
                             <label class="form-label" for="features">Features (comma-separated)</label>
@@ -131,35 +142,6 @@
                                     </label>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-4">
-                <!-- Preview -->
-                <div class="card mb-3 sticky-top" style="top: 20px;">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Preview</h5>
-                    </div>
-                    <div class="card-body">
-                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center;">
-                            @if(isset($section) && $section?->badge_text)
-                                <div style="display: inline-block; background: {{ $section->badge_bg_color === 'gold' ? '#d4af37' : '#1a1a1a' }}; color: {{ $section->badge_bg_color === 'gold' ? '#000' : '#fff' }}; padding: 5px 15px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-bottom: 10px;">
-                                    {{ $section->badge_text }}
-                                </div>
-                            @endif
-                            <h4 id="title-preview">{{ isset($section) ? $section->title : 'Section Title' }}</h4>
-                            <p id="description-preview" style="font-size: 0.9rem; color: #666;">
-                                @if(isset($section) && $section->description)
-                                    {{ strlen($section->description) > 100 ? substr($section->description, 0, 100) . '...' : $section->description }}
-                                @else
-                                    Section description appears here
-                                @endif
-                            </p>
-                        </div>
-                        <div class="mt-3 text-center">
-                            <small class="text-muted">Images: <strong id="images-count">0</strong>/4</small>
                         </div>
                     </div>
                 </div>
@@ -243,6 +225,28 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Handle brand selection and auto-set button link
+    const brandSelect = document.getElementById('button_text');
+    const buttonLinkInput = document.getElementById('button_link');
+
+    brandSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption.value && selectedOption.dataset.slug) {
+            // Set the button link to the brand detail route
+            buttonLinkInput.value = '/brands/' + selectedOption.dataset.slug;
+        } else {
+            buttonLinkInput.value = '';
+        }
+    });
+
+    // Set button link on page load if brand is already selected
+    if (brandSelect.value) {
+        const selectedOption = brandSelect.options[brandSelect.selectedIndex];
+        if (selectedOption.dataset.slug) {
+            buttonLinkInput.value = '/brands/' + selectedOption.dataset.slug;
+        }
+    }
+
     // Handle image uploads
     document.querySelectorAll('.image-upload-card').forEach(card => {
         const fileInput = card.querySelector('.image-input');
@@ -277,21 +281,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function updateImageCount() {
-        const count = document.querySelectorAll('.image-upload-card .preview-img').length +
-                      document.querySelectorAll('#existing-images .card').length;
-        document.getElementById('images-count').textContent = count;
+        const count = document.querySelectorAll('.image-upload-card .preview-img[style*="display: block"]').length;
+        const existingCount = document.querySelectorAll('#existing-images .card').length;
+        document.getElementById('images-count').textContent = count + existingCount;
     }
-
-    // Update preview on title change
-    document.getElementById('title').addEventListener('input', function() {
-        document.getElementById('title-preview').textContent = this.value || 'Section Title';
-    });
-
-    // Update preview on description change
-    document.getElementById('description').addEventListener('input', function() {
-        const desc = this.value ? this.value.substring(0, 100) + (this.value.length > 100 ? '...' : '') : 'Section description appears here';
-        document.getElementById('description-preview').textContent = desc;
-    });
 
     // Initialize counts
     updateImageCount();
