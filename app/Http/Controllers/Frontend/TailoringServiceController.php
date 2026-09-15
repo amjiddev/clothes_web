@@ -16,7 +16,7 @@ class TailoringServiceController extends Controller
      */
     public function show()
     {
-        $userMeasurements = [];
+        $userMeasurements = collect();
         if (Auth::check()) {
             $userMeasurements = Auth::user()->measurements;
         }

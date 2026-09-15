@@ -27,6 +27,9 @@ Route::middleware('guest')->group(function () {
     Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
         ->name('password.email');
 
+        Route::get('verify-password-code', [PasswordResetLinkController::class, 'showVerify'])
+            ->name('password.verify');
+        Route::post('verify-password-code', [PasswordResetLinkController::class, 'verify']);
     Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
         ->name('password.reset');
 
@@ -61,4 +64,5 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/change-password', [RegisteredUserController::class, 'changePassword'])->name('change-password');
     Route::put('/update-password', [RegisteredUserController::class, 'updatePassword'])->name('update-password');
+    Route::put('/profile', [RegisteredUserController::class, 'updateProfile'])->name('profile.update');
 });

@@ -4,14 +4,13 @@ namespace App\Http\Controllers\Auth;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rules;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
-use App\Providers\RouteServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class RegisteredUserController extends Controller
@@ -48,6 +47,7 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'email_verified_at' => app()->environment('local') ? now() : null,
             'last_login_at' => \Illuminate\Support\Carbon::now()->toDateTimeString(),
             'last_login_ip' => $request->getClientIp()
         ]);
@@ -55,12 +55,15 @@ class RegisteredUserController extends Controller
         // Assign CUSTOMER role (not 'user' - 'customer' is defined in RoleAndPermissionSeeder)
         $user->assignRole('customer');
 
-        // Send verification email
-        event(new Registered($user));
+        if (! $user->hasVerifiedEmail()) {
+            event(new Registered($user));
+        }
 
         // Return success response
         return response()->json([
-            'message' => 'Please check your email to verify your account.'
+            'message' => $user->hasVerifiedEmail()
+                ? 'Registration successful. You can now sign in.'
+                : 'Please check your email to verify your account.'
         ]);
     }
 
@@ -99,5 +102,36 @@ class RegisteredUserController extends Controller
             // Handle any other exceptions
             return redirect()->back()->with('error', __('An error occurred while updating the password. Please try again later.'));
         }
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+        $oldEmail = strtolower($user->email);
+        $email = strtolower(trim($request->input('email')));
+        $request->merge(['email' => $email]);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->ignore($user->id),
+            ],
+            'contact_number' => ['nullable', 'string', 'max:30'],
+        ], [
+            'email.unique' => 'This email is already used by another account. Please choose a different email.',
+        ]);
+
+        $validated['email'] = $email;
+
+        $user->update($validated);
+
+        if ($email !== $oldEmail && app()->environment('local')) {
+            $user->forceFill(['email_verified_at' => now()])->save();
+        }
+
+        return redirect()->back()->with('success', 'Profile updated successfully.');
     }
 }

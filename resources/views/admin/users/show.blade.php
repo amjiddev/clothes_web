@@ -37,14 +37,6 @@
         </div>
     </div>
 
-    <!-- Success Message -->
-    @if ($message = Session::get('success'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="fas fa-check-circle me-2"></i>{{ $message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    @endif
-
     <div class="row">
         <!-- Main Content -->
         <div class="col-lg-8">

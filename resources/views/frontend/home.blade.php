@@ -7,21 +7,31 @@
 <!-- Hero Section with Image Slider -->
     <!-- Slider Container -->
     <div class="hero-slider" style="position: relative; width: 100%; height: 85vh; overflow: hidden;">
-        <!-- Slide 1 - Clickable -->
-        <div class="hero-slide active" onclick="window.location.href='{{ route('shop') }}';" style="position: absolute; width: 100%; height: 100%; background: url('{{ asset('frontend/images/images.jfif') }}') center/cover no-repeat; background-size: cover; opacity: 1; transition: opacity 0.8s ease-in-out; cursor: pointer;">
-        </div>
+        @php
+            $heroImages = [];
+            if ($homePageContent && isset($homePageContent->data)) {
+                for ($i = 1; $i <= 4; $i++) {
+                    if (isset($homePageContent->data['hero_image_' . $i])) {
+                        $heroImages[] = asset('storage/' . $homePageContent->data['hero_image_' . $i]);
+                    }
+                }
+            }
+            // Fallback to default images if none are set
+            if (empty($heroImages)) {
+                $heroImages = [
+                    asset('frontend/images/images.jfif'),
+                    asset('frontend/images/images (1).jfif'),
+                    asset('frontend/images/images (2).jfif'),
+                    asset('frontend/images/images (3).jfif'),
+                ];
+            }
+        @endphp
         
-        <!-- Slide 2 - Clickable -->
-        <div class="hero-slide" onclick="window.location.href='{{ route('shop') }}';" style="position: absolute; width: 100%; height: 100%; background: url('{{ asset('frontend/images/images (1).jfif') }}') center/cover no-repeat; background-size: cover; opacity: 0; transition: opacity 0.8s ease-in-out; cursor: pointer;">
+        @foreach($heroImages as $index => $image)
+        <!-- Slide {{ $index + 1 }} - Clickable -->
+        <div class="hero-slide {{ $index === 0 ? 'active' : '' }}" onclick="window.location.href='{{ route('shop') }}';" style="position: absolute; width: 100%; height: 100%; background: url('{{ $image }}') center/cover no-repeat; background-size: cover; opacity: {{ $index === 0 ? 1 : 0 }}; transition: opacity 0.8s ease-in-out; cursor: pointer;">
         </div>
-        
-        <!-- Slide 3 - Clickable -->
-        <div class="hero-slide" onclick="window.location.href='{{ route('shop') }}';" style="position: absolute; width: 100%; height: 100%; background: url('{{ asset('frontend/images/images (2).jfif') }}') center/cover no-repeat; background-size: cover; opacity: 0; transition: opacity 0.8s ease-in-out; cursor: pointer;">
-        </div>
-        
-        <!-- Slide 4 - Clickable -->
-        <div class="hero-slide" onclick="window.location.href='{{ route('shop') }}';" style="position: absolute; width: 100%; height: 100%; background: url('{{ asset('frontend/images/images (3).jfif') }}') center/cover no-repeat; background-size: cover; opacity: 0; transition: opacity 0.8s ease-in-out; cursor: pointer;">
-        </div>
+        @endforeach
     </div>
 
     <!-- Previous Button - Clickable -->
@@ -36,10 +46,10 @@
 
     <!-- Slider Dots - Clickable -->
     <div class="hero-dots" style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 20; display: flex; gap: 12px;">
-        <span class="hero-dot active" onclick="currentSlide(0, event)" style="width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,0.9); cursor: pointer; transition: all 0.3s ease;"></span>
-        <span class="hero-dot" onclick="currentSlide(1, event)" style="width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.3s ease;"></span>
-        <span class="hero-dot" onclick="currentSlide(2, event)" style="width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.3s ease;"></span>
-        <span class="hero-dot" onclick="currentSlide(3, event)" style="width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.3s ease;"></span>
+        @php $dotCount = count($heroImages); @endphp
+        @for($i = 0; $i < $dotCount; $i++)
+        <span class="hero-dot {{ $i === 0 ? 'active' : '' }}" onclick="currentSlide({{ $i }}, event)" style="width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,{{ $i === 0 ? 0.9 : 0.5 }})!important; cursor: pointer; transition: all 0.3s ease;"></span>
+        @endfor
     </div>
 </section>
 
@@ -177,53 +187,69 @@
 </section>
 
 <!-- Tailoring Service Section -->
+@if($homePageContent && isset($homePageContent->data))
 <section class="tailoring-section section-padding">
     <div class="container">
         <div class="section-title" style="color: white; margin-bottom: 60px;">
-            <h2 style="color: white;">Our Tailoring Services</h2>
+            <h2 style="color: white;">{{ $homePageContent->data['tailoring_section_title'] ?? $homePageContent->data['tailoring_title_1'] ?? 'Our Tailoring Services' }}</h2>
             <div class="divider"></div>
-            <p style="color: rgba(255,255,255,0.8);">We provide professional custom stitching services according to your measurements</p>
+            <p style="color: rgba(255,255,255,0.8);">{{ $homePageContent->data['tailoring_section_description'] ?? '' }}</p>
         </div>
 
         <div class="row g-4">
-            <div class="col-lg-4 col-md-6">
-                <div class="tailoring-card">
-                    <i class="fas fa-ruler-combined"></i>
-                    <h3>Cloth + Stitching</h3>
-                    <p>
-                        Browse our premium fabric collection and get perfect custom stitching. Choose from a variety of designs and get tailored according to your exact measurements.
-                    </p>
-                    <p style="margin-top: 1rem;">
-                        <strong>Starting from Rs. 500</strong>
-                    </p>
-                </div>
-            </div>
+            @php
+                $tailoringServices = [];
+                if ($homePageContent && isset($homePageContent->data)) {
+                    for ($i = 1; $i <= 3; $i++) {
+                        if (!empty($homePageContent->data['tailoring_title_' . $i])) {
+                            $tailoringServices[] = [
+                                'title' => $homePageContent->data['tailoring_title_' . $i] ?? '',
+                                'description' => $homePageContent->data['tailoring_description_' . $i] ?? '',
+                                'icon' => $homePageContent->data['tailoring_icon_' . $i] ?? 'fas fa-star',
+                                'price' => $homePageContent->data['tailoring_price_' . $i] ?? '',
+                            ];
+                        }
+                    }
+                }
+                // Fallback to default services if none are set
+                if (empty($tailoringServices)) {
+                    $tailoringServices = [
+                        [
+                            'title' => 'Cloth + Stitching',
+                            'description' => 'Browse our premium fabric collection and get perfect custom stitching. Choose from a variety of designs and get tailored according to your exact measurements.',
+                            'icon' => 'fas fa-ruler-combined',
+                            'price' => 'Rs. 500',
+                        ],
+                        [
+                            'title' => 'Stitching Only',
+                            'description' => 'Got your own fabric? We\'ll stitch it for you! Our expert tailors can create anything from traditional kurtas to modern suits with precision and care.',
+                            'icon' => 'fas fa-scissors',
+                            'price' => 'Rs. 300',
+                        ],
+                        [
+                            'title' => 'Custom Designs',
+                            'description' => 'Have a specific design in mind? Our expert tailors can bring your vision to life. Consultations available to discuss your custom tailoring needs.',
+                            'icon' => 'fas fa-pencil-ruler',
+                            'price' => 'Contact for Quote',
+                        ],
+                    ];
+                }
+            @endphp
 
+            @foreach($tailoringServices as $service)
             <div class="col-lg-4 col-md-6">
                 <div class="tailoring-card">
-                    <i class="fas fa-scissors"></i>
-                    <h3>Stitching Only</h3>
+                    <i class="{{ $service['icon'] }}"></i>
+                    <h3>{{ $service['title'] }}</h3>
                     <p>
-                        Got your own fabric? We'll stitch it for you! Our expert tailors can create anything from traditional kurtas to modern suits with precision and care.
+                        {{ $service['description'] }}
                     </p>
                     <p style="margin-top: 1rem;">
-                        <strong>Starting from Rs. 300</strong>
+                        <strong>{{ $service['price'] }}</strong>
                     </p>
                 </div>
             </div>
-
-            <div class="col-lg-4 col-md-6">
-                <div class="tailoring-card">
-                    <i class="fas fa-pencil-ruler"></i>
-                    <h3>Custom Designs</h3>
-                    <p>
-                        Have a specific design in mind? Our expert tailors can bring your vision to life. Consultations available to discuss your custom tailoring needs.
-                    </p>
-                    <p style="margin-top: 1rem;">
-                        <strong>Contact for Quote</strong>
-                    </p>
-                </div>
-            </div>
+            @endforeach
         </div>
 
         <div class="text-center mt-5">
@@ -233,6 +259,63 @@
         </div>
     </div>
 </section>
+@else
+<section class="tailoring-section section-padding">
+    <div class="container">
+        <div class="section-title" style="color: white; margin-bottom: 60px;">
+            <h2 style="color: white;">Our Tailoring Services</h2>
+            <div class="divider"></div>
+            <p style="color: rgba(255,255,255,0.8);">Premium tailoring solutions for every occasion</p>
+        </div>
+
+        <div class="row g-4">
+            @php
+                $tailoringServices = [
+                    [
+                        'title' => 'Cloth + Stitching',
+                        'description' => 'Browse our premium fabric collection and get perfect custom stitching. Choose from a variety of designs and get tailored according to your exact measurements.',
+                        'icon' => 'fas fa-ruler-combined',
+                        'price' => 'Rs. 500',
+                    ],
+                    [
+                        'title' => 'Stitching Only',
+                        'description' => 'Got your own fabric? We\'ll stitch it for you! Our expert tailors can create anything from traditional kurtas to modern suits with precision and care.',
+                        'icon' => 'fas fa-scissors',
+                        'price' => 'Rs. 300',
+                    ],
+                    [
+                        'title' => 'Custom Designs',
+                        'description' => 'Have a specific design in mind? Our expert tailors can bring your vision to life. Consultations available to discuss your custom tailoring needs.',
+                        'icon' => 'fas fa-pencil-ruler',
+                        'price' => 'Contact for Quote',
+                    ],
+                ];
+            @endphp
+
+            @foreach($tailoringServices as $service)
+            <div class="col-lg-4 col-md-6">
+                <div class="tailoring-card">
+                    <i class="{{ $service['icon'] }}"></i>
+                    <h3>{{ $service['title'] }}</h3>
+                    <p>
+                        {{ $service['description'] }}
+                    </p>
+                    <p style="margin-top: 1rem;">
+                        <strong>{{ $service['price'] }}</strong>
+                    </p>
+                </div>
+            </div>
+            @endforeach
+        </div>
+
+        <div class="text-center mt-5">
+            <a href="{{ route('tailoring') }}" class="btn-premium">
+                <i class="fas fa-calendar-alt me-2"></i>Book Your Tailoring Service
+            </a>
+        </div>
+    </div>
+</section>
+@endif
 
 <!-- Men's Collection Section -->
 <section class="section-padding" style="background: #F8F5EF;">
@@ -244,221 +327,45 @@
         </div>
 
         <div class="row g-4">
-            <!-- Card 1 - COTTON -->
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div style="cursor: pointer; text-align: center;">
-                    <div class="card-image-hover" style="width: 100%; height: 400px; background: #e9e9e9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin-bottom: 0.5rem;">
-                        <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-40%</span>
-                        <img class="img-primary" src="{{ asset('frontend/images/images.jfif') }}" alt="Premium Cotton Suit" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 1;">
-                        <img class="img-secondary" src="{{ asset('frontend/images/images (1).jfif') }}" alt="Premium Cotton Suit" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0;">
-                        <div class="card-action-buttons" style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; opacity: 0; transition: opacity 0.3s ease;">
-                            <button onclick="toggleWishlist(1, this); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                            <button onclick="addToCart(1); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Cart">
-                                <i class="fas fa-shopping-cart"></i>
-                            </button>
-                            <button onclick="window.location.href='{{ route('product.detail', 1) }}'; event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="In Stock">
-                                <i class="fas fa-check"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.2rem; line-height: 1.4;">Premium Cotton Suit</h3>
-                    <p style="font-size: 1.1rem; font-weight: 700; color: #D4AF37; margin: 0;">Rs. 8,990</p>
-                </div>
-            </div>
+            @php
+                $collectionProducts = [];
+                if ($homePageContent && isset($homePageContent->data['collection_products'])) {
+                    $collectionProducts = $homePageContent->data['collection_products'];
+                    if (is_string($collectionProducts)) {
+                        $collectionProducts = json_decode($collectionProducts, true) ?? [];
+                    }
+                }
+            @endphp
 
-            <!-- Card 2 - COTTON -->
+            @forelse($collectionProducts as $product)
             <div class="col-lg-3 col-md-4 col-sm-6">
                 <div style="cursor: pointer; text-align: center;">
-                    <div class="card-image-hover" style="width: 100%; height: 400px; background: #e9e9e9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin-bottom: 0.5rem;">
-                        <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-17%</span>
-                        <img class="img-primary" src="{{ asset('frontend/images/images (1).jfif') }}" alt="Cotton Formal Shirt" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 1;">
-                        <img class="img-secondary" src="{{ asset('frontend/images/images (2).jfif') }}" alt="Cotton Formal Shirt" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0;">
-                        <div class="card-action-buttons" style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; opacity: 0; transition: opacity 0.3s ease;">
-                            <button onclick="toggleWishlist(2, this); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                            <button onclick="addToCart(2); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Cart">
-                                <i class="fas fa-shopping-cart"></i>
-                            </button>
-                            <button onclick="window.location.href='{{ route('product.detail', 2) }}'; event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="In Stock">
-                                <i class="fas fa-check"></i>
-                            </button>
+                    <div class="card-image-hover" style="width: 100%; height: 300px; background: #e9e9e9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin-bottom: 0.5rem;">
+                        @if($product['discount_percentage'] > 0)
+                        <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-{{ $product['discount_percentage'] }}%</span>
+                        @endif
+                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #f0f0f0;">
+                            <i class="fas fa-image" style="font-size: 3rem; color: #ccc;"></i>
                         </div>
                     </div>
-                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.2rem; line-height: 1.4;">Cotton Formal Shirt</h3>
-                    <p style="font-size: 1.1rem; font-weight: 700; color: #D4AF37; margin: 0;">Rs. 2,490</p>
-                </div>
-            </div>
-
-            <!-- Card 3 - WASH & WEAR -->
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div style="cursor: pointer; text-align: center;">
-                    <div class="card-image-hover" style="width: 100%; height: 400px; background: #e9e9e9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin-bottom: 0.5rem;">
-                        <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-20%</span>
-                        <img class="img-primary" src="{{ asset('frontend/images/images (2).jfif') }}" alt="Wash & Wear Kurta" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 1;">
-                        <img class="img-secondary" src="{{ asset('frontend/images/images (3).jfif') }}" alt="Wash & Wear Kurta" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0;">
-                        <div class="card-action-buttons" style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; opacity: 0; transition: opacity 0.3s ease;">
-                            <button onclick="toggleWishlist(3, this); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                            <button onclick="addToCart(3); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Cart">
-                                <i class="fas fa-shopping-cart"></i>
-                            </button>
-                            <button onclick="window.location.href='{{ route('product.detail', 3) }}'; event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="In Stock">
-                                <i class="fas fa-check"></i>
-                            </button>
-                        </div>
+                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.2rem; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $product['name'] }}</h3>
+                    <p style="font-size: 0.85rem; color: #666; margin-bottom: 0.5rem;">{{ $product['category'] }}</p>
+                    <div style="display: flex; gap: 8px; justify-content: center; align-items: center; margin-bottom: 1rem;">
+                        <p style="font-size: 1.1rem; font-weight: 700; color: #D4AF37; margin: 0;">Rs. {{ number_format($product['sale_price'] > 0 ? $product['sale_price'] : $product['regular_price'], 0) }}</p>
+                        @if($product['sale_price'] > 0 && $product['regular_price'] > $product['sale_price'])
+                        <p style="font-size: 0.9rem; color: #999; text-decoration: line-through; margin: 0;">Rs. {{ number_format($product['regular_price'], 0) }}</p>
+                        @endif
                     </div>
-                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.2rem; line-height: 1.4;">Wash & Wear Kurta</h3>
-                    <p style="font-size: 1.1rem; font-weight: 700; color: #D4AF37; margin: 0;">Rs. 3,590</p>
+                    <button style="width: 100%; background: #D4AF37; border: none; color: #0B0B0B; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: 700; font-size: 0.9rem; transition: all 0.3s ease;">
+                        <i class="fas fa-shopping-cart me-2"></i> View Product
+                    </button>
                 </div>
             </div>
-
-            <!-- Card 4 - KHADDAR -->
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div style="cursor: pointer; text-align: center;">
-                    <div class="card-image-hover" style="width: 100%; height: 400px; background: #e9e9e9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin-bottom: 0.5rem;">
-                        <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-17%</span>
-                        <img class="img-primary" src="{{ asset('frontend/images/images (3).jfif') }}" alt="Khaddar Formal Suit" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 1;">
-                        <img class="img-secondary" src="{{ asset('frontend/images/images (4).jfif') }}" alt="Khaddar Formal Suit" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0;">
-                        <div class="card-action-buttons" style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; opacity: 0; transition: opacity 0.3s ease;">
-                            <button onclick="toggleWishlist(4, this); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                            <button onclick="addToCart(4); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Cart">
-                                <i class="fas fa-shopping-cart"></i>
-                            </button>
-                            <button onclick="window.location.href='{{ route('product.detail', 4) }}'; event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="In Stock">
-                                <i class="fas fa-check"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.2rem; line-height: 1.4;">Khaddar Formal Suit</h3>
-                    <p style="font-size: 1.1rem; font-weight: 700; color: #D4AF37; margin: 0;">Rs. 5,990</p>
-                </div>
+            @empty
+            <div class="col-12">
+                <p class="text-center text-muted py-5">No products in Shalwar Kameez Collection</p>
             </div>
-
-            <!-- Card 5 - WEDDING WEAR -->
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div style="cursor: pointer; text-align: center;">
-                    <div class="card-image-hover" style="width: 100%; height: 400px; background: #e9e9e9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin-bottom: 0.5rem;">
-                        <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-10%</span>
-                        <img class="img-primary" src="{{ asset('frontend/images/images (4).jfif') }}" alt="Wedding Sherwani" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 1;">
-                        <img class="img-secondary" src="{{ asset('frontend/images/images (5).jfif') }}" alt="Wedding Sherwani" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0;">
-                        <div class="card-action-buttons" style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; opacity: 0; transition: opacity 0.3s ease;">
-                            <button onclick="toggleWishlist(5, this); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                            <button onclick="addToCart(5); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Cart">
-                                <i class="fas fa-shopping-cart"></i>
-                            </button>
-                            <button onclick="window.location.href='{{ route('product.detail', 5) }}'; event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="In Stock">
-                                <i class="fas fa-check"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.2rem; line-height: 1.4;">Wedding Sherwani</h3>
-                    <p style="font-size: 1.1rem; font-weight: 700; color: #D4AF37; margin: 0;">Rs. 7,490</p>
-                </div>
-            </div>
-
-            <!-- Card 6 - EID WEAR -->
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div style="cursor: pointer; text-align: center;">
-                    <div class="card-image-hover" style="width: 100%; height: 400px; background: #e9e9e9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin-bottom: 0.5rem;">
-                        <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-65%</span>
-                        <img class="img-primary" src="{{ asset('frontend/images/images (5).jfif') }}" alt="Eid Pyjama" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 1;">
-                        <img class="img-secondary" src="{{ asset('frontend/images/images.jfif') }}" alt="Eid Pyjama" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0;">
-                        <div class="card-action-buttons" style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; opacity: 0; transition: opacity 0.3s ease;">
-                            <button onclick="toggleWishlist(6, this); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                            <button onclick="addToCart(6); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Cart">
-                                <i class="fas fa-shopping-cart"></i>
-                            </button>
-                            <button onclick="window.location.href='{{ route('product.detail', 6) }}'; event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="In Stock">
-                                <i class="fas fa-check"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.2rem; line-height: 1.4;">Eid Pyjama</h3>
-                    <p style="font-size: 1.1rem; font-weight: 700; color: #D4AF37; margin: 0;">Rs. 1,290</p>
-                </div>
-            </div>
-
-            <!-- Card 7 - COTTON -->
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div style="cursor: pointer; text-align: center;">
-                    <div class="card-image-hover" style="width: 100%; height: 400px; background: #e9e9e9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin-bottom: 0.5rem;">
-                    <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-65%</span>    
-                    <img class="img-primary" src="{{ asset('frontend/images/images.jfif') }}" alt="Cotton Casual Shirt" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 1;">
-                        <img class="img-secondary" src="{{ asset('frontend/images/images (1).jfif') }}" alt="Cotton Casual Shirt" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0;">
-                        <div class="card-action-buttons" style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; opacity: 0; transition: opacity 0.3s ease;">
-                            <button onclick="toggleWishlist(7, this); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                            <button onclick="addToCart(7); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Cart">
-                                <i class="fas fa-shopping-cart"></i>
-                            </button>
-                            <button onclick="window.location.href='{{ route('product.detail', 7) }}'; event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="In Stock">
-                                <i class="fas fa-check"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.2rem; line-height: 1.4;">Cotton Casual Shirt</h3>
-                    <p style="font-size: 1.1rem; font-weight: 700; color: #D4AF37; margin: 0;">Rs. 2,890</p>
-                </div>
-            </div>
-
-            <!-- Card 8 - KHADDAR -->
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div style="cursor: pointer; text-align: center;">
-                    <div class="card-image-hover" style="width: 100%; height: 400px; background: #e9e9e9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin-bottom: 0.5rem;">
-                    <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-65%</span>   
-                    <img class="img-primary" src="{{ asset('frontend/images/images (1).jfif') }}" alt="Khaddar Designer Kurta" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 1;">
-                        <img class="img-secondary" src="{{ asset('frontend/images/images (2).jfif') }}" alt="Khaddar Designer Kurta" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0;">
-                        <div class="card-action-buttons" style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; opacity: 0; transition: opacity 0.3s ease;">
-                            <button onclick="toggleWishlist(8, this); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                            <button onclick="addToCart(8); event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="Add to Cart">
-                                <i class="fas fa-shopping-cart"></i>
-                            </button>
-                            <button onclick="window.location.href='{{ route('product.detail', 8) }}'; event.stopPropagation();" style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button style="background: #D4AF37; border: none; color: #0B0B0B; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.1rem;" title="In Stock">
-                                <i class="fas fa-check"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #0B0B0B; margin-bottom: 0.2rem; line-height: 1.4;">Khaddar Designer Kurta</h3>
-                    <p style="font-size: 1.1rem; font-weight: 700; color: #D4AF37; margin: 0;">Rs. 4,690</p>
-                </div>
-            </div>
+            @endforelse
         </div>
     </div>
 </section>

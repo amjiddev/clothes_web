@@ -27,7 +27,7 @@
     @if($isSystemRole)
     <div class="alert alert-warning alert-dismissible fade show" role="alert">
         <i class="fas fa-info-circle me-2"></i>
-        <strong>System Role:</strong> This is a system-defined role. You can view its permissions but cannot modify the role name or delete it.
+        <strong>Protected Role:</strong> The super admin role cannot be modified, but other roles can be configured here.
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     @endif

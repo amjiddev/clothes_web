@@ -24,7 +24,10 @@ class RoleManagementController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Role::query();
+        $query = Role::query()
+            ->where('name', '!=', 'customer')
+            ->orderByRaw("CASE name WHEN 'super_admin' THEN 1 WHEN 'receptionist' THEN 2 WHEN 'tailor' THEN 3 ELSE 4 END")
+            ->orderBy('name');
 
         // Search by role name
         if ($request->has('search') && $request->search) {
@@ -35,7 +38,7 @@ class RoleManagementController extends Controller
         $roles = $query->paginate(15)->appends($request->query());
 
         // Get predefined roles count
-        $predefinedRoles = ['super_admin', 'receptionist', 'tailor', 'customer'];
+        $predefinedRoles = ['super_admin', 'receptionist', 'tailor'];
 
         return view('admin.roles.index', compact('roles', 'predefinedRoles'));
     }
@@ -99,9 +102,12 @@ class RoleManagementController extends Controller
      */
     public function edit(Role $role)
     {
-        // Prevent editing system roles (only allow creation of custom roles)
-        $systemRoles = ['super_admin', 'receptionist', 'tailor', 'customer'];
-        $isSystemRole = in_array($role->name, $systemRoles);
+        if ($role->name === 'super_admin') {
+            return redirect()->route('admin.user-management.roles.index')
+                ->with('error', 'The super admin role cannot be edited.');
+        }
+
+        $isSystemRole = false;
 
         $allPermissions = Permission::all();
         $rolePermissions = $role->permissions->pluck('id')->toArray();
@@ -115,10 +121,8 @@ class RoleManagementController extends Controller
      */
     public function update(Request $request, Role $role)
     {
-        // Prevent editing system roles
-        $systemRoles = ['super_admin', 'receptionist', 'tailor', 'customer'];
-        if (in_array($role->name, $systemRoles)) {
-            return redirect()->back()->with('error', 'Cannot edit system roles. Create custom roles instead.');
+        if ($role->name === 'super_admin') {
+            return redirect()->back()->with('error', 'The super admin role cannot be modified.');
         }
 
         $validated = $request->validate([
@@ -147,10 +151,8 @@ class RoleManagementController extends Controller
      */
     public function destroy(Role $role)
     {
-        // Prevent deleting system roles
-        $systemRoles = ['super_admin', 'receptionist', 'tailor', 'customer'];
-        if (in_array($role->name, $systemRoles)) {
-            return redirect()->back()->with('error', 'Cannot delete system roles.');
+        if ($role->name === 'super_admin') {
+            return redirect()->back()->with('error', 'The super admin role cannot be deleted.');
         }
 
         $role->delete();
