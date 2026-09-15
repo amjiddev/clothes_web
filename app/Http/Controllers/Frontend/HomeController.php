@@ -384,6 +384,32 @@ class HomeController extends Controller
         return view('frontend.contact', compact('contactInfo', 'locations'));
     }
 
+    /**
+     * Store contact form submission
+     */
+    public function submitContact(\Illuminate\Http\Request $request)
+    {
+        $validated = $request->validate([
+            'full_name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:20',
+            'subject' => 'required|string|max:255',
+            'message' => 'required|string',
+        ]);
+
+        // Save to database
+        \App\Models\ContactSubmission::create([
+            'type' => 'message',
+            'full_name' => $validated['full_name'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'],
+            'subject' => $validated['subject'],
+            'message' => $validated['message'],
+        ]);
+
+        return redirect()->route('contact')->with('success', 'Thank you! Your message has been received. We will get back to you soon.');
+    }
+
     public function disclaimer()
     {
         return view('frontend.disclaimer');

@@ -34,6 +34,14 @@ class TailoringServiceController extends Controller
             return redirect()->route('login')->with('error', 'Please login to request tailoring service');
         }
 
+        // Log incoming request for debugging
+        \Log::info('Tailoring form submission', [
+            'user_id' => Auth::id(),
+            'service_option' => $request->input('service_option'),
+            'garment_type' => $request->input('garment_type'),
+            'all_inputs' => $request->all(),
+        ]);
+
         // Validate the request
         $validated = $request->validate([
             'service_option' => 'required|in:cloth_only,cloth_stitching,stitching_only',
@@ -54,6 +62,8 @@ class TailoringServiceController extends Controller
             'design_image' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
             'measurement_title' => 'nullable|string|max:255',
         ]);
+
+        \Log::info('Validation passed', ['validated' => $validated]);
 
         try {
             // Store or use measurements
@@ -105,6 +115,33 @@ class TailoringServiceController extends Controller
                 'service_request_date' => now(),
             ]);
 
+            // Save to ContactSubmission for admin tracking
+            $contactSubmission = \App\Models\ContactSubmission::create([
+                'type' => 'tailoring_request',
+                'full_name' => Auth::user()->name,
+                'email' => Auth::user()->email,
+                'phone' => Auth::user()->contact_number ?? 'N/A',
+                'service_type' => $this->getServiceTypeName($validated['service_option']),
+                'garment_type' => $validated['garment_type'],
+                'measurements' => [
+                    'chest' => $validated['chest'],
+                    'shoulder' => $validated['shoulder'],
+                    'sleeve_length' => $validated['sleeve_length'],
+                    'shirt_length' => $validated['shirt_length'],
+                    'neck' => $validated['neck'],
+                    'waist' => $validated['waist'],
+                    'trouser_length' => $validated['trouser_length'],
+                    'bottom' => $validated['bottom'],
+                ],
+                'special_instructions' => $validated['special_instructions'],
+                'design_image' => $designImagePath,
+            ]);
+            
+            \Log::info('ContactSubmission created', [
+                'id' => $contactSubmission->id,
+                'measurements' => $contactSubmission->measurements,
+            ]);
+
             return redirect()->route('tailoring.success')
                            ->with('success', 'Tailoring service request submitted successfully!')
                            ->with('order_id', $stitchingOrder->id);
@@ -134,6 +171,20 @@ class TailoringServiceController extends Controller
         ];
 
         return $costs[$serviceOption] ?? 500;
+    }
+
+    /**
+     * Get service type name
+     */
+    private function getServiceTypeName($serviceOption)
+    {
+        $names = [
+            'cloth_only' => 'Cloth Only',
+            'cloth_stitching' => 'Cloth + Stitching',
+            'stitching_only' => 'Stitching Only',
+        ];
+
+        return $names[$serviceOption] ?? 'Unknown';
     }
 
     /**

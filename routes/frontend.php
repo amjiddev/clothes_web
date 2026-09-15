@@ -22,6 +22,7 @@ Route::get('/collections/summer-2026', [HomeController::class, 'summer2026'])->n
 Route::get('/collections/featured', [HomeController::class, 'featured'])->name('collections.featured');
 Route::get('/product/{identifier}', [HomeController::class, 'productDetail'])->name('product.detail');
 Route::get('/tailoring', [HomeController::class, 'tailoring'])->name('tailoring');
+Route::post('/contact/submit', [HomeController::class, 'submitContact'])->name('contact.submit');
 Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
 Route::get('/disclaimer', [HomeController::class, 'disclaimer'])->name('disclaimer');
 Route::get('/return-exchange', [HomeController::class, 'returnExchange'])->name('return-exchange');

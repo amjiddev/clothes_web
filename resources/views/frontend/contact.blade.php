@@ -66,39 +66,67 @@
                 <div class="card border-0 shadow-lg" style="border-top: 3px solid var(--accent-gold);">
                     <div class="card-body p-5">
                         <h4 class="fw-bold mb-4" style="color: var(--primary-dark);">Send us a Message</h4>
-                        <form>
+                        <form action="{{ route('contact.submit') }}" method="POST">
+                            @csrf
                             <div class="row g-3 mb-4">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold" style="color: var(--primary-dark);">Full Name</label>
-                                    <input type="text" class="form-control" style="border-color: var(--accent-gold);" required>
+                                    <input type="text" name="full_name" class="form-control @error('full_name') is-invalid @enderror" style="border-color: var(--accent-gold);" value="{{ old('full_name') }}" required>
+                                    @error('full_name')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold" style="color: var(--primary-dark);">Email</label>
-                                    <input type="email" class="form-control" style="border-color: var(--accent-gold);" required>
+                                    <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" style="border-color: var(--accent-gold);" value="{{ old('email') }}" required>
+                                    @error('email')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
 
                             <div class="mb-4">
                                 <label class="form-label fw-bold" style="color: var(--primary-dark);">Phone</label>
-                                <input type="tel" class="form-control" style="border-color: var(--accent-gold);" required>
+                                <input type="tel" name="phone" class="form-control @error('phone') is-invalid @enderror" style="border-color: var(--accent-gold);" value="{{ old('phone') }}" required>
+                                @error('phone')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="mb-4">
                                 <label class="form-label fw-bold" style="color: var(--primary-dark);">Subject</label>
-                                <select class="form-select" style="border-color: var(--accent-gold);" required>
-                                    <option>Select Subject</option>
-                                    <option>Product Inquiry</option>
-                                    <option>Tailoring Service</option>
-                                    <option>Order Status</option>
-                                    <option>Feedback</option>
-                                    <option>Other</option>
+                                <select name="subject" class="form-select @error('subject') is-invalid @enderror" style="border-color: var(--accent-gold);" required>
+                                    <option value="">Select Subject</option>
+                                    <option value="Product Inquiry" {{ old('subject') === 'Product Inquiry' ? 'selected' : '' }}>Product Inquiry</option>
+                                    <option value="Tailoring Service" {{ old('subject') === 'Tailoring Service' ? 'selected' : '' }}>Tailoring Service</option>
+                                    <option value="Order Status" {{ old('subject') === 'Order Status' ? 'selected' : '' }}>Order Status</option>
+                                    <option value="Feedback" {{ old('subject') === 'Feedback' ? 'selected' : '' }}>Feedback</option>
+                                    <option value="Other" {{ old('subject') === 'Other' ? 'selected' : '' }}>Other</option>
                                 </select>
+                                @error('subject')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="mb-4">
                                 <label class="form-label fw-bold" style="color: var(--primary-dark);">Message</label>
-                                <textarea class="form-control" rows="5" style="border-color: var(--accent-gold);" required></textarea>
+                                <textarea name="message" class="form-control @error('message') is-invalid @enderror" rows="5" style="border-color: var(--accent-gold);" required>{{ old('message') }}</textarea>
+                                @error('message')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
+
+                            @if($errors->any())
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-circle me-2"></i>Please fix the errors and try again.
+                            </div>
+                            @endif
+
+                            @if(session('success'))
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                            </div>
+                            @endif
 
                             <button type="submit" class="btn-premium" style="width: 100%; padding: 12px;">
                                 Send Message

@@ -108,13 +108,14 @@ class CustomerController extends Controller
             ]);
 
             // Store address if provided
-            if ($validated['address'] ?? null) {
-                $customer->addresses()->create([
-                    'address' => $validated['address'],
-                    'city' => $validated['city'] ?? null,
-                    'is_default' => true,
-                ]);
-            }
+            // Note: Address save temporarily disabled until migrations are complete
+            // if ($validated['address'] ?? null) {
+            //     $customer->addresses()->create([
+            //         'address' => $validated['address'],
+            //         'city' => $validated['city'] ?? null,
+            //         'is_default' => true,
+            //     ]);
+            // }
 
             return redirect()->route('receptionist.customers.show', $customer)
                             ->with('success', 'Customer created successfully!');
@@ -210,15 +211,16 @@ class CustomerController extends Controller
             ]);
 
             // Update or create address
-            if ($validated['address'] ?? null) {
-                $customer->addresses()->updateOrCreate(
-                    ['is_default' => true],
-                    [
-                        'address' => $validated['address'],
-                        'city' => $validated['city'] ?? null,
-                    ]
-                );
-            }
+            // Note: Address update temporarily disabled until migrations are complete
+            // if ($validated['address'] ?? null) {
+            //     $customer->addresses()->updateOrCreate(
+            //         ['is_default' => true],
+            //         [
+            //             'address' => $validated['address'],
+            //             'city' => $validated['city'] ?? null,
+            //         ]
+            //     );
+            // }
 
             return redirect()->route('receptionist.customers.show', $customer)
                             ->with('success', 'Customer updated successfully!');

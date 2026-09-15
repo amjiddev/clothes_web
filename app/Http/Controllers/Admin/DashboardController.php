@@ -7,7 +7,6 @@ use App\Models\Order;
 use App\Models\StitchingOrder;
 use App\Models\Product;
 use App\Models\User;
-use App\Models\Coupon;
 use App\Models\Inventory;
 use App\Models\Payment;
 use Carbon\Carbon;
@@ -107,10 +106,6 @@ class DashboardController extends Controller
         $successfulPayments = Payment::where('status', 'completed')->sum('amount');
         $failedPayments = Payment::where('status', 'failed')->count();
 
-        // Coupon Metrics
-        $activeCoupons = Coupon::where('is_active', true)->count();
-        $expiredCoupons = Coupon::where('is_active', false)->count();
-
         // Recent Orders
         $recentOrders = Order::with('user')
             ->latest()
@@ -193,8 +188,6 @@ class DashboardController extends Controller
             'totalPayments' => $totalPayments,
             'successfulPayments' => $successfulPayments,
             'failedPayments' => $failedPayments,
-            'activeCoupons' => $activeCoupons,
-            'expiredCoupons' => $expiredCoupons,
 
             // Data
             'recentOrders' => $recentOrders,

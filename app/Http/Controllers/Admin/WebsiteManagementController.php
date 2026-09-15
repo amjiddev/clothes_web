@@ -390,23 +390,28 @@ class WebsiteManagementController extends Controller
         $homePage = WebsiteCms::where('section_type', 'home_page')->first();
         
         if ($homePage) {
-            // Preserve existing images if new ones not uploaded
+            // Preserve existing data if not provided in the request
             $existingData = $homePage->data ?? [];
+            
+            // Merge existing data with new data, preserving fields not in current request
+            $mergedData = array_merge($existingData, $data);
+            
+            // Preserve existing images if new ones not uploaded
             for ($i = 1; $i <= 4; $i++) {
                 if (!$request->hasFile('hero_image_' . $i) && isset($existingData['hero_image_' . $i])) {
-                    $data['hero_image_' . $i] = $existingData['hero_image_' . $i];
+                    $mergedData['hero_image_' . $i] = $existingData['hero_image_' . $i];
                 }
             }
             
             // Preserve existing collection images if new ones not uploaded
             if (!$request->hasFile('collection_featured_image') && isset($existingData['collection_featured_image'])) {
-                $data['collection_featured_image'] = $existingData['collection_featured_image'];
+                $mergedData['collection_featured_image'] = $existingData['collection_featured_image'];
             }
             if (!$request->hasFile('collection_gallery_images') && isset($existingData['collection_gallery_images'])) {
-                $data['collection_gallery_images'] = $existingData['collection_gallery_images'];
+                $mergedData['collection_gallery_images'] = $existingData['collection_gallery_images'];
             }
             
-            $cmsData['data'] = $data;
+            $cmsData['data'] = $mergedData;
             $homePage->update($cmsData);
             $message = 'Home page updated successfully';
         } else {

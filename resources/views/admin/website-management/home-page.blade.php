@@ -46,11 +46,6 @@
                     <i class="fas fa-shopping-bag me-2"></i>Shalwar Kameez
                 </button>
             </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="general-tab" data-bs-toggle="tab" data-bs-target="#general-section" type="button" role="tab">
-                    <i class="fas fa-cog me-2"></i>General Settings
-                </button>
-            </li>
         </ul>
 
         <div class="tab-content">
@@ -391,89 +386,6 @@
             <input type="hidden" id="collection_products" name="collection_products" value="">
         
 
-            <!-- General Settings Section -->
-            <div class="tab-pane fade" id="general-section" role="tabpanel">
-                <div class="row">
-                    <div class="col-12">
-                        <!-- Hero Section -->
-                        <div class="card border-0 shadow-sm mb-4">
-                            <div class="card-header bg-white border-bottom">
-                                <h5 class="mb-0"><i class="fas fa-heading me-2"></i>Hero Section Text</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Hero Title</label>
-                                    <input type="text" name="hero_title" class="form-control @error('hero_title') is-invalid @enderror" value="{{ old('hero_title', $homePageContent?->data['hero_title'] ?? '') }}" placeholder="">
-                                    @error('hero_title')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Hero Subtitle</label>
-                                    <textarea name="hero_subtitle" class="form-control @error('hero_subtitle') is-invalid @enderror" rows="2" placeholder="">{{ old('hero_subtitle', $homePageContent?->data['hero_subtitle'] ?? '') }}</textarea>
-                                    @error('hero_subtitle')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Page Content -->
-                        <div class="card border-0 shadow-sm mb-4">
-                            <div class="card-header bg-white border-bottom">
-                                <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Page Content</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Page Title</label>
-                                    <input type="text" name="page_title" class="form-control @error('page_title') is-invalid @enderror" value="{{ old('page_title', $homePageContent?->page_title ?? '') }}" placeholder="Home Page">
-                                    @error('page_title')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Page Content</label>
-                                    <textarea name="page_content" class="form-control @error('page_content') is-invalid @enderror" rows="6" placeholder="">{{ old('page_content', $homePageContent?->page_content ?? '') }}</textarea>
-                                    @error('page_content')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                    <small class="form-text text-muted">You can add HTML content here</small>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- SEO Information -->
-                        <div class="card border-0 shadow-sm mb-4">
-                            <div class="card-header bg-white border-bottom">
-                                <h5 class="mb-0"><i class="fas fa-search me-2"></i>SEO Information</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Meta Description</label>
-                                    <textarea name="meta_description" class="form-control @error('meta_description') is-invalid @enderror" rows="3" placeholder="">{{ old('meta_description', $homePageContent?->meta_description ?? '') }}</textarea>
-                                    <small class="form-text text-muted">Max 160 characters</small>
-                                    @error('meta_description')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Meta Keywords</label>
-                                    <input type="text" name="meta_keywords" class="form-control @error('meta_keywords') is-invalid @enderror" value="{{ old('meta_keywords', $homePageContent?->meta_keywords ?? '') }}" placeholder="">
-                                    <small class="form-text text-muted">Comma-separated keywords</small>
-                                    @error('meta_keywords')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Bottom Action Buttons -->
         <div class="row mt-4">
             <div class="col-12">
@@ -688,6 +600,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ============ Shalwar Kameez Collection Products Manager ============
     let collectionProducts = [];
+    
+    // Show product form
+    document.getElementById('showProductFormBtn').addEventListener('click', function() {
+        document.getElementById('productFormContainer').style.display = 'block';
+        document.querySelector('input[name="collection_product_name"]').focus();
+    });
+    
+    // Cancel product form
+    document.getElementById('cancelProductFormBtn').addEventListener('click', function() {
+        document.getElementById('productFormContainer').style.display = 'none';
+        // Clear form fields
+        document.querySelector('input[name="collection_product_name"]').value = '';
+        document.querySelector('input[name="collection_product_slug"]').value = '';
+        document.querySelector('select[name="collection_product_category"]').value = '';
+        document.querySelector('input[name="collection_product_brand"]').value = '';
+        document.querySelector('input[name="collection_regular_price"]').value = '';
+        document.querySelector('input[name="collection_sale_price"]').value = '';
+        document.querySelector('input[name="collection_discount_percentage"]').value = '';
+        document.querySelector('textarea[name="collection_short_description"]').value = '';
+        document.querySelector('textarea[name="collection_full_description"]').value = '';
+    });
     
     // Load existing products if available
     function loadExistingProducts() {

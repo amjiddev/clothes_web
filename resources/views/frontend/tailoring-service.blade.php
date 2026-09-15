@@ -108,7 +108,7 @@
                         <form action="{{ route('tailoring.store') }}" method="POST" enctype="multipart/form-data" id="tailoringForm">
                             @csrf
 
-                            <!-- Service Option (Hidden) -->
+                            <!-- Service Option (Hidden) - stores the selected value from radio buttons -->
                             <input type="hidden" name="service_option" id="serviceOption" value="cloth_stitching">
 
                             <!-- Measurement Title -->
@@ -458,11 +458,13 @@
 @section('scripts')
 <script>
 function selectOption(option, element) {
-    // Update hidden input
+    // Update hidden input with the selected value
     document.getElementById('serviceOption').value = option;
     
-    // Update radio button
-    document.querySelector(`input[value="${option}"]`).checked = true;
+    // Update all radio buttons - set the matching one to checked
+    document.querySelectorAll('input[name="service_option"]').forEach(radio => {
+        radio.checked = (radio.value === option);
+    });
     
     // Update card styling
     document.querySelectorAll('[onclick^="selectOption"]').forEach(el => {
@@ -473,6 +475,9 @@ function selectOption(option, element) {
     // Highlight selected
     element.style.background = '#F8F5EF';
     element.style.borderColor = 'var(--accent-gold)';
+    
+    // Log for debugging
+    console.log('Service option selected:', option);
 }
 
 // Load saved measurement
@@ -509,10 +514,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Form validation
+// Form validation and service option synchronization
 document.getElementById('tailoringForm').addEventListener('submit', function(e) {
-    const serviceOption = document.getElementById('serviceOption').value;
-    if (!serviceOption) {
+    // Get the checked radio button
+    const checkedRadio = document.querySelector('input[name="service_option"]:checked');
+    const serviceOption = document.getElementById('serviceOption');
+    
+    if (checkedRadio) {
+        // Update hidden input with currently checked radio value
+        serviceOption.value = checkedRadio.value;
+    }
+    
+    if (!serviceOption.value || serviceOption.value === '') {
         e.preventDefault();
         alert('Please select a service option');
     }

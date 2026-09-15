@@ -5,10 +5,10 @@ use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\TailorController;
 use App\Http\Controllers\Admin\ReceptionistController;
 use App\Http\Controllers\Admin\CustomerController;
-use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\ContactSubmissionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -41,12 +41,14 @@ Route::middleware(['auth', 'verified', 'admin.only'])->prefix('admin')->name('ad
     Route::post('customers/{customer}/block', [CustomerController::class, 'block'])->name('customers.block');
     Route::post('customers/{customer}/unblock', [CustomerController::class, 'unblock'])->name('customers.unblock');
 
-    // Coupon Management
-    Route::resource('coupons', CouponController::class);
-
     // Payment Management
     Route::resource('payments', PaymentController::class)->only(['index', 'show']);
     Route::post('payments/{payment}/update-status', [PaymentController::class, 'updateStatus'])->name('payments.update-status');
+
+    // Contact Submissions Management
+    Route::resource('contact-submissions', ContactSubmissionController::class)->only(['index', 'show', 'destroy']);
+    Route::post('contact-submissions/{contact_submission}/mark-as-read', [ContactSubmissionController::class, 'markAsRead'])->name('contact-submissions.mark-as-read');
+    Route::get('contact-submissions/unread-count', [ContactSubmissionController::class, 'getUnreadCount'])->name('contact-submissions.unread-count');
 
     // Reports
     Route::get('reports', [ReportController::class, 'index'])->name('reports.index');

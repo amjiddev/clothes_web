@@ -85,12 +85,42 @@
             </a>
         </div>
 
-        <!-- Coupons & Discounts -->
+        <!-- Contact Submissions -->
         <div class="nav-item">
-            <a href="{{ route('admin.coupons.index') }}" class="nav-link {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }}">
-                <i class="fas fa-ticket-alt"></i>
-                <span>Coupons & Discounts</span>
+            <a href="#" class="nav-link nav-toggle {{ request()->routeIs('admin.contact-submissions.*') ? 'active' : '' }} collapsed">
+                <i class="fas fa-inbox"></i>
+                <span>Contact Submissions</span>
+                @php
+                    $unreadCount = \App\Models\ContactSubmission::where('is_read', false)->count();
+                @endphp
+                @if($unreadCount > 0)
+                    <span class="badge bg-danger ms-auto">{{ $unreadCount }}</span>
+                @endif
             </a>
+            <div class="nav-submenu {{ request()->routeIs('admin.contact-submissions.*') ? 'show' : '' }}">
+                <a href="{{ route('admin.contact-submissions.index', ['type' => 'message']) }}" 
+                   class="nav-link {{ request()->routeIs('admin.contact-submissions.*') && request()->query('type') === 'message' ? 'active' : '' }}">
+                    <i class="fas fa-envelope"></i>
+                    <span>Contact Messages</span>
+                    @php
+                        $messageUnread = \App\Models\ContactSubmission::where('type', 'message')->where('is_read', false)->count();
+                    @endphp
+                    @if($messageUnread > 0)
+                        <span class="badge bg-warning text-dark ms-auto">{{ $messageUnread }}</span>
+                    @endif
+                </a>
+                <a href="{{ route('admin.contact-submissions.index', ['type' => 'tailoring_request']) }}" 
+                   class="nav-link {{ request()->routeIs('admin.contact-submissions.*') && request()->query('type') === 'tailoring_request' ? 'active' : '' }}">
+                    <i class="fas fa-scissors"></i>
+                    <span>Tailoring Requests</span>
+                    @php
+                        $tailoringUnread = \App\Models\ContactSubmission::where('type', 'tailoring_request')->where('is_read', false)->count();
+                    @endphp
+                    @if($tailoringUnread > 0)
+                        <span class="badge bg-warning text-dark ms-auto">{{ $tailoringUnread }}</span>
+                    @endif
+                </a>
+            </div>
         </div>
 
         <!-- Reports -->
