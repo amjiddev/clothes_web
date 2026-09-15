@@ -26,17 +26,13 @@ class ReceptionistOnly
             return redirect()->route('verification.notice');
         }
 
-        // Only allow receptionist role
+        // Allow receptionist or super_admin role
         $user = auth()->user();
-        if ($user->hasRole('receptionist')) {
+        if ($user->hasRole('receptionist') || $user->hasRole('super_admin')) {
             return $next($request);
         }
 
         // Redirect non-receptionists away
-        if ($user->hasRole('super_admin')) {
-            return redirect()->route('admin.dashboard');
-        }
-
         if ($user->hasRole('tailor')) {
             return redirect()->route('tailor.dashboard');
         }

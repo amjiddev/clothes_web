@@ -17,40 +17,6 @@
                     @enderror
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Email Address</label>
-                    <input type="email" name="shop_email" class="form-control @error('shop_email') is-invalid @enderror" 
-                           value="{{ old('shop_email', $settings->get('shop_email')->value ?? 'info@clothesstore.com') }}" required>
-                    @error('shop_email')
-                        <div class="invalid-feedback d-block">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Phone Number</label>
-                    <input type="tel" name="shop_phone" class="form-control @error('shop_phone') is-invalid @enderror" 
-                           value="{{ old('shop_phone', $settings->get('shop_phone')->value ?? '+1 (555) 000-0000') }}" required>
-                    @error('shop_phone')
-                        <div class="invalid-feedback d-block">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label class="form-label fw-bold">WhatsApp Number</label>
-                    <input type="tel" name="whatsapp_number" class="form-control @error('whatsapp_number') is-invalid @enderror" 
-                           value="{{ old('whatsapp_number', $settings->get('whatsapp_number')->value ?? '') }}">
-                    <small class="text-muted">For WhatsApp integration on your website</small>
-                    @error('whatsapp_number')
-                        <div class="invalid-feedback d-block">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
         </div>
 
         <div class="mb-3">

@@ -35,10 +35,7 @@ class SettingsController extends Controller
     {
         $validated = $request->validate([
             'shop_name' => 'required|string|max:255',
-            'shop_email' => 'required|email',
-            'shop_phone' => 'required|string|max:20',
             'shop_address' => 'required|string|max:500',
-            'whatsapp_number' => 'nullable|string|max:20',
             'shop_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'shop_favicon' => 'nullable|image|mimes:jpeg,png,jpg,gif,ico|max:1024',
         ]);
@@ -57,10 +54,7 @@ class SettingsController extends Controller
 
         // Save other settings
         Setting::setValue('shop_name', $validated['shop_name'], 'string', 'shop');
-        Setting::setValue('shop_email', $validated['shop_email'], 'string', 'shop');
-        Setting::setValue('shop_phone', $validated['shop_phone'], 'string', 'shop');
         Setting::setValue('shop_address', $validated['shop_address'], 'string', 'shop');
-        Setting::setValue('whatsapp_number', $validated['whatsapp_number'] ?? '', 'string', 'shop');
 
         // Clear cache
         Setting::clearCache();
