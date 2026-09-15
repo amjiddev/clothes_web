@@ -11,8 +11,8 @@ return new class extends Migration
         Schema::create('inventory', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->string('size')->nullable();
-            $table->string('color')->nullable();
+            $table->string('size', 120)->nullable();
+            $table->string('color', 120)->nullable();
             $table->integer('quantity')->default(0);
             $table->integer('reserved_quantity')->default(0);
             $table->integer('reorder_level')->default(10);

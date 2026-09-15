@@ -35,8 +35,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // Update defaultStringLength
-        Builder::defaultStringLength(191);
+        // Keep indexed utf8mb4 strings within older MySQL/MariaDB key limits.
+        Builder::defaultStringLength(125);
 
         Paginator::useBootstrapFive();
 
