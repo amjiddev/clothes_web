@@ -129,7 +129,7 @@
                             @foreach($product->orderItems->take(10) as $item)
                             <tr>
                                 <td>
-                                    <a href="{{ route('orders.show', $item->order) }}" class="text-decoration-none">
+                                    <a href="{{ route('admin.orders.show', $item->order) }}" class="text-decoration-none">
                                         {{ $item->order->order_number }}
                                     </a>
                                 </td>

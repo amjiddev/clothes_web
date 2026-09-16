@@ -29,6 +29,11 @@
                         $allProductImages = array_merge($allProductImages, $product->galleryImages->all());
                     }
                     
+                    // Fallback to main image if no ProductImages exist
+                    if (count($allProductImages) === 0 && $product->image) {
+                        $allProductImages = [['image_url' => asset('storage/' . $product->image), 'is_fallback' => true]];
+                    }
+                    
                     $totalImages = count($allProductImages);
                 @endphp
 
@@ -39,7 +44,7 @@
                             style="width: 110px; height: 150px; background: #e0e0e0; cursor: pointer; overflow: hidden; border: 2px solid #ddd; flex-shrink: 0;" 
                             onclick="selectThumbnail(this, {{ $index }})"
                         >
-                            <img src="{{ $image->image_url }}" alt="Product Image {{ $index + 1 }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            <img src="{{ is_array($image) ? $image['image_url'] : $image->image_url }}" alt="Product Image {{ $index + 1 }}" style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
                         @empty
                         <div 
@@ -68,6 +73,8 @@
                         $mainImageUrl = $product->featuredImage->image_url;
                     } elseif ($product->galleryImages && count($product->galleryImages) > 0) {
                         $mainImageUrl = $product->galleryImages->first()->image_url;
+                    } elseif ($product->image) {
+                        $mainImageUrl = asset('storage/' . $product->image);
                     } else {
                         $mainImageUrl = 'https://via.placeholder.com/500x650?text=No+Image';
                     }

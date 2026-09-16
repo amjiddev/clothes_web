@@ -7,7 +7,6 @@ use App\Models\Order;
 use App\Models\StitchingOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class InvoiceController extends Controller
 {
@@ -62,13 +61,8 @@ class InvoiceController extends Controller
 
         $order->load(['user', 'orderItems', 'payments']);
 
-        $pdf = Pdf::loadView('receptionist.invoices.pdf', compact('order'))
-            ->setOption('margin-top', 0)
-            ->setOption('margin-right', 0)
-            ->setOption('margin-bottom', 0)
-            ->setOption('margin-left', 0);
-
-        return $pdf->download('invoice-' . $order->id . '.pdf');
+        // Return print view - users can use browser print to PDF
+        return view('receptionist.invoices.print', compact('order'));
     }
 
     /**
@@ -93,13 +87,8 @@ class InvoiceController extends Controller
 
         $stitchingOrder->load(['tailor', 'measurement', 'order.user']);
 
-        $pdf = Pdf::loadView('receptionist.invoices.stitching-pdf', compact('stitchingOrder'))
-            ->setOption('margin-top', 0)
-            ->setOption('margin-right', 0)
-            ->setOption('margin-bottom', 0)
-            ->setOption('margin-left', 0);
-
-        return $pdf->download('stitching-invoice-' . $stitchingOrder->id . '.pdf');
+        // Return view for printing - users can use browser print to PDF
+        return view('receptionist.invoices.stitching-print', compact('stitchingOrder'));
     }
 
     /**

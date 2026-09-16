@@ -726,6 +726,18 @@
                             <span>Invoices</span>
                         </a>
                     </div>
+                    <div class="nav-item">
+                        <a href="{{ route('admin.contact-submissions.index', ['type' => 'message']) }}" class="nav-link {{ request()->routeIs('admin.contact-submissions.*') && request()->query('type') === 'message' ? 'active' : '' }}">
+                            <i class="fas fa-envelope"></i>
+                            <span>Contact Messages</span>
+                            @php
+                                $messageUnread = \App\Models\ContactSubmission::where('type', 'message')->where('is_read', false)->count();
+                            @endphp
+                            @if($messageUnread > 0)
+                                <span class="badge bg-warning text-dark ms-auto">{{ $messageUnread }}</span>
+                            @endif
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Reports Section -->

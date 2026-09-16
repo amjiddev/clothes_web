@@ -367,17 +367,22 @@
         <div class="details-grid">
             <div class="detail-block">
                 <h3>📋 Bill To:</h3>
+                @if($order->user)
                 <p><strong>{{ $order->user->name }}</strong></p>
                 <p>{{ $order->user->email }}</p>
                 <p>{{ $order->user->contact_number ?? 'N/A' }}</p>
                 <p>{{ $order->user->address ?? 'N/A' }}</p>
+                @else
+                <p><strong>Customer Information Not Available</strong></p>
+                <p>Order ID: {{ $order->id }}</p>
+                @endif
             </div>
 
             <div class="detail-block">
                 <h3>📦 Order Details:</h3>
                 <p><strong>Order #:</strong> {{ $order->order_number }}</p>
-                <p><strong>Type:</strong> {{ $order->type_text }}</p>
-                <p><strong>Status:</strong> <span class="badge badge-{{ $order->status === 'delivered' ? 'success' : ($order->status === 'cancelled' ? 'danger' : 'warning') }}">{{ $order->status_text }}</span></p>
+                <p><strong>Type:</strong> {{ $order->order_type ?? ucfirst($order->type) }}</p>
+                <p><strong>Status:</strong> <span class="badge badge-{{ $order->status === 'delivered' ? 'success' : ($order->status === 'cancelled' ? 'danger' : 'warning') }}">{{ $order->status_text ?? ucfirst(str_replace('_', ' ', $order->status)) }}</span></p>
                 @if($order->delivery_date)
                 <p><strong>Delivery:</strong> {{ $order->delivery_date->format('M d, Y') }}</p>
                 @endif
@@ -415,7 +420,7 @@
                 <tr>
                     <td>
                         <div class="item-name">Stitching Services</div>
-                        <div class="item-desc">Professional tailoring work@if($order->stitchingOrder->measurement) | {{ $order->stitchingOrder->measurement->profile_name }}@endif</div>
+                        <div class="item-desc">Professional tailoring work @if($order->stitchingOrder->measurement) | {{ $order->stitchingOrder->measurement->profile_name }}@endif</div>
                     </td>
                     <td class="text-center">1</td>
                     <td class="text-right">PKR {{ number_format($order->stitching_charge, 2) }}</td>

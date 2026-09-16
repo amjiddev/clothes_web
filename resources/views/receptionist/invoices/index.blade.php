@@ -106,9 +106,6 @@
                                 <a href="{{ route('receptionist.invoices.download', $order) }}" class="btn btn-outline-secondary" title="Download PDF">
                                     <i class="fas fa-download"></i>
                                 </a>
-                                <a href="{{ route('receptionist.invoices.print', $order) }}" class="btn btn-outline-secondary" target="_blank" title="Print">
-                                    <i class="fas fa-print"></i>
-                                </a>
                             </div>
                         </td>
                     </tr>

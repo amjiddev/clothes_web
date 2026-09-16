@@ -10,7 +10,7 @@ use App\Models\User;
 use App\Models\OrderItem;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Barryvdh\DomPDF\Facade\Pdf;
+
 
 class ReportController extends Controller
 {
@@ -231,29 +231,27 @@ class ReportController extends Controller
         $endDate = $this->getEndDate($period, $request->get('to'));
 
         $data = [];
+        $view = '';
 
         switch ($type) {
             case 'sales':
                 $data = $this->getSalesData($startDate, $endDate);
                 $view = 'admin.reports.export.sales_pdf';
-                $filename = 'Sales_Report_' . now()->format('Y-m-d') . '.pdf';
                 break;
             case 'orders':
                 $data = $this->getOrderData($startDate, $endDate);
                 $view = 'admin.reports.export.orders_pdf';
-                $filename = 'Order_Report_' . now()->format('Y-m-d') . '.pdf';
                 break;
             case 'stitching':
                 $data = $this->getStitchingData($startDate, $endDate);
                 $view = 'admin.reports.export.stitching_pdf';
-                $filename = 'Stitching_Report_' . now()->format('Y-m-d') . '.pdf';
                 break;
             default:
                 return redirect()->back()->with('error', 'Invalid report type');
         }
 
-        $pdf = PDF::loadView($view, $data);
-        return $pdf->download($filename);
+        // PDF export coming soon - for now display the data as HTML
+        return view($view, $data);
     }
 
     /**
@@ -302,9 +300,12 @@ class ReportController extends Controller
             'title' => 'Sales Report',
             'period' => $startDate->format('M d, Y') . ' - ' . $endDate->format('M d, Y'),
             'sales' => Order::whereBetween('created_at', [$startDate, $endDate])
-                        ->get(['order_number', 'total', 'payment_status', 'created_at']),
+                        ->get(['order_number', 'total', 'payment_status', 'type', 'created_at']),
             'totalRevenue' => Order::whereBetween('created_at', [$startDate, $endDate])->sum('total'),
             'totalOrders' => Order::whereBetween('created_at', [$startDate, $endDate])->count(),
+            'avgOrderValue' => Order::whereBetween('created_at', [$startDate, $endDate])->count() > 0 
+                ? Order::whereBetween('created_at', [$startDate, $endDate])->sum('total') / Order::whereBetween('created_at', [$startDate, $endDate])->count()
+                : 0,
         ];
     }
 
@@ -315,8 +316,10 @@ class ReportController extends Controller
             'period' => $startDate->format('M d, Y') . ' - ' . $endDate->format('M d, Y'),
             'orders' => Order::whereBetween('created_at', [$startDate, $endDate])
                         ->with('user')
-                        ->get(['id', 'order_number', 'user_id', 'status', 'total', 'created_at']),
+                        ->get(),
             'totalOrders' => Order::whereBetween('created_at', [$startDate, $endDate])->count(),
+            'totalValue' => Order::whereBetween('created_at', [$startDate, $endDate])->sum('total'),
+            'pendingOrders' => Order::whereBetween('created_at', [$startDate, $endDate])->where('payment_status', '!=', 'paid')->count(),
         ];
     }
 
@@ -325,9 +328,12 @@ class ReportController extends Controller
         return [
             'title' => 'Stitching Report',
             'period' => $startDate->format('M d, Y') . ' - ' . $endDate->format('M d, Y'),
-            'stitching' => StitchingOrder::whereBetween('created_at', [$startDate, $endDate])
-                        ->get(['id', 'order_id', 'stitching_status', 'estimated_cost', 'created_at']),
-            'totalStitching' => StitchingOrder::whereBetween('created_at', [$startDate, $endDate])->count(),
+            'stitchingOrders' => StitchingOrder::whereBetween('created_at', [$startDate, $endDate])
+                        ->with('tailor')
+                        ->get(),
+            'totalOrders' => StitchingOrder::whereBetween('created_at', [$startDate, $endDate])->count(),
+            'completedOrders' => StitchingOrder::whereBetween('created_at', [$startDate, $endDate])->where('stitching_status', 'completed')->count(),
+            'inProgressOrders' => StitchingOrder::whereBetween('created_at', [$startDate, $endDate])->where('stitching_status', 'in_progress')->count(),
         ];
     }
 }

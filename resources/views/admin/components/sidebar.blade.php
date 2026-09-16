@@ -87,7 +87,7 @@
 
         <!-- Contact Submissions -->
         <div class="nav-item">
-            <a href="#" class="nav-link nav-toggle {{ request()->routeIs('admin.contact-submissions.*') ? 'active' : '' }} collapsed">
+            <a href="{{ route('admin.contact-submissions.index', ['type' => 'message']) }}" class="nav-link {{ request()->routeIs('admin.contact-submissions.*') ? 'active' : '' }}">
                 <i class="fas fa-inbox"></i>
                 <span>Contact Submissions</span>
                 @php
@@ -97,19 +97,6 @@
                     <span class="badge bg-danger ms-auto">{{ $unreadCount }}</span>
                 @endif
             </a>
-            <div class="nav-submenu {{ request()->routeIs('admin.contact-submissions.*') ? 'show' : '' }}">
-                <a href="{{ route('admin.contact-submissions.index', ['type' => 'message']) }}" 
-                   class="nav-link {{ request()->routeIs('admin.contact-submissions.*') && request()->query('type') === 'message' ? 'active' : '' }}">
-                    <i class="fas fa-envelope"></i>
-                    <span>Contact Messages</span>
-                    @php
-                        $messageUnread = \App\Models\ContactSubmission::where('type', 'message')->where('is_read', false)->count();
-                    @endphp
-                    @if($messageUnread > 0)
-                        <span class="badge bg-warning text-dark ms-auto">{{ $messageUnread }}</span>
-                    @endif
-                </a>
-            </div>
         </div>
 
         <!-- Reports -->
