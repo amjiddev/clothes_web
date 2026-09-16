@@ -259,8 +259,8 @@
                 <div class="invoice-title">INVOICE</div>
                 <p style="color: #666; font-size: 12px;">
                     <strong>Invoice #:</strong> {{ $order->order_number }}<br>
-                    <strong>Date:</strong> {{ $order->created_at->format('M d, Y') }}<br>
-                    <strong>Time:</strong> {{ $order->created_at->format('h:i A') }}
+                    <strong>Date:</strong> {{ $order->created_at?->format('M d, Y') ?? 'N/A' }}<br>
+                    <strong>Time:</strong> {{ $order->created_at?->format('h:i A') ?? 'N/A' }}
                 </p>
             </div>
         </div>
@@ -272,7 +272,7 @@
                 <h3>BILL TO:</h3>
                 <p><strong>{{ $order->user->name }}</strong></p>
                 <p>Email: {{ $order->user->email }}</p>
-                <p>Phone: {{ $order->user->phone ?? 'N/A' }}</p>
+                <p>Phone: {{ $order->user->contact_number ?? 'N/A' }}</p>
                 <p>Address: {{ $order->user->address ?? 'N/A' }}</p>
             </div>
 
@@ -414,7 +414,7 @@
                 <tbody>
                     @foreach($order->payments->where('status', 'completed') as $payment)
                     <tr>
-                        <td>{{ $payment->processed_at->format('M d, Y h:i A') }}</td>
+                        <td>{{ $payment->processed_at?->format('M d, Y h:i A') ?? 'N/A' }}</td>
                         <td>{{ ucfirst(str_replace('_', ' ', $payment->payment_method)) }}</td>
                         <td><strong>PKR {{ number_format($payment->amount, 2) }}</strong></td>
                         <td><span class="badge badge-success">Completed</span></td>

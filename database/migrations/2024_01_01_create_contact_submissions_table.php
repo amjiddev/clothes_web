@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('email');
             $table->string('phone');
             $table->string('subject')->nullable();
-            $table->text('message');
+            $table->text('message')->nullable();
             
             // Tailoring specific fields
             $table->string('service_type')->nullable(); // Cloth Only, Cloth + Stitching, Stitching Only

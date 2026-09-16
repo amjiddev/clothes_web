@@ -135,6 +135,7 @@ class TailoringServiceController extends Controller
                 ],
                 'special_instructions' => $validated['special_instructions'],
                 'design_image' => $designImagePath,
+                'message' => "Tailoring request for {$validated['garment_type']} - Service: {$this->getServiceTypeName($validated['service_option'])}",
             ]);
             
             \Log::info('ContactSubmission created', [

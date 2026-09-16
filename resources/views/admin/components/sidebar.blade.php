@@ -109,17 +109,6 @@
                         <span class="badge bg-warning text-dark ms-auto">{{ $messageUnread }}</span>
                     @endif
                 </a>
-                <a href="{{ route('admin.contact-submissions.index', ['type' => 'tailoring_request']) }}" 
-                   class="nav-link {{ request()->routeIs('admin.contact-submissions.*') && request()->query('type') === 'tailoring_request' ? 'active' : '' }}">
-                    <i class="fas fa-scissors"></i>
-                    <span>Tailoring Requests</span>
-                    @php
-                        $tailoringUnread = \App\Models\ContactSubmission::where('type', 'tailoring_request')->where('is_read', false)->count();
-                    @endphp
-                    @if($tailoringUnread > 0)
-                        <span class="badge bg-warning text-dark ms-auto">{{ $tailoringUnread }}</span>
-                    @endif
-                </a>
             </div>
         </div>
 

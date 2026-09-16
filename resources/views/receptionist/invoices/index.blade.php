@@ -71,12 +71,12 @@
                 @forelse($invoices as $order)
                     <tr>
                         <td>
-                            <a href="{{ route('receptionist.invoices.show', $order->id) }}" style="color: var(--accent-color); text-decoration: none;">
+                            <a href="{{ route('receptionist.invoices.show', $order) }}" style="color: var(--accent-color); text-decoration: none;">
                                 #{{ $order->id }}
                             </a>
                         </td>
-                        <td>{{ $order->customer?->name ?? 'N/A' }}</td>
-                        <td>{{ $order->created_at->format('M d, Y') }}</td>
+                        <td>{{ $order->user?->name ?? 'N/A' }}</td>
+                        <td>{{ $order->created_at?->format('M d, Y') ?? 'N/A' }}</td>
                         <td>Rs. {{ number_format($order->total, 2) }}</td>
                         <td>
                             @php
@@ -100,13 +100,13 @@
                         </td>
                         <td>
                             <div class="btn-group btn-group-sm">
-                                <a href="{{ route('receptionist.invoices.show', $order->id) }}" class="btn btn-outline-secondary" title="View">
+                                <a href="{{ route('receptionist.invoices.show', $order) }}" class="btn btn-outline-secondary" title="View">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="{{ route('receptionist.invoices.download', $order->id) }}" class="btn btn-outline-secondary" title="Download PDF">
+                                <a href="{{ route('receptionist.invoices.download', $order) }}" class="btn btn-outline-secondary" title="Download PDF">
                                     <i class="fas fa-download"></i>
                                 </a>
-                                <a href="{{ route('receptionist.invoices.print', $order->id) }}" class="btn btn-outline-secondary" target="_blank" title="Print">
+                                <a href="{{ route('receptionist.invoices.print', $order) }}" class="btn btn-outline-secondary" target="_blank" title="Print">
                                     <i class="fas fa-print"></i>
                                 </a>
                             </div>

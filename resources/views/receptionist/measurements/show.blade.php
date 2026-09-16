@@ -18,7 +18,7 @@
         </div>
         <div class="col-auto">
             @if(!$measurement->is_default)
-            <a href="{{ route('receptionist.measurements.setDefault', $measurement) }}" class="btn btn-outline-success">
+            <a href="{{ route('receptionist.measurements.set-default', $measurement) }}" class="btn btn-outline-success">
                 <i class="fas fa-check me-2"></i>Set as Default
             </a>
             @else

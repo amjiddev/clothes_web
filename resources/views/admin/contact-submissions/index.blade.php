@@ -38,15 +38,6 @@
                     </span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a href="{{ route('admin.contact-submissions.index', ['type' => 'tailoring_request']) }}" 
-                   class="nav-link {{ $type === 'tailoring_request' ? 'active' : '' }}">
-                    <i class="fas fa-scissors me-2"></i>Tailoring Requests
-                    <span class="badge bg-secondary ms-2">
-                        {{ \App\Models\ContactSubmission::where('type', 'tailoring_request')->count() }}
-                    </span>
-                </a>
-            </li>
         </ul>
     </div>
 

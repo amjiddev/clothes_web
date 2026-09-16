@@ -22,13 +22,13 @@ class InvoiceController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Order::with(['customer', 'payments'])
+        $query = Order::with(['user', 'payments'])
             ->orderBy('created_at', 'desc');
 
         // Search
         if ($request->has('search') && $request->search) {
             $search = $request->search;
-            $query->whereHas('customer', function ($q) use ($search) {
+            $query->whereHas('user', function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%");
             })->orWhere('id', 'like', "%{$search}%");
         }
@@ -60,7 +60,7 @@ class InvoiceController extends Controller
     {
         $this->authorizeReceptionist($order);
 
-        $order->load(['customer', 'items', 'payments', 'stitchingOrders']);
+        $order->load(['user', 'orderItems', 'payments']);
 
         $pdf = Pdf::loadView('receptionist.invoices.pdf', compact('order'))
             ->setOption('margin-top', 0)
@@ -78,7 +78,7 @@ class InvoiceController extends Controller
     {
         $this->authorizeReceptionist($order);
 
-        $order->load(['customer', 'items', 'payments', 'stitchingOrders']);
+        $order->load(['user', 'orderItems', 'payments']);
 
         return view('receptionist.invoices.print', compact('order'));
     }
@@ -91,7 +91,7 @@ class InvoiceController extends Controller
         $order = $stitchingOrder->order;
         $this->authorizeReceptionist($order);
 
-        $stitchingOrder->load(['tailor', 'measurement', 'order.customer']);
+        $stitchingOrder->load(['tailor', 'measurement', 'order.user']);
 
         $pdf = Pdf::loadView('receptionist.invoices.stitching-pdf', compact('stitchingOrder'))
             ->setOption('margin-top', 0)
@@ -107,8 +107,8 @@ class InvoiceController extends Controller
      */
     private function authorizeReceptionist(Order $order)
     {
-        // Receptionist can access all orders in their system
-        if (!Auth::user()->hasRole('receptionist')) {
+        // Super Admin and Receptionist can access all orders
+        if (!Auth::user()->hasAnyRole(['receptionist', 'super_admin'])) {
             abort(403, 'Unauthorized access');
         }
     }

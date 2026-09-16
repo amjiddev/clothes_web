@@ -11,13 +11,13 @@
 <div class="page-header d-flex justify-content-between align-items-center mb-4">
     <div>
         <h1 class="page-title">Invoice #{{ $order->id }}</h1>
-        <p class="page-subtitle">Order placed on {{ $order->created_at->format('M d, Y h:i A') }}</p>
+        <p class="page-subtitle">Order placed on {{ $order->created_at?->format('M d, Y h:i A') ?? 'N/A' }}</p>
     </div>
     <div>
-        <a href="{{ route('receptionist.invoices.download', $order->id) }}" class="btn btn-custom btn-primary-custom">
+        <a href="{{ route('receptionist.invoices.download', $order) }}" class="btn btn-custom btn-primary-custom">
             <i class="fas fa-download"></i> Download PDF
         </a>
-        <a href="{{ route('receptionist.invoices.print', $order->id) }}" class="btn btn-custom btn-secondary-custom" target="_blank">
+        <a href="{{ route('receptionist.invoices.print', $order) }}" class="btn btn-custom btn-secondary-custom" target="_blank">
             <i class="fas fa-print"></i> Print
         </a>
     </div>
@@ -34,7 +34,7 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <strong>Order ID:</strong> #{{ $order->id }}<br>
-                        <strong>Order Date:</strong> {{ $order->created_at->format('M d, Y') }}<br>
+                        <strong>Order Date:</strong> {{ $order->created_at?->format('M d, Y') ?? 'N/A' }}<br>
                         <strong>Order Type:</strong> {{ ucfirst($order->order_type ?? 'Regular') }}<br>
                     </div>
                     <div class="col-md-6">
@@ -60,10 +60,10 @@
                 <h5 class="table-title">Customer Information</h5>
             </div>
             <div style="padding: 20px;">
-                <strong>Name:</strong> {{ $order->customer?->name ?? 'N/A' }}<br>
-                <strong>Email:</strong> {{ $order->customer?->email ?? 'N/A' }}<br>
-                <strong>Phone:</strong> {{ $order->customer?->phone ?? 'N/A' }}<br>
-                <strong>Address:</strong> {{ $order->customer?->address ?? 'N/A' }}
+                <strong>Name:</strong> {{ $order->user?->name ?? 'N/A' }}<br>
+                <strong>Email:</strong> {{ $order->user?->email ?? 'N/A' }}<br>
+                <strong>Phone:</strong> {{ $order->user?->contact_number ?? 'N/A' }}<br>
+                <strong>Address:</strong> {{ $order->user?->address ?? 'N/A' }}
             </div>
         </div>
 
@@ -83,7 +83,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($order->items ?? [] as $item)
+                        @forelse($order->orderItems ?? [] as $item)
                             <tr>
                                 <td>{{ $item->product?->name ?? 'N/A' }}</td>
                                 <td>{{ $item->quantity }}</td>
@@ -144,16 +144,16 @@
                 <h5 class="table-title">Actions</h5>
             </div>
             <div style="padding: 20px;">
-                <a href="{{ route('receptionist.orders.show', $order->id) }}" class="btn btn-outline-secondary w-100 mb-2">
+                <a href="{{ route('receptionist.orders.show', $order) }}" class="btn btn-outline-secondary w-100 mb-2">
                     <i class="fas fa-eye"></i> View Order
                 </a>
                 <a href="{{ route('receptionist.payments.index') }}" class="btn btn-outline-secondary w-100 mb-2">
                     <i class="fas fa-credit-card"></i> View Payments
                 </a>
-                <a href="{{ route('receptionist.invoices.download', $order->id) }}" class="btn btn-custom btn-primary-custom w-100 mb-2">
+                <a href="{{ route('receptionist.invoices.download', $order) }}" class="btn btn-custom btn-primary-custom w-100 mb-2">
                     <i class="fas fa-download"></i> Download
                 </a>
-                <a href="{{ route('receptionist.invoices.print', $order->id) }}" class="btn btn-custom btn-secondary-custom w-100" target="_blank">
+                <a href="{{ route('receptionist.invoices.print', $order) }}" class="btn btn-custom btn-secondary-custom w-100" target="_blank">
                     <i class="fas fa-print"></i> Print
                 </a>
             </div>
