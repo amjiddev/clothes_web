@@ -1,4 +1,4 @@
-@extends('layout.app')
+@extends('admin.layouts.app')
 
 @section('title', $product->name)
 
@@ -10,11 +10,11 @@
         </div>
         <div class="col-md-4 text-end">
             @can('edit_products')
-            <a href="{{ route('products.edit', $product) }}" class="btn btn-warning">
+            <a href="{{ route('admin.products.edit', $product) }}" class="btn btn-warning">
                 <i class="fas fa-edit me-2"></i>Edit
             </a>
             @endcan
-            <a href="{{ route('products.index') }}" class="btn btn-outline-secondary">Back</a>
+            <a href="{{ route('admin.products.index') }}" class="btn btn-outline-secondary">Back</a>
         </div>
     </div>
 
@@ -41,7 +41,7 @@
                         <tr>
                             <td class="fw-bold">Category:</td>
                             <td>
-                                <a href="{{ route('categories.edit', $product->category) }}">
+                                <a href="{{ route('admin.categories.edit', $product->category) }}">
                                     {{ $product->category->name }}
                                 </a>
                             </td>

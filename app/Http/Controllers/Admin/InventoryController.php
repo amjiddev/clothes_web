@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Inventory;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class InventoryController extends Controller
@@ -17,49 +18,56 @@ class InventoryController extends Controller
 
     /**
      * Display inventory listing with search and filters
+     * Now queries from products table instead of separate inventory table
      */
     public function index(Request $request)
     {
-        $query = Inventory::with('product');
+        $query = Product::query();
 
         // Search by product name or SKU
         if ($request->has('search') && $request->search) {
             $search = $request->search;
-            $query->whereHas('product', function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%");
-            })->orWhere('sku', 'like', "%{$search}%");
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('sku', 'like', "%{$search}%");
+            });
         }
 
         // Filter by stock status
         if ($request->has('status') && $request->status) {
             $status = $request->status;
+            $lowStockThreshold = 10; // Default reorder level
+            
             switch ($status) {
                 case 'out_of_stock':
-                    $query->where('quantity', 0);
+                    $query->where('stock_quantity', 0);
                     break;
                 case 'low_stock':
-                    $query->whereRaw('quantity <= reorder_level')
-                          ->where('quantity', '>', 0);
+                    $query->whereBetween('stock_quantity', [1, $lowStockThreshold]);
                     break;
                 case 'medium_stock':
-                    $query->whereRaw('quantity > reorder_level')
-                          ->whereRaw('quantity <= reorder_level * 2');
+                    $query->whereBetween('stock_quantity', [$lowStockThreshold + 1, $lowStockThreshold * 2]);
                     break;
                 case 'high_stock':
-                    $query->whereRaw('quantity > reorder_level * 2');
+                    $query->where('stock_quantity', '>', $lowStockThreshold * 2);
+                    break;
+                case 'in_stock':
+                    $query->where('stock_quantity', '>', 0);
                     break;
             }
         }
 
         $inventory = $query->paginate(20)->appends($request->query());
         
-        // Get statistics
-        $lowStockCount = Inventory::whereRaw('quantity <= reorder_level')->count();
-        $outOfStockCount = Inventory::where('quantity', 0)->count();
-        $totalValue = Inventory::selectRaw('SUM(quantity * COALESCE(cost_per_unit, 0)) as total')
+        // Get statistics from products table
+        $lowStockThreshold = 10;
+        $inStockCount = Product::where('stock_quantity', '>', 0)->count();
+        $lowStockCount = Product::whereBetween('stock_quantity', [1, $lowStockThreshold])->count();
+        $outOfStockCount = Product::where('stock_quantity', 0)->count();
+        $totalValue = Product::selectRaw('SUM(stock_quantity * COALESCE(price, 0)) as total')
                         ->value('total') ?? 0;
 
-        return view('admin.inventory.index', compact('inventory', 'lowStockCount', 'outOfStockCount', 'totalValue'));
+        return view('admin.inventory.index', compact('inventory', 'inStockCount', 'lowStockCount', 'outOfStockCount', 'totalValue'));
     }
 
     /**

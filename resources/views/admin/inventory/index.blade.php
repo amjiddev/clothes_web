@@ -26,7 +26,7 @@
                     <div class="d-flex align-items-center">
                         <div class="flex-grow-1">
                             <h6 class="text-muted mb-1">In Stock</h6>
-                            <h3 class="mb-0">{{ $inventory->where('quantity', '>', 0)->count() }}</h3>
+                            <h3 class="mb-0">{{ $inStockCount }}</h3>
                         </div>
                         <div class="text-success" style="font-size: 2rem;">
                             <i class="fas fa-check-circle"></i>
@@ -134,11 +134,10 @@
                 <thead class="table-light">
                     <tr>
                         <th class="ps-4"><i class="fas fa-box me-2"></i>Product</th>
-                        <th>Size / Color</th>
-                        <th class="text-center">Current Stock</th>
-                        <th class="text-center">Sold (Reserved)</th>
-                        <th class="text-center">Available</th>
-                        <th class="text-center">Reorder Level</th>
+                        <th>Category</th>
+                        <th class="text-center">Stock Quantity</th>
+                        <th class="text-center">Price</th>
+                        <th class="text-center">Total Value</th>
                         <th>Status</th>
                         <th class="text-end pe-4">Actions</th>
                     </tr>
@@ -148,59 +147,56 @@
                     <tr>
                         <td class="ps-4">
                             <div>
-                                <strong>{{ $item->product->name }}</strong>
+                                <strong>{{ $item->name }}</strong>
                                 @if($item->sku)
                                 <br><small class="text-muted">SKU: {{ $item->sku }}</small>
                                 @endif
                             </div>
                         </td>
                         <td>
-                            @if($item->size || $item->color)
+                            @if($item->category)
                                 <span class="badge bg-light text-dark">
-                                    {{ $item->size ?? '-' }} / {{ $item->color ?? '-' }}
+                                    {{ $item->category->name }}
                                 </span>
                             @else
                                 <span class="text-muted">-</span>
                             @endif
                         </td>
                         <td class="text-center">
-                            <strong>{{ $item->quantity }}</strong>
+                            <strong>{{ $item->stock_quantity }}</strong>
                         </td>
                         <td class="text-center">
-                            <span class="badge bg-light text-dark">{{ $item->sold_quantity }}</span>
+                            ${{ number_format($item->price ?? 0, 2) }}
                         </td>
                         <td class="text-center">
-                            <strong>{{ $item->available_quantity }}</strong>
-                        </td>
-                        <td class="text-center">
-                            {{ $item->reorder_level }}
+                            <strong>${{ number_format(($item->stock_quantity * $item->price) ?? 0, 2) }}</strong>
                         </td>
                         <td>
-                            @if($item->stock_status === 'out_of_stock')
+                            @if($item->stock_quantity === 0)
                                 <span class="badge bg-danger">
                                     <i class="fas fa-times-circle me-1"></i>Out of Stock
                                 </span>
-                            @elseif($item->stock_status === 'low_stock')
+                            @elseif($item->stock_quantity <= 10)
                                 <span class="badge bg-warning text-dark">
                                     <i class="fas fa-exclamation-circle me-1"></i>Low Stock
                                 </span>
-                            @elseif($item->stock_status === 'high_stock')
+                            @elseif($item->stock_quantity > 20)
                                 <span class="badge bg-success">
                                     <i class="fas fa-check-circle me-1"></i>High Stock
                                 </span>
                             @else
                                 <span class="badge bg-info">
-                                    <i class="fas fa-circle me-1"></i>{{ $item->status_label }}
+                                    <i class="fas fa-circle me-1"></i>In Stock
                                 </span>
                             @endif
                         </td>
                         <td class="text-end pe-4">
                             <div class="btn-group" role="group">
-                                <a href="{{ route('admin.inventory.show', $item) }}" 
+                                <a href="{{ route('admin.products.show', $item->id) }}" 
                                    class="btn btn-sm btn-info" title="View Details">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="{{ route('admin.inventory.edit', $item) }}" 
+                                <a href="{{ route('admin.products.edit', $item->id) }}" 
                                    class="btn btn-sm btn-warning" title="Edit">
                                     <i class="fas fa-edit"></i>
                                 </a>
@@ -209,7 +205,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="text-center py-4">
+                        <td colspan="7" class="text-center py-4">
                             <i class="fas fa-inbox text-muted mb-2" style="font-size: 2rem;"></i>
                             <p class="text-muted">No inventory items found</p>
                         </td>

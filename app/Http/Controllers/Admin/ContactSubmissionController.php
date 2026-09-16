@@ -17,6 +17,15 @@ class ContactSubmissionController extends Controller
         
         $query = ContactSubmission::query();
         
+        // Debug log
+        \Log::info('ContactSubmissionController index called', [
+            'type_param' => $type,
+            'all_types' => ContactSubmission::distinct()->pluck('type')->toArray(),
+            'tailoring_count' => ContactSubmission::where('type', 'tailoring_request')->count(),
+            'message_count' => ContactSubmission::where('type', 'message')->count(),
+            'total_count' => ContactSubmission::count(),
+        ]);
+        
         if ($type === 'message') {
             $query->where('type', 'message');
         } elseif ($type === 'tailoring_request') {
