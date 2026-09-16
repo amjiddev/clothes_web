@@ -610,10 +610,40 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function addToCart(productId) {
-    // TODO: Implement add to cart functionality
-    alert('Product added to cart! (Demo)');
+    // Get product details from the card
+    const productCard = event.target.closest('[data-product-id]') || event.target.closest('.product-card');
+    if (!productCard) {
+        alert('Could not find product information');
+        return;
+    }
+    
+    const productName = productCard.querySelector('[data-product-name]')?.textContent || 'Product';
+    const productPrice = productCard.querySelector('[data-product-price]')?.textContent || '0';
+    const productImage = productCard.querySelector('img')?.src || '';
+    
+    // Call global cart function
+    if (typeof window.addToCart === 'function') {
+        window.addToCart({
+            id: productId,
+            name: productName,
+            price: productPrice,
+            image: productImage,
+            quantity: 1
+        });
+    } else {
+        // Fallback if global function doesn't exist
+        const message = document.createElement('div');
+        message.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #2ecc71; color: white; padding: 15px 20px; border-radius: 5px; z-index: 9999; box-shadow: 0 4px 6px rgba(0,0,0,0.1);';
+        message.textContent = 'Product added to cart!';
+        document.body.appendChild(message);
+        setTimeout(() => message.remove(), 3000);
+    }
+    
     // Update cart badge
-    document.querySelector('.cart-badge').textContent = parseInt(document.querySelector('.cart-badge').textContent) + 1;
+    const badge = document.querySelector('.cart-badge');
+    if (badge) {
+        badge.textContent = parseInt(badge.textContent || 0) + 1;
+    }
 }
 
 function toggleWishlist(productId, button) {
