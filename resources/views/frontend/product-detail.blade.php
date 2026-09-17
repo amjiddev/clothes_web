@@ -453,41 +453,76 @@ function selectColor(btn, color) {
 }
 
 function addToCart(productId) {
-    const qty = parseInt(document.getElementById('quantity').value);
-    const size = document.getElementById('selectedSize')?.value || null;
-    const color = document.getElementById('selectedColor')?.value || null;
-    
-    if (qty < 1) {
-        alert('Please enter a valid quantity');
-        return;
+    try {
+        const button = event.target;
+        const originalText = button.textContent;
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+
+        const qty = parseInt(document.getElementById('quantity').value);
+        const size = document.getElementById('selectedSize')?.value || null;
+        const color = document.getElementById('selectedColor')?.value || null;
+        
+        if (qty < 1) {
+            showNotification('Please enter a valid quantity', 'error');
+            button.disabled = false;
+            button.textContent = originalText;
+            return;
+        }
+
+        // Send to backend
+        fetch('/cart/add/' + productId, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                quantity: qty,
+                size: size,
+                color: color
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => { throw new Error(data.message || 'Failed to add to cart'); });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Update cart badge
+                const badge = document.querySelector('.cart-badge');
+                if (badge) {
+                    badge.textContent = data.cartCount || '1';
+                }
+                
+                // Update cart UI from server
+                updateCartUI();
+                
+                // Open cart sidebar
+                openCart();
+                
+                // Show success notification
+                showNotification('✓ Product added to cart!', 'success');
+            } else {
+                showNotification('✗ ' + (data.message || 'Failed to add product'), 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error adding to cart:', error);
+            showNotification('✗ ' + error.message, 'error');
+        })
+        .finally(() => {
+            button.disabled = false;
+            button.textContent = originalText;
+        });
+        
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('✗ Error adding to cart', 'error');
     }
-
-    // Get product details from the page
-    const productName = document.querySelector('h1').textContent;
-    const priceText = document.querySelector('[style*="font-size: 1.8rem"]').textContent;
-    const price = parseFloat(priceText.replace(/[^0-9.-]+/g, ''));
-    
-    // Get product image
-    const productImage = document.getElementById('mainImage').src;
-
-    // Add to cart using the global function from layout
-    window.addToCart({
-        id: productId,
-        name: productName,
-        price: price,
-        image: productImage,
-        size: size,
-        color: color,
-        quantity: qty
-    });
-
-    // Show success message
-    const message = document.createElement('div');
-    message.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #2ecc71; color: white; padding: 15px 20px; border-radius: 5px; z-index: 9999; box-shadow: 0 4px 6px rgba(0,0,0,0.1);';
-    message.textContent = 'Product added to cart!';
-    document.body.appendChild(message);
-    
-    setTimeout(() => message.remove(), 3000);
 }
 
 // Initialize gallery when page loads

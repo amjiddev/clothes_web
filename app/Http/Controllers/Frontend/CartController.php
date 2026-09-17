@@ -21,11 +21,13 @@ class CartController extends Controller
         $cartItems = [];
         $total = 0;
 
-        foreach ($cart as $productId => $item) {
-            $product = Product::find($productId);
+        foreach ($cart as $cartKey => $item) {
+            $product = Product::find($item['product_id']);
             if ($product) {
                 $item['product'] = $product;
+                $item['price'] = $product->final_price;
                 $item['line_total'] = $product->final_price * $item['quantity'];
+                $item['cart_key'] = $cartKey;
                 $total += $item['line_total'];
                 $cartItems[] = $item;
             }
@@ -422,7 +424,45 @@ class CartController extends Controller
         $total = $this->calculateTotal($cart);
 
         return response()->json([
+            'success' => true,
             'count' => $count,
+            'total' => $total,
+            'formatted_total' => '₹' . number_format($total, 2)
+        ]);
+    }
+
+    /**
+     * Get cart items as JSON for sidebar display
+     */
+    public function getItems()
+    {
+        $cart = session()->get('cart', []);
+        $cartItems = [];
+        $total = 0;
+
+        foreach ($cart as $cartKey => $item) {
+            $product = Product::find($item['product_id']);
+            if ($product) {
+                $lineTotal = $product->final_price * $item['quantity'];
+                $cartItems[] = [
+                    'cart_key' => $cartKey,
+                    'product_id' => $product->id,
+                    'name' => $product->name,
+                    'image' => $product->image_url,
+                    'price' => $product->final_price,
+                    'quantity' => $item['quantity'],
+                    'size' => $item['size'],
+                    'color' => $item['color'],
+                    'line_total' => $lineTotal
+                ];
+                $total += $lineTotal;
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'items' => $cartItems,
+            'count' => count($cartItems),
             'total' => $total,
             'formatted_total' => '₹' . number_format($total, 2)
         ]);

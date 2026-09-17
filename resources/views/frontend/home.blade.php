@@ -610,39 +610,52 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function addToCart(productId) {
-    // Get product details from the card
-    const productCard = event.target.closest('[data-product-id]') || event.target.closest('.product-card');
-    if (!productCard) {
-        alert('Could not find product information');
-        return;
-    }
-    
-    const productName = productCard.querySelector('[data-product-name]')?.textContent || 'Product';
-    const productPrice = productCard.querySelector('[data-product-price]')?.textContent || '0';
-    const productImage = productCard.querySelector('img')?.src || '';
-    
-    // Call global cart function
-    if (typeof window.addToCart === 'function') {
-        window.addToCart({
-            id: productId,
-            name: productName,
-            price: productPrice,
-            image: productImage,
-            quantity: 1
+    try {
+        const button = event.target;
+        if (!button.tagName === 'BUTTON') return;
+        
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+        button.disabled = true;
+
+        // Send to backend
+        fetch('/cart/add/' + productId, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                quantity: 1,
+                size: null,
+                color: null
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                const message = document.createElement('div');
+                message.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #2ecc71; color: white; padding: 15px 20px; border-radius: 5px; z-index: 9999; box-shadow: 0 4px 6px rgba(0,0,0,0.1);';
+                message.textContent = 'Product added to cart!';
+                document.body.appendChild(message);
+                setTimeout(() => message.remove(), 3000);
+
+                // Update cart UI
+                updateCartUI();
+            } else {
+                alert('Error: ' + (data.message || 'Failed to add to cart'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error adding to cart. Please try again.');
+        })
+        .finally(() => {
+            button.innerHTML = '<i class="fas fa-shopping-cart me-2"></i> Add to Cart';
+            button.disabled = false;
         });
-    } else {
-        // Fallback if global function doesn't exist
-        const message = document.createElement('div');
-        message.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #2ecc71; color: white; padding: 15px 20px; border-radius: 5px; z-index: 9999; box-shadow: 0 4px 6px rgba(0,0,0,0.1);';
-        message.textContent = 'Product added to cart!';
-        document.body.appendChild(message);
-        setTimeout(() => message.remove(), 3000);
-    }
-    
-    // Update cart badge
-    const badge = document.querySelector('.cart-badge');
-    if (badge) {
-        badge.textContent = parseInt(badge.textContent || 0) + 1;
+    } catch (error) {
+        console.error('Error:', error);
     }
 }
 

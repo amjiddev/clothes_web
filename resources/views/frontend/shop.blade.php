@@ -340,72 +340,86 @@
 <script>
 function addToCart(productId) {
     try {
-        // Navigate up from button to find the white card container
-        let card = event.target.closest('button');
-        // Go up 3 levels: button -> div -> div -> div (white card)
-        for (let i = 0; i < 3; i++) {
-            if (card) card = card.parentElement;
-        }
-        
-        // If we still can't find it, search more carefully
-        if (!card || !card.querySelector('h3')) {
-            card = event.target.closest('div[style*="background: white"]');
-        }
-        
-        // Extract product information from the card
-        let productName = 'Product';
-        let productPrice = '0';
-        let productImage = '';
-        
-        if (card) {
-            // Get product name from h3
-            const nameEl = card.querySelector('h3');
-            if (nameEl) productName = nameEl.textContent.trim();
-            
-            // Get price from span with accent color (Rs. XXX)
-            const priceEl = card.querySelector('span[style*="accent-gold"]');
-            if (priceEl) {
-                const priceMatch = priceEl.textContent.match(/[\d,]+/);
-                if (priceMatch) productPrice = priceMatch[0];
+        const button = event.target;
+        const originalText = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+
+        fetch('/cart/add/' + productId, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                quantity: 1,
+                size: null,
+                color: null
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => { throw new Error(data.message || 'Failed to add to cart'); });
             }
-            
-            // Get image from img tag
-            const imgEl = card.querySelector('img');
-            if (imgEl) productImage = imgEl.src;
-        }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Update cart badge
+                const badge = document.querySelector('.cart-badge');
+                if (badge) {
+                    badge.textContent = data.cartCount || '1';
+                }
+                
+                // Update cart UI from server
+                updateCartUI();
+                
+                // Open cart sidebar
+                openCart();
+                
+                // Show success notification
+                showNotification('✓ Product added to cart!', 'success');
+            } else {
+                showNotification('✗ ' + (data.message || 'Failed to add product'), 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error adding to cart:', error);
+            showNotification('✗ ' + error.message, 'error');
+        })
+        .finally(() => {
+            button.disabled = false;
+            button.innerHTML = originalText;
+        });
         
-        // Call global cart function if available
-        if (typeof window.addToCart === 'function') {
-            window.addToCart({
-                id: productId,
-                name: productName,
-                price: productPrice,
-                image: productImage,
-                quantity: 1
-            });
-        } else {
-            // Fallback: show success message
-            const message = document.createElement('div');
-            message.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #2ecc71; color: white; padding: 15px 20px; border-radius: 5px; z-index: 9999; box-shadow: 0 4px 6px rgba(0,0,0,0.1);';
-            message.textContent = 'Product added to cart!';
-            document.body.appendChild(message);
-            setTimeout(() => message.remove(), 3000);
-        }
-        
-        // Update cart badge
-        const badge = document.querySelector('.cart-badge');
-        if (badge) {
-            badge.textContent = parseInt(badge.textContent || 0) + 1;
-        }
     } catch (error) {
-        console.error('Error adding to cart:', error);
-        // Show fallback message on error
-        const message = document.createElement('div');
-        message.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #2ecc71; color: white; padding: 15px 20px; border-radius: 5px; z-index: 9999; box-shadow: 0 4px 6px rgba(0,0,0,0.1);';
-        message.textContent = 'Product added to cart!';
-        document.body.appendChild(message);
-        setTimeout(() => message.remove(), 3000);
+        console.error('Error:', error);
+        showNotification('✗ Error adding to cart', 'error');
     }
+    
+    // Prevent default action
+    if (event) event.stopPropagation();
+}
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    const bgColor = type === 'success' ? '#27ae60' : '#e74c3c';
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${bgColor};
+        color: white;
+        padding: 15px 20px;
+        border-radius: 5px;
+        z-index: 9999;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        font-weight: 500;
+    `;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
 }
 
 function quickView(slug) {

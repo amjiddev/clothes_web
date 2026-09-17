@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Premium Men\'s Fashion & Tailoring') - Clothes Store</title>
     
     <!-- Bootstrap CSS -->
@@ -1042,26 +1043,13 @@
     <!-- Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Cart Management
-        const STORAGE_KEY = 'shopping_cart';
+        // Cart Management - Session-based
         const cartIcon = document.getElementById('cartIcon');
         const cartSidebar = document.getElementById('cartSidebar');
         const cartOverlay = document.getElementById('cartOverlay');
         const closeCartBtn = document.getElementById('closeCartSidebar');
         const cartItemsContainer = document.getElementById('cartItems');
         const cartBadge = document.querySelector('.cart-badge');
-
-        // Load cart from localStorage
-        function loadCart() {
-            const cart = localStorage.getItem(STORAGE_KEY);
-            return cart ? JSON.parse(cart) : [];
-        }
-
-        // Save cart to localStorage
-        function saveCart(cart) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
-            updateCartUI();
-        }
 
         // Open cart sidebar
         function openCart() {
@@ -1077,98 +1065,86 @@
             document.body.style.overflow = 'auto';
         }
 
-        // Update cart UI
+        // Fetch cart data from server and update UI
         function updateCartUI() {
-            const cart = loadCart();
-            cartBadge.textContent = cart.length;
-
-            if (cart.length === 0) {
-                cartItemsContainer.innerHTML = `
-                    <div class="empty-cart-message">
-                        <i class="fas fa-shopping-bag"></i>
-                        <p>Your cart is empty</p>
-                    </div>
-                `;
-                document.querySelector('.cart-total').style.display = 'none';
-                return;
-            }
-
-            document.querySelector('.cart-total').style.display = 'flex';
-
-            let cartHTML = '';
-            let total = 0;
-
-            cart.forEach((item, index) => {
-                const itemTotal = item.price * item.quantity;
-                total += itemTotal;
-
-                cartHTML += `
-                    <div class="cart-item">
-                        <img src="${item.image}" alt="${item.name}" class="cart-item-image">
-                        <div class="cart-item-details">
-                            <div class="cart-item-name">${item.name}</div>
-                            <div class="cart-item-price">$${item.price.toFixed(2)}</div>
-                            <div class="cart-item-quantity">
-                                <button onclick="updateQuantity(${index}, -1)">−</button>
-                                <span>${item.quantity}</span>
-                                <button onclick="updateQuantity(${index}, 1)">+</button>
+            fetch('/cart/summary', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update cart badge
+                    cartBadge.textContent = data.count || 0;
+                    
+                    // Show/hide total section
+                    if (data.count === 0) {
+                        cartItemsContainer.innerHTML = `
+                            <div class="empty-cart-message">
+                                <i class="fas fa-shopping-bag"></i>
+                                <p>Your cart is empty</p>
                             </div>
-                            <div class="cart-item-remove" onclick="removeFromCart(${index})">
-                                <i class="fas fa-trash"></i> Remove
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-
-            cartItemsContainer.innerHTML = cartHTML;
-            document.getElementById('cartTotal').textContent = '$' + total.toFixed(2);
+                        `;
+                        document.querySelector('.cart-total').style.display = 'none';
+                    } else {
+                        // Fetch full cart items
+                        fetch('/cart/items', {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(res => res.json())
+                        .then(cartData => {
+                            if (cartData.success && cartData.items.length > 0) {
+                                // Render cart items
+                                let itemsHTML = '';
+                                cartData.items.forEach(item => {
+                                    itemsHTML += `
+                                        <div style="border-bottom: 1px solid #eee; padding: 15px 0; display: flex; gap: 12px;">
+                                            <div style="flex-shrink: 0; width: 80px;">
+                                                <img src="${item.image}" alt="${item.name}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px;">
+                                            </div>
+                                            <div style="flex: 1; font-size: 0.9rem;">
+                                                <p style="margin: 0 0 5px 0; font-weight: 600; color: var(--primary-dark);">${item.name}</p>
+                                                <p style="margin: 0 0 5px 0; color: var(--text-muted); font-size: 0.85rem;">Qty: ${item.quantity}</p>
+                                                <p style="margin: 0; color: var(--accent-gold); font-weight: 600;">₹${item.line_total.toLocaleString('en-PK')}</p>
+                                            </div>
+                                        </div>
+                                    `;
+                                });
+                                cartItemsContainer.innerHTML = itemsHTML;
+                            }
+                        })
+                        .catch(error => console.error('Error fetching cart items:', error));
+                        
+                        document.querySelector('.cart-total').style.display = 'flex';
+                        document.getElementById('cartTotal').textContent = data.formatted_total || '₹0';
+                    }
+                }
+            })
+            .catch(error => console.error('Error updating cart UI:', error));
         }
 
-        // Add to cart
-        function addToCart(product) {
-            const cart = loadCart();
-            const existingItem = cart.find(item => item.id === product.id);
-
-            if (existingItem) {
-                existingItem.quantity += product.quantity || 1;
-            } else {
-                cart.push({
-                    id: product.id,
-                    name: product.name,
-                    price: product.price,
-                    image: product.image,
-                    quantity: product.quantity || 1
-                });
-            }
-
-            saveCart(cart);
-            openCart();
-        }
-
-        // Update quantity
-        function updateQuantity(index, change) {
-            const cart = loadCart();
-            cart[index].quantity += change;
-
-            if (cart[index].quantity <= 0) {
-                cart.splice(index, 1);
-            }
-
-            saveCart(cart);
-        }
-
-        // Remove from cart
-        function removeFromCart(index) {
-            const cart = loadCart();
-            cart.splice(index, 1);
-            saveCart(cart);
+        // Initialize cart UI on page load
+        function initializeCartUI() {
+            updateCartUI();
         }
 
         // Event listeners
         cartIcon.addEventListener('click', openCart);
         closeCartBtn.addEventListener('click', closeCart);
         cartOverlay.addEventListener('click', closeCart);
+        
+        // Checkout button
+        const checkoutBtn = document.getElementById('checkoutBtn');
+        if (checkoutBtn) {
+            checkoutBtn.addEventListener('click', function() {
+                window.location.href = "{{ route('checkout') }}";
+            });
+        }
 
         // Navbar hide/show on scroll
         let lastScrollTop = 0;
@@ -1195,12 +1171,10 @@
             lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
         });
 
-        // Update cart count
-        function updateCartCount() {
-            updateCartUI();
-        }
-
-        updateCartCount();
+        // Initialize cart on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCartUI();
+        });
 
         const loginModal = document.getElementById('loginModal');
         const loginModalFrame = document.getElementById('loginModalFrame');
