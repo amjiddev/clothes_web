@@ -240,7 +240,7 @@ class CartController extends Controller
         }
 
         $validated = $request->validate([
-            'order_type' => 'required|in:cloth_only,cloth_stitching,stitching_only',
+            'order_type' => 'required|in:cloth_only,cloth_stitching',
             'customer_name' => 'required|string|max:255',
             'customer_phone' => 'required|string|max:20',
             'customer_address' => 'required|string|max:500',
@@ -260,15 +260,13 @@ class CartController extends Controller
         ]);
 
         // Validate stitching measurements if stitching is selected
-        if (in_array($validated['order_type'], ['cloth_stitching', 'stitching_only'])) {
-            if (!$validated['measurement_id'] && !$validated['chest']) {
-                return back()->with('error', 'Please provide measurements for stitching service');
-            }
-
+        if (in_array($validated['order_type'], ['cloth_stitching'])) {
+            // Measurements are optional on checkout - can be added later
+            // Just ensure if entered, all are provided
             if ($validated['chest'] && !($validated['shoulder'] && $validated['sleeve_length'] && 
                 $validated['shirt_length'] && $validated['neck'] && $validated['waist'] && 
                 $validated['trouser_length'] && $validated['bottom'])) {
-                return back()->with('error', 'All measurements are required for stitching service');
+                return back()->with('error', 'All measurements are required if any are entered');
             }
         }
 
@@ -303,16 +301,17 @@ class CartController extends Controller
             // Create order
             $order = Order::create([
                 'user_id' => Auth::id(),
-                'type' => $validated['order_type'],
+                'order_number' => 'ORD-' . date('Ymd') . '-' . rand(1000, 9999),
+                'type' => $validated['order_type'] === 'cloth_only' ? 'ready_made' : 'combined',
                 'status' => 'pending',
                 'subtotal' => $subtotal,
                 'stitching_charge' => $stitchingCharge,
                 'tax' => $tax,
                 'discount' => 0,
                 'total' => $total,
-                'payment_status' => $validated['payment_method'] === 'cash_on_delivery' ? 'pending' : 'pending',
+                'payment_status' => 'pending',
                 'payment_method' => $validated['payment_method'],
-                'notes' => $validated['notes'] ?? null,
+                'notes' => $validated['notes'] . "\n\nCustomer Address: " . $validated['customer_address'] ?? null,
             ]);
 
             // Add order items
