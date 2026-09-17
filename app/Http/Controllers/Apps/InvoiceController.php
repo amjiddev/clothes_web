@@ -21,7 +21,7 @@ class InvoiceController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Order::with(['user', 'payments'])
+        $query = Order::with(['user'])
             ->orderBy('created_at', 'desc');
 
         // Search
@@ -59,7 +59,7 @@ class InvoiceController extends Controller
     {
         $this->authorizeReceptionist($order);
 
-        $order->load(['user', 'orderItems', 'payments']);
+        $order->load(['user', 'orderItems']);
 
         // Return print view - users can use browser print to PDF
         return view('receptionist.invoices.print', compact('order'));
@@ -72,7 +72,7 @@ class InvoiceController extends Controller
     {
         $this->authorizeReceptionist($order);
 
-        $order->load(['user', 'orderItems', 'payments']);
+        $order->load(['user', 'orderItems']);
 
         return view('receptionist.invoices.print', compact('order'));
     }

@@ -26,7 +26,7 @@ class InvoiceController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Order::with(['user', 'payments', 'orderItems'])
+        $query = Order::with(['user', 'orderItems'])
             ->orderBy('created_at', 'desc');
 
         // Search by order number or customer name
@@ -69,7 +69,7 @@ class InvoiceController extends Controller
      */
     public function show(Order $order)
     {
-        $order->load(['user', 'orderItems', 'payments', 'stitchingOrder']);
+        $order->load(['user', 'orderItems', 'stitchingOrder']);
         
         return view('receptionist.invoices.show', compact('order'));
     }
@@ -79,7 +79,7 @@ class InvoiceController extends Controller
      */
     public function download(Order $order)
     {
-        $order->load(['user', 'orderItems.product', 'payments', 'stitchingOrder']);
+        $order->load(['user', 'orderItems.product', 'stitchingOrder']);
 
         $pdf = Pdf::loadView('receptionist.invoices.pdf', compact('order'))
             ->setOption('margin-top', 10)
@@ -95,7 +95,7 @@ class InvoiceController extends Controller
      */
     public function print(Order $order)
     {
-        $order->load(['user', 'orderItems.product', 'payments', 'stitchingOrder']);
+        $order->load(['user', 'orderItems.product', 'stitchingOrder']);
 
         return view('receptionist.invoices.print', compact('order'));
     }
@@ -107,7 +107,7 @@ class InvoiceController extends Controller
     {
         $order = $stitchingOrder->order;
         
-        $stitchingOrder->load(['tailor', 'measurement', 'order.user', 'order.payments']);
+        $stitchingOrder->load(['tailor', 'measurement', 'order.user']);
 
         $pdf = Pdf::loadView('receptionist.invoices.stitching-pdf', compact('stitchingOrder', 'order'))
             ->setOption('margin-top', 10)
@@ -133,7 +133,7 @@ class InvoiceController extends Controller
     {
         $order = $stitchingOrder->order;
         
-        $stitchingOrder->load(['tailor', 'measurement', 'order.user', 'order.payments']);
+        $stitchingOrder->load(['tailor', 'measurement', 'order.user']);
 
         return view('receptionist.invoices.print-stitching', compact('stitchingOrder', 'order'));
     }
@@ -143,16 +143,17 @@ class InvoiceController extends Controller
      */
     private function generateInvoice(Order $order): array
     {
-        $order->load(['user', 'orderItems.product', 'payments', 'stitchingOrder']);
+        $order->load(['user', 'orderItems.product', 'stitchingOrder']);
 
-        $totalPaid = $order->payments->where('status', 'completed')->sum('amount');
-        $remainingAmount = max(0, $order->total - $totalPaid);
+        // Since orders now default to cash/pending status, all orders collect payment on delivery
+        $totalPaid = 0;
+        $remainingAmount = $order->total;
 
         return [
             'order' => $order,
             'totalPaid' => $totalPaid,
             'remainingAmount' => $remainingAmount,
-            'paymentStatus' => $order->payment_status,
+            'paymentStatus' => 'cash_on_delivery',
             'generatedDate' => now()->format('M d, Y'),
         ];
     }
@@ -183,7 +184,7 @@ class InvoiceController extends Controller
         $customer = \App\Models\User::findOrFail($customerId);
 
         $query = Order::where('user_id', $customerId)
-            ->with(['payments', 'orderItems'])
+            ->with(['orderItems'])
             ->orderBy('created_at', 'desc');
 
         // Filter by status

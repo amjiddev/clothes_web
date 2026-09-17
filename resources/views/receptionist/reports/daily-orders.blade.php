@@ -226,7 +226,7 @@
             labels: @json($chartData['labels'] ?? []),
             datasets: [{
                 data: @json($chartData['data'] ?? []),
-                backgroundColor: @json($chartData['backgroundColor'] ?? ['#28a745', '#ffc107', '#17a2b8', '#007bff', '#6610f2', '#dc3545']),
+                backgroundColor: ['#28a745', '#ffc107', '#17a2b8', '#007bff', '#6610f2', '#dc3545'],
                 borderColor: '#fff',
                 borderWidth: 2,
             }]

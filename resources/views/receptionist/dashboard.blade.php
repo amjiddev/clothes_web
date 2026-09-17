@@ -80,17 +80,6 @@
 
     <div class="col-md-6 col-lg-4 mb-3">
         <div class="stat-card">
-            <i class="fas fa-credit-card stat-icon"></i>
-            <div class="stat-value">Rs. {{ $pendingPayments }}</div>
-            <div class="stat-label">Pending Payments</div>
-            <div class="stat-change negative">
-                <i class="fas fa-exclamation"></i> Amount Due
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-6 col-lg-4 mb-3">
-        <div class="stat-card">
             <i class="fas fa-box stat-icon"></i>
             <div class="stat-value">{{ $readyForDelivery }}</div>
             <div class="stat-label">Ready For Delivery</div>

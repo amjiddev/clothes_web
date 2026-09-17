@@ -244,7 +244,6 @@ class CartController extends Controller
             'customer_name' => 'required|string|max:255',
             'customer_phone' => 'required|string|max:20',
             'customer_address' => 'required|string|max:500',
-            'payment_method' => 'required|in:cash_on_delivery,bank_transfer',
             'measurement_id' => 'nullable|exists:customer_measurements,id',
             'measurement_title' => 'nullable|string|max:255',
             // Measurement fields for new stitching orders
@@ -309,8 +308,6 @@ class CartController extends Controller
                 'tax' => $tax,
                 'discount' => 0,
                 'total' => $total,
-                'payment_status' => 'pending',
-                'payment_method' => $validated['payment_method'],
                 'notes' => $validated['notes'] . "\n\nCustomer Address: " . $validated['customer_address'] ?? null,
             ]);
 
@@ -393,7 +390,12 @@ class CartController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        return view('frontend.order-confirmation', compact('order'));
+        // Get contact information from website CMS
+        $contactInfo = \App\Models\WebsiteCms::where('section_type', 'contact')
+                                             ->where('is_published', true)
+                                             ->first();
+
+        return view('frontend.order-confirmation', compact('order', 'contactInfo'));
     }
 
     /**

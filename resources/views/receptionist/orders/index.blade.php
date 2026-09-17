@@ -156,12 +156,7 @@
                                class="btn btn-outline-warning" title="Edit Order">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <button class="btn btn-outline-primary" type="button" 
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#statusModal{{ $order->id }}"
-                                    title="Update Status">
-                                <i class="fas fa-sync"></i>
-                            </button>
+
                             <button class="btn btn-outline-success" type="button" 
                                     onclick="window.open('{{ route('receptionist.orders.show', $order) }}', '_blank')"
                                     title="Print Invoice">

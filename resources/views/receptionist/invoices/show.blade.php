@@ -103,10 +103,10 @@
 
     <!-- Summary Sidebar -->
     <div class="col-lg-4">
-        <!-- Payment Status -->
+        <!-- Order Summary -->
         <div class="table-card mb-3">
             <div class="table-header">
-                <h5 class="table-title">Payment Summary</h5>
+                <h5 class="table-title">Order Summary</h5>
             </div>
             <div style="padding: 20px;">
                 <div class="d-flex justify-content-between mb-2">
@@ -121,19 +121,9 @@
                     <strong>Total:</strong>
                     <strong style="color: var(--accent-color); font-size: 1.2rem;">Rs. {{ number_format($order->total, 2) }}</strong>
                 </div>
-                @php
-                    $payment = $order->payments?->first();
-                    $paymentStatus = $payment?->status ?? 'pending';
-                @endphp
                 <div>
-                    <strong>Payment Status:</strong><br>
-                    @if($paymentStatus === 'completed')
-                        <span class="badge bg-success w-100 mt-2">Paid</span>
-                    @elseif($paymentStatus === 'pending')
-                        <span class="badge bg-warning w-100 mt-2">Pending</span>
-                    @else
-                        <span class="badge bg-danger w-100 mt-2">Failed</span>
-                    @endif
+                    <strong>Payment Method:</strong><br>
+                    <span class="badge bg-info w-100 mt-2">Cash</span>
                 </div>
             </div>
         </div>
@@ -146,9 +136,6 @@
             <div style="padding: 20px;">
                 <a href="{{ route('receptionist.orders.show', $order) }}" class="btn btn-outline-secondary w-100 mb-2">
                     <i class="fas fa-eye"></i> View Order
-                </a>
-                <a href="{{ route('receptionist.payments.index') }}" class="btn btn-outline-secondary w-100 mb-2">
-                    <i class="fas fa-credit-card"></i> View Payments
                 </a>
                 <a href="{{ route('receptionist.invoices.download', $order) }}" class="btn btn-custom btn-primary-custom w-100 mb-2">
                     <i class="fas fa-download"></i> Download

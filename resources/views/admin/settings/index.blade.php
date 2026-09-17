@@ -49,11 +49,6 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#payment" data-bs-toggle="tab">
-                        <i class="fas fa-credit-card me-2"></i>Payment Settings
-                    </a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link" href="#email" data-bs-toggle="tab">
                         <i class="fas fa-envelope me-2"></i>Email Settings
                     </a>
@@ -71,11 +66,6 @@
                 <!-- Shop Settings Tab -->
                 <div class="tab-pane fade show active" id="shop">
                     @include('admin.settings.tabs.shop', ['settings' => $settings['shop']])
-                </div>
-
-                <!-- Payment Settings Tab -->
-                <div class="tab-pane fade" id="payment">
-                    @include('admin.settings.tabs.payment', ['settings' => $settings['payment']])
                 </div>
 
                 <!-- Email Settings Tab -->

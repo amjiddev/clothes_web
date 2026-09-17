@@ -112,24 +112,11 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="payment_method" class="form-label fw-bold">Payment Method <span class="text-danger">*</span></label>
-                                    <select class="form-select @error('payment_method') is-invalid @enderror" id="payment_method" name="payment_method" required>
-                                        <option value="">Select Payment Method</option>
-                                        <option value="cash" {{ old('payment_method') == 'cash' ? 'selected' : '' }}>Cash</option>
-                                        <option value="card" {{ old('payment_method') == 'card' ? 'selected' : '' }}>Card</option>
-                                        <option value="online" {{ old('payment_method') == 'online' ? 'selected' : '' }}>Online</option>
-                                        <option value="cheque" {{ old('payment_method') == 'cheque' ? 'selected' : '' }}>Cheque</option>
-                                    </select>
-                                    @error('payment_method')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    <label for="notes" class="form-label fw-bold">Notes</label>
+                                    <textarea class="form-control @error('notes') is-invalid @enderror" id="notes" name="notes" rows="2">{{ old('notes') }}</textarea>
+                                    @error('notes')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="notes" class="form-label fw-bold">Notes</label>
-                            <textarea class="form-control @error('notes') is-invalid @enderror" id="notes" name="notes" rows="2">{{ old('notes') }}</textarea>
-                            @error('notes')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                        </div>
 
                         <div class="row">
                             <div class="col-md-12">

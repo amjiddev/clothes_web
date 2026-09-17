@@ -63,7 +63,6 @@
                     <th>Order Date</th>
                     <th>Amount</th>
                     <th>Status</th>
-                    <th>Payment Status</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -90,13 +89,6 @@
                                 };
                             @endphp
                             <span class="status-badge {{ $statusClass }}">{{ ucfirst(str_replace('_', ' ', $order->status)) }}</span>
-                        </td>
-                        <td>
-                            @php
-                                $paymentStatus = $order->payments?->first()?->status ?? 'pending';
-                                $paymentClass = $paymentStatus === 'completed' ? 'bg-success' : ($paymentStatus === 'pending' ? 'bg-warning' : 'bg-danger');
-                            @endphp
-                            <span class="badge {{ $paymentClass }}">{{ ucfirst($paymentStatus) }}</span>
                         </td>
                         <td>
                             <div class="btn-group btn-group-sm">

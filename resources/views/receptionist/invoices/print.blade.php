@@ -435,25 +435,10 @@
             <div class="payment-info">
                 <p><strong style="font-size: 13px;">PAYMENT INFORMATION</strong></p>
                 <p style="margin-top: 12px;">
-                    <strong>Method:</strong> 
-                    @php
-                        $methods = [
-                            'cash' => '💵 Cash',
-                            'card' => '💳 Card',
-                            'bank_transfer' => '🏦 Bank Transfer',
-                            'online' => '📱 Online Payment',
-                        ];
-                    @endphp
-                    {{ $methods[$order->payment_method] ?? '💰 To be Determined' }}
+                    <strong>Method:</strong> 💵 Cash
                 </p>
                 <p><strong>Status:</strong>
-                    @if($order->payment_status === 'paid')
-                    <span class="badge badge-success">✓ Paid</span>
-                    @elseif($order->payment_status === 'pending')
-                    <span class="badge badge-warning">⏳ Pending</span>
-                    @else
-                    <span class="badge badge-danger">✗ Failed</span>
-                    @endif
+                    <span class="badge badge-success">✓ Confirmed</span>
                 </p>
             </div>
 
@@ -486,33 +471,6 @@
                 </tr>
             </table>
         </div>
-
-        <!-- Payment History -->
-        @if($order->payments->where('status', 'completed')->count() > 0)
-        <div style="margin: 20px 0;">
-            <h3 style="font-size: 12px; font-weight: bold; color: #2c3e50; margin-bottom: 10px;">PAYMENT HISTORY</h3>
-            <table class="items-table">
-                <thead>
-                    <tr>
-                        <th style="width: 25%;">Date & Time</th>
-                        <th style="width: 25%;">Method</th>
-                        <th style="width: 25%;">Amount</th>
-                        <th style="width: 25%;">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($order->payments->where('status', 'completed') as $payment)
-                    <tr>
-                        <td>{{ $payment->processed_at?->format('M d, Y h:i A') ?? 'N/A' }}</td>
-                        <td>{{ ucfirst(str_replace('_', ' ', $payment->payment_method)) }}</td>
-                        <td><strong>PKR {{ number_format($payment->amount, 2) }}</strong></td>
-                        <td><span class="badge badge-success">Completed</span></td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-        @endif
 
         <!-- Special Notes -->
         @if($order->notes)

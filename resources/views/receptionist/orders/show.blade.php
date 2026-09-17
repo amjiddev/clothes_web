@@ -96,15 +96,7 @@
                 <div class="mb-3">
                     <small class="text-muted d-block">Payment Method</small>
                     <strong>
-                        @if($order->payment_method === 'cash')
-                            <i class="fas fa-money-bill-wave me-1"></i>Cash
-                        @elseif($order->payment_method === 'card')
-                            <i class="fas fa-credit-card me-1"></i>Card
-                        @elseif($order->payment_method === 'bank_transfer')
-                            <i class="fas fa-university me-1"></i>Bank Transfer
-                        @else
-                            <i class="fas fa-mobile-alt me-1"></i>Online Payment
-                        @endif
+                        <i class="fas fa-money-bill-wave me-1"></i>Cash
                     </strong>
                 </div>
             </div>
@@ -317,71 +309,6 @@
         </div>
     </div>
 </div>
-
-<!-- Payments History -->
-<div class="card border-0 shadow mb-4">
-    <div class="card-header bg-light border-bottom d-flex justify-content-between align-items-center">
-        <h6 class="mb-0 fw-bold">
-            <i class="fas fa-history me-2"></i>Payment History
-        </h6>
-        @if($order->payment_status !== 'paid')
-        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addPaymentModal">
-            <i class="fas fa-plus me-1"></i>Record Payment
-        </button>
-        @endif
-    </div>
-    <div class="card-body">
-        @if($order->payments && $order->payments->count())
-        <div class="table-responsive">
-            <table class="table table-sm mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Transaction ID</th>
-                        <th>Amount</th>
-                        <th>Method</th>
-                        <th>Status</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($order->payments as $payment)
-                    <tr>
-                        <td>{{ $payment->transaction_id ?? 'N/A' }}</td>
-                        <td class="fw-bold">Rs. {{ number_format($payment->amount, 2) }}</td>
-                        <td>
-                            @if($payment->payment_method === 'cash')
-                                <i class="fas fa-money-bill-wave me-1"></i>Cash
-                            @elseif($payment->payment_method === 'card')
-                                <i class="fas fa-credit-card me-1"></i>Card
-                            @elseif($payment->payment_method === 'bank_transfer')
-                                <i class="fas fa-university me-1"></i>Bank Transfer
-                            @else
-                                <i class="fas fa-mobile-alt me-1"></i>Online
-                            @endif
-                        </td>
-                        <td>
-                            @if($payment->status === 'completed')
-                                <span class="badge bg-success">Completed</span>
-                            @elseif($payment->status === 'pending')
-                                <span class="badge bg-warning text-dark">Pending</span>
-                            @else
-                                <span class="badge bg-danger">Failed</span>
-                            @endif
-                        </td>
-                        <td>{{ $payment->processed_at?->format('M d, Y h:i A') ?? 'N/A' }}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-        @else
-        <p class="text-muted text-center py-3">
-            <i class="fas fa-inbox me-2"></i>No payments recorded yet
-        </p>
-        @endif
-    </div>
-</div>
-
 <!-- Order Timeline -->
 <div class="card border-0 shadow mb-4">
     <div class="card-header bg-light border-bottom">
@@ -492,51 +419,6 @@
         </a>
     </div>
 </div>
-
-<!-- Add Payment Modal -->
-@if($order->payment_status !== 'paid')
-<div class="modal fade" id="addPaymentModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Record Payment</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form method="POST" action="{{ route('receptionist.orders.record-payment', $order) }}">
-                @csrf
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Amount</label>
-                        <input type="number" name="amount" class="form-control" step="0.01" 
-                               placeholder="Enter amount" max="{{ $order->total }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Payment Method</label>
-                        <select name="payment_method" class="form-select" required>
-                            <option value="">Select Method</option>
-                            <option value="cash">Cash</option>
-                            <option value="card">Card</option>
-                            <option value="bank_transfer">Bank Transfer</option>
-                            <option value="online">Online Payment</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Transaction ID (Optional)</label>
-                        <input type="text" name="transaction_id" class="form-control" 
-                               placeholder="For reference">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-check me-1"></i>Record Payment
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-@endif
 
 <!-- Update Status Modal -->
 @if(!in_array($order->status, ['delivered', 'cancelled']))

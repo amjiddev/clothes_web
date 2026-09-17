@@ -170,23 +170,6 @@
             </div>
         </div>
 
-        <div class="col-md-6 mb-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <h6 class="mb-3">Payment Status</h6>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Successful Payments</span>
-                        <strong class="text-success">{{ $totalPayments }}</strong>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <span>Failed Payments</span>
-                        <strong class="text-danger">{{ $failedPayments }}</strong>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Recent Orders -->
     <div class="row mb-4">
         <div class="col-12">

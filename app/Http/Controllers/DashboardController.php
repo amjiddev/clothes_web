@@ -6,7 +6,6 @@ use App\Models\Order;
 use App\Models\StitchingOrder;
 use App\Models\Product;
 use App\Models\User;
-use App\Models\Payment;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -106,10 +105,7 @@ class DashboardController extends Controller
         $tailorsCount = User::role('tailor')->count();
         $receptionistsCount = User::role('receptionist')->count();
 
-        // Payment Metrics
-        $totalPayments = Payment::where('status', 'completed')->count();
-        $successfulPayments = Payment::where('status', 'completed')->sum('amount');
-        $failedPayments = Payment::where('status', 'failed')->count();
+
 
         // Recent Orders
         $recentOrders = Order::with('user')
@@ -129,12 +125,7 @@ class DashboardController extends Controller
             ->get()
             ->keyBy('status');
 
-        // Payment Method Distribution
-        $paymentMethodDistribution = Payment::selectRaw('payment_method, COUNT(*) as count')
-            ->where('status', 'completed')
-            ->groupBy('payment_method')
-            ->get()
-            ->keyBy('payment_method');
+
 
         // Top Products
         $topProducts = Product::selectRaw('products.*, COUNT(order_items.id) as order_count')
@@ -178,15 +169,11 @@ class DashboardController extends Controller
             'customersGrowth' => $customersGrowth,
             'tailorsCount' => $tailorsCount,
             'receptionistsCount' => $receptionistsCount,
-            'totalPayments' => $totalPayments,
-            'successfulPayments' => $successfulPayments,
-            'failedPayments' => $failedPayments,
 
             // Data
             'recentOrders' => $recentOrders,
             'recentStitchingOrders' => $recentStitchingOrders,
             'orderStatusDistribution' => $orderStatusDistribution,
-            'paymentMethodDistribution' => $paymentMethodDistribution,
             'topProducts' => $topProducts,
             'chartData' => json_encode($chartData),
         ];

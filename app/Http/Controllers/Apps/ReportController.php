@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\StitchingOrder;
 use App\Models\User;
-use App\Models\Payment;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -42,8 +41,6 @@ class ReportController extends Controller
             'pendingOrders' => Order::where('status', 'pending')->count(),
             'completedOrders' => Order::where('status', 'completed')->count(),
             'readyForDelivery' => Order::where('status', 'ready_for_delivery')->count(),
-            'pendingPayments' => Payment::where('status', 'pending')->sum('amount'),
-            'completedPayments' => Payment::where('status', 'completed')->sum('amount'),
         ];
 
         return view('receptionist.reports.index', $data);
@@ -159,37 +156,6 @@ class ReportController extends Controller
     }
 
     /**
-     * Payment Collection Report
-     */
-    public function paymentCollectionReport(Request $request)
-    {
-        $fromDate = $request->get('from_date') ? Carbon::createFromFormat('Y-m-d', $request->get('from_date')) : Carbon::now()->subDays(30);
-        $toDate = $request->get('to_date') ? Carbon::createFromFormat('Y-m-d', $request->get('to_date')) : Carbon::now();
-        $status = $request->get('status', 'all');
-
-        $query = Payment::with(['order', 'user'])->whereBetween('created_at', [$fromDate, $toDate]);
-
-        if ($status && $status !== 'all') {
-            $query->where('status', $status);
-        }
-
-        $payments = $query->orderByDesc('created_at')->get();
-
-        $chartData = $this->getPaymentCollectionChart($fromDate, $toDate);
-        $summary = [
-            'total_transactions' => $payments->count(),
-            'total_collected' => $payments->where('status', 'completed')->sum('amount'),
-            'total_pending' => $payments->where('status', 'pending')->sum('amount'),
-            'average_payment' => $payments->count() > 0 ? $payments->sum('amount') / $payments->count() : 0,
-            'completed_count' => $payments->where('status', 'completed')->count(),
-            'pending_count' => $payments->where('status', 'pending')->count(),
-            'failed_count' => $payments->where('status', 'failed')->count(),
-        ];
-
-        return view('receptionist.reports.payment-collection', compact('payments', 'fromDate', 'toDate', 'status', 'chartData', 'summary'));
-    }
-
-    /**
      * Helper: Get Daily Orders Chart Data
      */
     private function getDailyOrdersChart($date)
@@ -259,21 +225,4 @@ class ReportController extends Controller
         ];
     }
 
-    /**
-     * Helper: Get Payment Collection Chart Data
-     */
-    private function getPaymentCollectionChart($fromDate, $toDate)
-    {
-        $dailyPayments = Payment::whereBetween('created_at', [$fromDate, $toDate])
-            ->select('status', \DB::raw('DATE(created_at) as date'), \DB::raw('SUM(amount) as total'), \DB::raw('COUNT(*) as count'))
-            ->groupBy('date', 'status')
-            ->orderBy('date')
-            ->get();
-
-        return [
-            'labels' => $dailyPayments->pluck('date')->unique()->values()->toArray(),
-            'completed' => $dailyPayments->where('status', 'completed')->pluck('total')->toArray(),
-            'pending' => $dailyPayments->where('status', 'pending')->pluck('total')->toArray(),
-        ];
-    }
 }

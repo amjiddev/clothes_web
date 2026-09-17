@@ -170,7 +170,7 @@
                     </div>
                 </div>
 
-                <form method="POST" action="{{ route('receptionist.orders.payment') }}">
+                <form method="POST" action="{{ route('receptionist.orders.store') }}">
                     @csrf
 
                     <input type="hidden" name="customer_id" value="{{ $customerId }}">

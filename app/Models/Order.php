@@ -14,13 +14,13 @@ class Order extends Model
         'order_number',
         'type',
         'status',
+        'payment_status',
+        'payment_method',
         'subtotal',
         'stitching_charge',
         'tax',
         'discount',
         'total',
-        'payment_status',
-        'payment_method',
         'notes',
         'delivery_date',
     ];
@@ -47,11 +47,6 @@ class Order extends Model
     public function stitchingOrder()
     {
         return $this->hasOne(StitchingOrder::class);
-    }
-
-    public function payments()
-    {
-        return $this->hasMany(Payment::class);
     }
 
     public function generateOrderNumber()
@@ -85,16 +80,6 @@ class Order extends Model
         return $badges[$this->status] ?? 'secondary';
     }
 
-    public function getPaymentStatusBadgeAttribute()
-    {
-        $badges = [
-            'pending' => 'warning',
-            'paid' => 'success',
-            'failed' => 'danger',
-        ];
-        return $badges[$this->payment_status] ?? 'secondary';
-    }
-
     public function getOrderTypeAttribute()
     {
         $types = [
@@ -110,9 +95,19 @@ class Order extends Model
         return ucfirst(str_replace('_', ' ', $this->status));
     }
 
+    public function getPaymentStatusBadgeAttribute()
+    {
+        $badges = [
+            'pending' => 'warning',
+            'paid' => 'success',
+            'failed' => 'danger',
+        ];
+        return $badges[$this->payment_status] ?? 'secondary';
+    }
+
     public function getPaymentStatusTextAttribute()
     {
-        return ucfirst($this->payment_status);
+        return ucfirst(str_replace('_', ' ', $this->payment_status));
     }
 
     public function getTotalProductsAttribute()
@@ -123,11 +118,6 @@ class Order extends Model
     public function isDelivered()
     {
         return $this->status === 'delivered';
-    }
-
-    public function isPaid()
-    {
-        return $this->payment_status === 'paid';
     }
 
     public function canBeCancelled()

@@ -715,12 +715,6 @@
                         </a>
                     </div>
                     <div class="nav-item">
-                        <a href="{{ route('receptionist.payments.index') }}" class="nav-link {{ request()->routeIs('receptionist.payments.*') ? 'active' : '' }}">
-                            <i class="fas fa-credit-card"></i>
-                            <span>Payments</span>
-                        </a>
-                    </div>
-                    <div class="nav-item">
                         <a href="{{ route('receptionist.invoices.index') }}" class="nav-link {{ request()->routeIs('receptionist.invoices.*') ? 'active' : '' }}">
                             <i class="fas fa-file-invoice"></i>
                             <span>Invoices</span>
@@ -786,7 +780,13 @@
                         <!-- Profile Dropdown -->
                         <div class="dropdown">
                             <div class="profile-dropdown" id="profileDropdown" data-bs-toggle="dropdown">
-                                <img src="https://via.placeholder.com/40" alt="Profile" class="avatar-image">
+                                @if (auth()->user()->profile_photo_path)
+                                    <img src="{{ auth()->user()->profile_photo_url }}" alt="Profile" class="avatar-image">
+                                @else
+                                    <div class="avatar-image" style="background: linear-gradient(135deg, #d4af37, #9d8f3a); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem;">
+                                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                    </div>
+                                @endif
                                 <div class="profile-info">
                                     <span class="user-name">{{ Auth::user()->name }}</span>
                                     <span class="user-role">Receptionist</span>

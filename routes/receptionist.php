@@ -6,7 +6,6 @@ use App\Http\Controllers\Apps\OrderController;
 use App\Http\Controllers\Apps\StitchingOrderController;
 use App\Http\Controllers\Apps\MeasurementController;
 use App\Http\Controllers\Apps\TailorController;
-use App\Http\Controllers\Apps\PaymentController;
 use App\Http\Controllers\Apps\InvoiceController;
 use Illuminate\Support\Facades\Route;
 
@@ -32,8 +31,6 @@ Route::middleware(['auth', 'verified', 'receptionist.only'])->prefix('receptioni
     Route::resource('orders', OrderController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update']);
     Route::get('orders/create/select-type', [OrderController::class, 'selectOrderType'])->name('orders.select-type');
     Route::post('orders/create/summary', [OrderController::class, 'orderSummary'])->name('orders.summary');
-    Route::post('orders/create/payment', [OrderController::class, 'paymentStep'])->name('orders.payment');
-    Route::post('orders/{order}/record-payment', [OrderController::class, 'recordPayment'])->name('orders.record-payment');
     Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
     Route::post('orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
     Route::get('orders/{order}/invoice', [OrderController::class, 'downloadInvoice'])->name('orders.invoice');
@@ -62,14 +59,6 @@ Route::middleware(['auth', 'verified', 'receptionist.only'])->prefix('receptioni
     Route::get('tailors/{tailor}/orders', [TailorController::class, 'getTailorOrders'])->name('tailors.tailor-orders');
     Route::get('tailors/{tailor}/dashboard', [TailorController::class, 'viewDashboard'])->name('tailors.view-dashboard');
 
-    // Payments
-    Route::resource('payments', PaymentController::class)->only(['index', 'show']);
-    Route::post('payments/{payment}/collect', [PaymentController::class, 'collectPayment'])->name('payments.collect');
-    Route::post('payments/{payment}/mark-paid', [PaymentController::class, 'markPaid'])->name('payments.mark-paid');
-    Route::post('orders/{order}/record-payment', [PaymentController::class, 'recordPayment'])->name('orders.record-payment');
-    Route::get('payments/summary/{order}', [PaymentController::class, 'getPaymentSummary'])->name('payments.summary');
-    Route::get('payments/export', [PaymentController::class, 'exportSummary'])->name('payments.export');
-
     // Invoices
     Route::get('invoices', [InvoiceController::class, 'index'])->name('invoices.index');
     Route::get('invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
@@ -83,6 +72,5 @@ Route::middleware(['auth', 'verified', 'receptionist.only'])->prefix('receptioni
         Route::get('monthly-sales', [\App\Http\Controllers\Receptionist\ReportController::class, 'monthlySalesReport'])->name('monthly-sales');
         Route::get('pending-stitching', [\App\Http\Controllers\Receptionist\ReportController::class, 'pendingStitchingReport'])->name('pending-stitching');
         Route::get('completed-orders', [\App\Http\Controllers\Receptionist\ReportController::class, 'completedOrdersReport'])->name('completed-orders');
-        Route::get('payment-collection', [\App\Http\Controllers\Receptionist\ReportController::class, 'paymentCollectionReport'])->name('payment-collection');
     });
 });

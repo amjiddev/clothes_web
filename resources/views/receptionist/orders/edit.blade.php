@@ -96,7 +96,44 @@
 
                     <hr class="my-4">
 
-                    <!-- Editable Fields -->
+                    <!-- Status Fields -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="status" class="form-label fw-bold">
+                                <i class="fas fa-tag me-2"></i>Order Status
+                            </label>
+                            <select class="form-select @error('status') is-invalid @enderror" 
+                                    id="status" 
+                                    name="status">
+                                <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>Pending</option>
+                                <option value="confirmed" {{ $order->status === 'confirmed' ? 'selected' : '' }}>Confirmed</option>
+                                <option value="in_progress" {{ $order->status === 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                                <option value="ready" {{ $order->status === 'ready' ? 'selected' : '' }}>Ready</option>
+                                <option value="delivered" {{ $order->status === 'delivered' ? 'selected' : '' }}>Delivered</option>
+                                <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                            </select>
+                            @error('status')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label for="payment_status" class="form-label fw-bold">
+                                <i class="fas fa-credit-card me-2"></i>Payment Status
+                            </label>
+                            <select class="form-select @error('payment_status') is-invalid @enderror" 
+                                    id="payment_status" 
+                                    name="payment_status">
+                                <option value="pending" {{ $order->payment_status === 'pending' ? 'selected' : '' }}>Pending</option>
+                                <option value="paid" {{ $order->payment_status === 'paid' ? 'selected' : '' }}>Paid</option>
+                                <option value="failed" {{ $order->payment_status === 'failed' ? 'selected' : '' }}>Failed</option>
+                            </select>
+                            @error('payment_status')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label for="delivery_date" class="form-label fw-bold">
@@ -225,4 +262,33 @@
     color: #1a1a1a;
 }
 </style>
+
+<script>
+// Auto-update payment status based on order status
+document.addEventListener('DOMContentLoaded', function() {
+    const statusSelect = document.getElementById('status');
+    const paymentStatusSelect = document.getElementById('payment_status');
+
+    if (statusSelect && paymentStatusSelect) {
+        statusSelect.addEventListener('change', function() {
+            const orderStatus = this.value;
+
+            // Define payment status mappings
+            const statusMappings = {
+                'pending': 'pending',      // Pending order → Pending payment
+                'confirmed': 'pending',    // Confirmed order → Pending payment
+                'in_progress': 'pending',  // In Progress → Pending payment
+                'ready': 'pending',        // Ready → Pending payment
+                'delivered': 'pending',    // Delivered → Pending payment (to be collected)
+                'cancelled': 'failed'      // Cancelled → Failed payment
+            };
+
+            // Update payment status
+            if (statusMappings[orderStatus]) {
+                paymentStatusSelect.value = statusMappings[orderStatus];
+            }
+        });
+    }
+});
+</script>
 @endsection

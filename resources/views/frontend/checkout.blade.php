@@ -108,9 +108,11 @@
                                     Use Saved Measurement (Optional)
                                 </label>
                                 <select name="measurement_id" class="form-select" id="savedMeasurements" style="border-color: var(--accent-gold);">
-                                    <option value="">Or enter new measurements below...</option>
+                                    <option value="" selected>-- Or enter new measurements below --</option>
                                     @foreach($measurements as $m)
-                                    <option value="{{ $m->id }}">{{ $m->title }}</option>
+                                    <option value="{{ $m->id }}" data-chest="{{ $m->chest }}" data-shoulder="{{ $m->shoulder }}" data-sleeve="{{ $m->sleeve_length }}" data-shirt="{{ $m->torso_length }}" data-neck="{{ $m->neck }}" data-waist="{{ $m->waist }}" data-trouser="{{ $m->inseam }}" data-bottom="{{ $m->bottom ?? '' }}">
+                                        {{ $m->title }}
+                                    </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -167,38 +169,6 @@
                         </div>
                     </div>
 
-                    <!-- Payment Method -->
-                    <div class="card border-0 shadow-sm" style="border-top: 3px solid var(--accent-gold);">
-                        <div class="card-body p-4">
-                            <h5 class="fw-bold mb-4" style="color: var(--primary-dark);">
-                                <i class="fas fa-credit-card me-2"></i>Payment Method
-                            </h5>
-
-                            <div class="payment-options">
-                                <div class="form-check mb-3">
-                                    <input class="form-check-input payment-option" type="radio" name="payment_method" 
-                                           value="cash_on_delivery" id="cod" checked>
-                                    <label class="form-check-label" for="cod" style="cursor: pointer; color: var(--primary-dark);">
-                                        <strong>Cash on Delivery</strong>
-                                        <p style="margin: 5px 0 0 0; color: var(--text-muted); font-size: 0.9rem;">
-                                            Pay when you receive your order
-                                        </p>
-                                    </label>
-                                </div>
-
-                                <div class="form-check">
-                                    <input class="form-check-input payment-option" type="radio" name="payment_method" 
-                                           value="bank_transfer" id="bank">
-                                    <label class="form-check-label" for="bank" style="cursor: pointer; color: var(--primary-dark);">
-                                        <strong>Bank Transfer</strong>
-                                        <p style="margin: 5px 0 0 0; color: var(--text-muted); font-size: 0.9rem;">
-                                            Transfer to our account (details will be provided after order)
-                                        </p>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- Special Notes -->
                     <div class="card border-0 shadow-sm mt-4" style="border-top: 3px solid var(--accent-gold);">
@@ -423,16 +393,36 @@ document.addEventListener('DOMContentLoaded', function() {
     const savedMeasurementsSelect = document.getElementById('savedMeasurements');
     if (savedMeasurementsSelect) {
         savedMeasurementsSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            
             if (this.value) {
-                // Disable new measurement inputs
-                document.querySelectorAll('input[name="chest"], input[name="shoulder"], input[name="sleeve_length"], input[name="shirt_length"], input[name="neck"], input[name="waist"], input[name="trouser_length"], input[name="bottom"]').forEach(input => {
-                    input.disabled = true;
-                    input.value = '';
+                // Get measurement data from data attributes
+                const measurements = {
+                    chest: selectedOption.dataset.chest,
+                    shoulder: selectedOption.dataset.shoulder,
+                    sleeve_length: selectedOption.dataset.sleeve,
+                    shirt_length: selectedOption.dataset.shirt,
+                    neck: selectedOption.dataset.neck,
+                    waist: selectedOption.dataset.waist,
+                    trouser_length: selectedOption.dataset.trouser,
+                    bottom: selectedOption.dataset.bottom
+                };
+                
+                // Populate and disable input fields
+                Object.entries(measurements).forEach(([name, value]) => {
+                    const input = document.querySelector(`input[name="${name}"]`);
+                    if (input) {
+                        input.value = value || '';
+                        input.disabled = true;
+                        input.style.backgroundColor = '#e8e8e8';
+                    }
                 });
             } else {
-                // Enable new measurement inputs
+                // Clear and enable new measurement inputs
                 document.querySelectorAll('input[name="chest"], input[name="shoulder"], input[name="sleeve_length"], input[name="shirt_length"], input[name="neck"], input[name="waist"], input[name="trouser_length"], input[name="bottom"]').forEach(input => {
                     input.disabled = false;
+                    input.value = '';
+                    input.style.backgroundColor = '';
                 });
             }
         });

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Apps;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\Payment;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Category;
@@ -150,8 +149,6 @@ class OrderController extends Controller
             'discount' => 'nullable|numeric|min:0',
             'tax' => 'nullable|numeric|min:0',
             'total' => 'required|numeric|min:0',
-            'payment_method' => 'required|in:cash,card,bank_transfer,online',
-            'paid_amount' => 'required|numeric|min:0',
             'notes' => 'nullable|string',
             'delivery_date' => 'nullable|date|after:today',
         ]);
@@ -169,8 +166,6 @@ class OrderController extends Controller
                 'discount' => $validated['discount'] ?? 0,
                 'tax' => $validated['tax'] ?? 0,
                 'total' => $validated['total'],
-                'payment_method' => $validated['payment_method'],
-                'payment_status' => $validated['paid_amount'] >= $validated['total'] ? 'paid' : 'pending',
                 'notes' => $validated['notes'],
                 'delivery_date' => $validated['delivery_date'],
             ]);
@@ -199,66 +194,13 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        $order->load('user', 'orderItems.product', 'stitchingOrder', 'payments');
+        $order->load('user', 'orderItems.product', 'stitchingOrder');
 
-        // Calculate payment status
-        $paidAmount = $order->payments ? $order->payments->sum('amount') : 0;
-        $remainingAmount = max(0, $order->total - $paidAmount);
-
-        return view('receptionist.orders.show', compact(
-            'order',
-            'paidAmount',
-            'remainingAmount'
-        ));
+        return view('receptionist.orders.show', compact('order'));
     }
 
     /**
      * Record a payment for an order
-     */
-    public function recordPayment(Request $request, Order $order)
-    {
-        $validated = $request->validate([
-            'amount' => 'required|numeric|min:0.01|max:' . $order->total,
-            'payment_method' => 'required|in:cash,card,bank_transfer,online',
-            'transaction_id' => 'nullable|string|max:255',
-        ]);
-
-        try {
-            DB::beginTransaction();
-
-            // Get current paid amount
-            $currentPaid = $order->payments ? $order->payments->sum('amount') : 0;
-            $totalAfterPayment = $currentPaid + $validated['amount'];
-
-            // Create payment record
-            $payment = $order->payments()->create([
-                'user_id' => auth()->id(),
-                'payment_method' => $validated['payment_method'],
-                'amount' => $validated['amount'],
-                'transaction_id' => $validated['transaction_id'],
-                'status' => 'completed',
-                'processed_at' => now(),
-            ]);
-
-            // Update order payment status
-            if ($totalAfterPayment >= $order->total) {
-                $order->update(['payment_status' => 'paid']);
-            } elseif ($totalAfterPayment > 0) {
-                $order->update(['payment_status' => 'pending']);
-            }
-
-            DB::commit();
-
-            return back()->with('success', 'Payment recorded successfully! Amount: ₹' . number_format($validated['amount'], 2));
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'Error recording payment: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Process order items from request
      */
     private function processOrderItems($request, $orderType)
     {
@@ -485,9 +427,19 @@ class OrderController extends Controller
     public function update(Request $request, Order $order)
     {
         $validated = $request->validate([
+            'status' => 'nullable|in:pending,confirmed,in_progress,ready,delivered,cancelled',
+            'payment_status' => 'nullable|in:pending,paid,failed',
             'delivery_date' => 'nullable|date|after:today',
             'notes' => 'nullable|string',
         ]);
+
+        // Auto-update payment_status based on order status if not explicitly provided
+        if ($validated['status'] === 'cancelled' && !isset($request->payment_status)) {
+            $validated['payment_status'] = 'failed';
+        } elseif ($validated['status'] === 'delivered' && !isset($request->payment_status)) {
+            // When order is delivered, mark payment as pending/due
+            $validated['payment_status'] = $order->payment_status; // Keep existing unless explicitly changed
+        }
 
         $order->update($validated);
 

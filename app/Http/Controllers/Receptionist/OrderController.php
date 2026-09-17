@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Receptionist;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\Payment;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Category;
@@ -34,7 +33,7 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Order::with('user', 'orderItems', 'stitchingOrder', 'payments');
+        $query = Order::with('user', 'orderItems', 'stitchingOrder');
 
         // Search by order number or customer name
         if ($request->has('search') && $request->search) {
@@ -200,8 +199,6 @@ class OrderController extends Controller
             'discount' => 'nullable|numeric|min:0',
             'tax' => 'nullable|numeric|min:0',
             'total' => 'required|numeric|min:0.01',
-            'payment_method' => 'required|in:cash,card,bank_transfer,online',
-            'paid_amount' => 'required|numeric|min:0',
             'notes' => 'nullable|string|max:500',
             'delivery_date' => 'nullable|date|after:today',
         ]);
@@ -225,8 +222,6 @@ class OrderController extends Controller
                 'discount' => $validated['discount'] ?? 0,
                 'tax' => $validated['tax'] ?? 0,
                 'total' => $validated['total'],
-                'payment_method' => $validated['payment_method'],
-                'payment_status' => $validated['paid_amount'] >= $validated['total'] ? 'paid' : 'pending',
                 'notes' => $validated['notes'],
                 'delivery_date' => $validated['delivery_date'],
             ]);
@@ -237,18 +232,6 @@ class OrderController extends Controller
             // Handle stitching order if needed
             if (in_array($validated['order_type'], ['stitching', 'combined'])) {
                 $this->createStitchingOrder($request, $order);
-            }
-
-            // Record initial payment if paid amount > 0
-            if ($validated['paid_amount'] > 0) {
-                Payment::create([
-                    'order_id' => $order->id,
-                    'user_id' => auth()->id(),
-                    'amount' => $validated['paid_amount'],
-                    'payment_method' => $validated['payment_method'],
-                    'status' => 'completed',
-                    'processed_at' => now(),
-                ]);
             }
 
             DB::commit();
@@ -267,17 +250,9 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        $order->load('user', 'orderItems.product', 'stitchingOrder', 'payments');
+        $order->load('user', 'orderItems.product', 'stitchingOrder');
 
-        // Calculate payment status
-        $paidAmount = $order->payments ? $order->payments->where('status', 'completed')->sum('amount') : 0;
-        $remainingAmount = max(0, $order->total - $paidAmount);
-
-        return view('receptionist.orders.show', compact(
-            'order',
-            'paidAmount',
-            'remainingAmount'
-        ));
+        return view('receptionist.orders.show', compact('order'));
     }
 
     /**
@@ -296,11 +271,18 @@ class OrderController extends Controller
     public function update(Request $request, Order $order)
     {
         $validated = $request->validate([
+            'status' => 'nullable|in:pending,confirmed,in_progress,ready,delivered,cancelled',
+            'payment_status' => 'nullable|in:pending,paid,failed',
             'delivery_date' => 'nullable|date|after:today',
             'notes' => 'nullable|string|max:500',
         ]);
 
         try {
+            // Auto-update payment_status based on order status if not explicitly provided
+            if (isset($validated['status']) && $validated['status'] === 'cancelled' && !$request->has('payment_status')) {
+                $validated['payment_status'] = 'failed';
+            }
+
             $order->update($validated);
 
             return redirect()->route('receptionist.orders.show', $order)

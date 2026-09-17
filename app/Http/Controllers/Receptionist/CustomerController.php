@@ -138,7 +138,7 @@ class CustomerController extends Controller
 
         // Get customer's orders with related data
         $orders = Order::where('user_id', $customer->id)
-            ->with('orderItems', 'stitchingOrder', 'payments')
+            ->with('orderItems', 'stitchingOrder')
             ->latest()
             ->get();
 
@@ -150,11 +150,9 @@ class CustomerController extends Controller
         // Calculate statistics
         $totalOrders = $orders->count();
         $completedOrders = $orders->where('status', 'completed')->count();
-        $totalSpent = $orders->where('payment_status', 'paid')->sum('total');
+        $totalSpent = $orders->where('status', 'completed')->sum('total');
         $pendingOrders = $orders->where('status', 'pending')->count();
-        $totalDue = $orders->sum('total') - $orders->sum(function($order) {
-            return $order->payments->where('status', 'completed')->sum('amount');
-        });
+        $totalDue = $orders->where('status', '!=', 'completed')->sum('total');
 
         return view('receptionist.customers.show', compact(
             'customer',
@@ -257,7 +255,7 @@ class CustomerController extends Controller
         }
 
         $orders = Order::where('user_id', $customer->id)
-            ->with('orderItems', 'stitchingOrder', 'payments')
+            ->with('orderItems', 'stitchingOrder')
             ->latest()
             ->paginate(10);
 
