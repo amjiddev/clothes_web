@@ -79,7 +79,7 @@ class CartController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Product added to cart',
-            'cartCount' => count($cart),
+            'cartCount' => $this->calculateTotalQuantity($cart),
             'total' => $this->calculateTotal($cart)
         ]);
     }
@@ -136,7 +136,7 @@ class CartController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Item removed from cart',
-                'cartCount' => count($cart),
+                'cartCount' => $this->calculateTotalQuantity($cart),
                 'total' => $this->calculateTotal($cart)
             ]);
         }
@@ -414,17 +414,31 @@ class CartController extends Controller
     }
 
     /**
+     * Calculate total quantity in cart (sum of all item quantities)
+     */
+    private function calculateTotalQuantity($cart)
+    {
+        $totalQuantity = 0;
+
+        foreach ($cart as $item) {
+            $totalQuantity += $item['quantity'];
+        }
+
+        return $totalQuantity;
+    }
+
+    /**
      * Get cart summary (for navbar, etc.)
      */
     public function getSummary()
     {
         $cart = session()->get('cart', []);
-        $count = count($cart);
+        $totalQuantity = $this->calculateTotalQuantity($cart);
         $total = $this->calculateTotal($cart);
 
         return response()->json([
             'success' => true,
-            'count' => $count,
+            'count' => $totalQuantity,
             'total' => $total,
             'formatted_total' => '₹' . number_format($total, 2)
         ]);

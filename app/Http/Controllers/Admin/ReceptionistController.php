@@ -7,6 +7,7 @@ use App\Models\Receptionist;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission;
 
 class ReceptionistController extends Controller
 {
@@ -21,6 +22,29 @@ class ReceptionistController extends Controller
             }
             return $next($request);
         });
+    }
+
+    /**
+     * Ensure all receptionist permissions exist in the database
+     */
+    protected function ensurePermissionsExist()
+    {
+        $permissions = [
+            'view_customers',
+            'create_customers',
+            'edit_customers',
+            'view_all_orders',
+            'create_orders',
+            'edit_orders',
+            'assign_tailors',
+            'view_stitching_orders',
+        ];
+
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(
+                ['name' => $permission, 'guard_name' => 'web']
+            );
+        }
     }
 
     /**
@@ -119,6 +143,9 @@ class ReceptionistController extends Controller
             'status' => $validated['status'],
             'assigned_date' => now(),
         ]);
+
+        // Ensure all permissions exist before assigning
+        $this->ensurePermissionsExist();
 
         // Assign receptionist role and permissions
         $user = User::find($userId);

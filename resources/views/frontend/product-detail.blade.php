@@ -501,9 +501,6 @@ function addToCart(productId) {
                 // Update cart UI from server
                 updateCartUI();
                 
-                // Open cart sidebar
-                openCart();
-                
                 // Show success notification
                 showNotification('✓ Product added to cart!', 'success');
             } else {

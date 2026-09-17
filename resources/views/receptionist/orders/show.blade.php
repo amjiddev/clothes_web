@@ -502,7 +502,7 @@
                 <h5 class="modal-title">Record Payment</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="POST" action="{{ route('receptionist.orders.recordPayment', $order) }}">
+            <form method="POST" action="{{ route('receptionist.orders.record-payment', $order) }}">
                 @csrf
                 <div class="modal-body">
                     <div class="mb-3">

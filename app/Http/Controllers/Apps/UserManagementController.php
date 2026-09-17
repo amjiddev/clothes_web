@@ -49,7 +49,11 @@ class UserManagementController extends Controller
      */
     public function create()
     {
-        $roles = Role::where('name', '!=', 'super_admin')->get();
+        // Super admin can create users with any role, including super_admin
+        $roles = auth()->user()->hasRole('super_admin')
+            ? Role::all()
+            : Role::where('name', '!=', 'super_admin')->get();
+        
         return view('admin.users.create', compact('roles'));
     }
 
@@ -65,6 +69,12 @@ class UserManagementController extends Controller
             'role' => 'required|exists:roles,id',
         ]);
 
+        // Verify super_admin role can only be assigned by super_admin users
+        $role = Role::find($validated['role']);
+        if ($role->name === 'super_admin' && !auth()->user()->hasRole('super_admin')) {
+            return back()->withErrors(['role' => 'Only super admin users can assign the super_admin role.']);
+        }
+
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
@@ -72,7 +82,6 @@ class UserManagementController extends Controller
             'email_verified_at' => now(),  // ✅ Set to Active immediately (no Pending)
         ]);
 
-        $role = Role::find($validated['role']);
         $user->assignRole($role);
 
         return redirect()->route('admin.user-management.users.show', $user)
@@ -95,7 +104,11 @@ class UserManagementController extends Controller
      */
     public function edit(User $user)
     {
-        $roles = Role::where('name', '!=', 'super_admin')->get();
+        // Super admin can assign any role, including super_admin
+        $roles = auth()->user()->hasRole('super_admin')
+            ? Role::all()
+            : Role::where('name', '!=', 'super_admin')->get();
+        
         $userRoles = $user->roles->pluck('id')->toArray();
 
         return view('admin.users.edit', compact('user', 'roles', 'userRoles'));
@@ -114,6 +127,12 @@ class UserManagementController extends Controller
             'is_blocked' => 'nullable|boolean',
         ]);
 
+        // Verify super_admin role can only be assigned by super_admin users
+        $role = Role::find($validated['role']);
+        if ($role->name === 'super_admin' && !auth()->user()->hasRole('super_admin')) {
+            return back()->withErrors(['role' => 'Only super admin users can assign the super_admin role.']);
+        }
+
         $user->update([
             'name' => $validated['name'],
             'email' => $validated['email'],
@@ -124,7 +143,6 @@ class UserManagementController extends Controller
             $user->update(['password' => bcrypt($validated['password'])]);
         }
 
-        $role = Role::find($validated['role']);
         $user->syncRoles([$role]);
 
         return redirect()->route('admin.user-management.users.show', $user)

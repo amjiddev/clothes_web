@@ -616,74 +616,95 @@
         .cart-item {
             display: flex;
             gap: 1rem;
-            padding: 1rem;
-            border-bottom: 1px solid #e0e0e0;
+            padding: 1.5rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
             align-items: flex-start;
-        }
-
-        .cart-item:last-child {
-            border-bottom: none;
+            margin-bottom: 1rem;
+            background: #fafafa;
         }
 
         .cart-item-image {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             object-fit: cover;
             border-radius: 8px;
             background: #f5f5f5;
+            flex-shrink: 0;
         }
 
         .cart-item-details {
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
         }
 
         .cart-item-name {
             font-weight: 600;
             color: var(--primary-dark);
-            margin-bottom: 0.3rem;
+            margin: 0;
             font-size: 0.95rem;
         }
 
         .cart-item-price {
             color: var(--accent-gold);
             font-weight: 700;
-            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            margin: 0;
         }
 
-        .cart-item-quantity {
+        .cart-item-controls {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            font-size: 0.85rem;
+            margin-top: 0.5rem;
         }
 
-        .cart-item-quantity button {
-            width: 24px;
-            height: 24px;
+        .quantity-btn {
+            width: 28px;
+            height: 28px;
             padding: 0;
             border: 1px solid #ddd;
             background: white;
             cursor: pointer;
-            border-radius: 3px;
+            border-radius: 4px;
             transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .cart-item-quantity button:hover {
+        .quantity-btn:hover {
             background: var(--accent-gold);
             color: white;
             border-color: var(--accent-gold);
         }
 
-        .cart-item-remove {
-            cursor: pointer;
-            color: #dc3545;
-            font-size: 0.85rem;
-            margin-top: 0.5rem;
-            transition: all 0.3s ease;
+        .quantity-input {
+            width: 50px;
+            text-align: center;
+            border: 1px solid #ddd;
+            padding: 4px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.9rem;
         }
 
-        .cart-item-remove:hover {
+        .cart-item-delete {
+            cursor: pointer;
+            color: #dc3545;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            margin-left: auto;
+            padding-top: 0.5rem;
+        }
+
+        .cart-item-delete:hover {
             color: #c82333;
+            transform: scale(1.2);
         }
 
         .cart-footer {
@@ -1103,15 +1124,18 @@
                                 let itemsHTML = '';
                                 cartData.items.forEach(item => {
                                     itemsHTML += `
-                                        <div style="border-bottom: 1px solid #eee; padding: 15px 0; display: flex; gap: 12px;">
-                                            <div style="flex-shrink: 0; width: 80px;">
-                                                <img src="${item.image}" alt="${item.name}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px;">
+                                        <div class="cart-item" data-cart-key="${item.cart_key}">
+                                            <img src="${item.image}" alt="${item.name}" class="cart-item-image">
+                                            <div class="cart-item-details">
+                                                <p class="cart-item-name">${item.name}</p>
+                                                <p class="cart-item-price">Rs ${item.price.toLocaleString('en-PK')}</p>
+                                                <div class="cart-item-controls">
+                                                    <button class="quantity-btn" onclick="decrementCartItem('${item.cart_key}')">−</button>
+                                                    <input type="number" class="quantity-input" value="${item.quantity}" readonly data-cart-key="${item.cart_key}">
+                                                    <button class="quantity-btn" onclick="incrementCartItem('${item.cart_key}')">+</button>
+                                                </div>
                                             </div>
-                                            <div style="flex: 1; font-size: 0.9rem;">
-                                                <p style="margin: 0 0 5px 0; font-weight: 600; color: var(--primary-dark);">${item.name}</p>
-                                                <p style="margin: 0 0 5px 0; color: var(--text-muted); font-size: 0.85rem;">Qty: ${item.quantity}</p>
-                                                <p style="margin: 0; color: var(--accent-gold); font-weight: 600;">₹${item.line_total.toLocaleString('en-PK')}</p>
-                                            </div>
+                                            <i class="fas fa-trash cart-item-delete" onclick="removeFromCart('${item.cart_key}')" title="Remove from cart"></i>
                                         </div>
                                     `;
                                 });
@@ -1131,6 +1155,84 @@
         // Initialize cart UI on page load
         function initializeCartUI() {
             updateCartUI();
+        }
+
+        // Increment cart item quantity
+        function incrementCartItem(cartKey) {
+            const input = document.querySelector(`.quantity-input[data-cart-key="${cartKey}"]`);
+            const currentQty = parseInt(input.value);
+
+            fetch(`/cart/update/${cartKey}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    quantity: currentQty + 1
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateCartUI();
+                } else {
+                    showNotification('Error updating quantity', 'error');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Decrement cart item quantity
+        function decrementCartItem(cartKey) {
+            const input = document.querySelector(`.quantity-input[data-cart-key="${cartKey}"]`);
+            const currentQty = parseInt(input.value);
+
+            if (currentQty > 1) {
+                fetch(`/cart/update/${cartKey}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        quantity: currentQty - 1
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateCartUI();
+                    } else {
+                        showNotification('Error updating quantity', 'error');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }
+        }
+
+        // Remove item from cart
+        function removeFromCart(cartKey) {
+            fetch(`/cart/remove/${cartKey}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateCartUI();
+                    showNotification('Item removed from cart', 'success');
+                } else {
+                    showNotification('Error removing item', 'error');
+                }
+            })
+            .catch(error => console.error('Error:', error));
         }
 
         // Event listeners
