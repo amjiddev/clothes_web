@@ -7,7 +7,7 @@
         <!--begin::Heading-->
         <div class="text-center mb-11">
             <!--begin::Title-->
-            <h1 class="text-gray-900 fw-bolder mb-3">
+            <h1 class="text-gray-900 fw-bolder mb-3" style="font-size: 28px; color: #1a1a1a;">
                 Sign In
             </h1>
             <!--end::Title-->
@@ -46,7 +46,7 @@
         <div class="fv-row mb-8 position-relative">
             <!--begin::Email-->
             <input type="email" placeholder="Email" name="email" autocomplete="new-password"
-                class="form-control bg-transparent" value="" />
+                class="form-control" value="" style="padding: 12px 16px; border: 1px solid #d4d4d4; border-radius: 4px; font-size: 14px;" />
             <!--end::Email-->
         </div>
 
@@ -54,9 +54,9 @@
         <div class="fv-row mb-3 position-relative">
             <!--begin::Password-->
             <input type="password" placeholder="Password" name="password" autocomplete="new-password"
-                class="form-control bg-transparent" value="" id="login_password" />
+                class="form-control" value="" id="login_password" style="padding: 12px 16px; border: 1px solid #d4d4d4; border-radius: 4px; font-size: 14px;" />
             <span class="btn btn-sm btn-icon position-absolute translate-middle top-50 end-0 me-n2" 
-                onclick="togglePasswordVisibility('login_password', this)" style="cursor: pointer; z-index: 10;">
+                onclick="togglePasswordVisibility('login_password', this)" style="cursor: pointer; z-index: 10; background: none; border: none; color: #999;">
                 <i class="bi bi-eye-slash fs-2"></i>
                 <i class="bi bi-eye fs-2 d-none"></i>
             </span>
@@ -65,11 +65,11 @@
         <!--end::Input group--->
 
         <!--begin::Wrapper-->
-        <div class="d-flex flex-stack flex-wrap gap-3 fs-base fw-semibold mb-8">
+        <div class="d-flex flex-stack flex-wrap gap-3 fs-base fw-semibold mb-8" style="font-size: 14px;">
             <div></div>
 
             <!--begin::Link-->
-            <a href="{{ route('password.request') }}" class="link-primary" id="forgot-password-link">
+            <a href="{{ route('password.request') }}" class="link-primary" id="forgot-password-link" style="color: #d4af37; text-decoration: none;">
                 Forgot Password ?
             </a>
             <!--end::Link-->
@@ -78,17 +78,17 @@
 
         <!--begin::Submit button-->
         <div class="d-grid mb-10">
-            <button type="submit" id="kt_sign_in_submit" class="btn btn-primary">
+            <button type="submit" id="kt_sign_in_submit" class="btn btn-primary" style="padding: 12px 24px; background-color: #d4af37; color: #1a1a1a; border: none; border-radius: 4px; font-weight: 600; font-size: 14px; cursor: pointer;">
                 @include('partials/general/_button-indicator', ['label' => 'Sign In'])
             </button>
         </div>
         <!--end::Submit button-->
 
         <!--begin::Sign up-->
-        <div class="text-gray-500 text-center fw-semibold fs-6">
+        <div class="text-gray-500 text-center fw-semibold fs-6" style="font-size: 14px; color: #666;">
             Not a Member yet?
 
-            <a href="{{ route('register') }}" class="link-primary">
+            <a href="{{ route('register') }}" class="link-primary" style="color: #d4af37; text-decoration: none;">
                 Sign up
             </a>
         </div>
@@ -178,6 +178,11 @@
 </x-auth-layout>
 
 <style>
+    body {
+        background-color: #fff;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+
     #kt_sign_in_form {
         width: min(430px, calc(100vw - 48px)) !important;
         max-width: none !important;
@@ -190,5 +195,23 @@
         width: 100% !important;
         max-width: none !important;
         box-sizing: border-box;
+    }
+
+    #kt_sign_in_form .form-control {
+        color: #333;
+        background-color: #fff;
+        border-color: #d4d4d4;
+    }
+
+    #kt_sign_in_form .form-control:focus {
+        color: #333;
+        background-color: #fff;
+        border-color: #d4af37;
+        box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.25);
+    }
+
+    #kt_sign_in_form .form-control::placeholder {
+        color: #999;
+        opacity: 1;
     }
 </style>

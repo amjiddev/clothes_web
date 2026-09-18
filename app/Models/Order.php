@@ -23,6 +23,8 @@ class Order extends Model
         'total',
         'notes',
         'delivery_date',
+        'is_seen',
+        'seen_at',
     ];
 
     protected $casts = [
@@ -32,6 +34,8 @@ class Order extends Model
         'discount' => 'decimal:2',
         'total' => 'decimal:2',
         'delivery_date' => 'datetime',
+        'is_seen' => 'boolean',
+        'seen_at' => 'datetime',
     ];
 
     public function user()
@@ -156,5 +160,71 @@ class Order extends Model
         }
 
         return $timeline;
+    }
+
+    /**
+     * Mark order as seen in notification
+     */
+    public function markAsSeen()
+    {
+        if (!$this->is_seen) {
+            $this->update([
+                'is_seen' => true,
+                'seen_at' => now(),
+            ]);
+        }
+        return $this;
+    }
+
+    /**
+     * Mark order as unseen
+     */
+    public function markAsUnseen()
+    {
+        $this->update([
+            'is_seen' => false,
+            'seen_at' => null,
+        ]);
+        return $this;
+    }
+
+    /**
+     * Check if order is seen
+     */
+    public function isSeen()
+    {
+        return $this->is_seen === true;
+    }
+
+    /**
+     * Check if order is unseen
+     */
+    public function isUnseen()
+    {
+        return $this->is_seen === false;
+    }
+
+    /**
+     * Get unread/unseen orders count for admin
+     */
+    public static function getUnseenCount()
+    {
+        return static::where('is_seen', false)->count();
+    }
+
+    /**
+     * Scope: Get unseen orders
+     */
+    public function scopeUnseen($query)
+    {
+        return $query->where('is_seen', false);
+    }
+
+    /**
+     * Scope: Get seen orders
+     */
+    public function scopeSeen($query)
+    {
+        return $query->where('is_seen', true);
     }
 }

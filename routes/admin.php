@@ -8,6 +8,8 @@ use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\ContactSubmissionController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\DebugNotificationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,6 +22,22 @@ Route::middleware(['auth', 'verified', 'admin.only'])->prefix('admin')->name('ad
     
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Debug Endpoints (Temporary - Remove after debugging)
+    Route::prefix('debug')->name('debug.')->group(function () {
+        Route::get('/notifications/full', [DebugNotificationController::class, 'fullDebug'])->name('notifications.full');
+        Route::get('/notifications/simple', [DebugNotificationController::class, 'simple'])->name('notifications.simple');
+        Route::get('/table/{table}', [DebugNotificationController::class, 'tableStructure'])->name('table');
+    });
+
+    // Notification Bell Endpoints
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', [NotificationController::class, 'getNotifications'])->name('index');
+        Route::get('unread-count', [NotificationController::class, 'getUnreadCount'])->name('unread-count');
+        Route::post('mark-as-seen', [NotificationController::class, 'markAsSeen'])->name('mark-as-seen');
+        Route::post('mark-all-as-seen', [NotificationController::class, 'markAllAsSeen'])->name('mark-all-as-seen');
+        Route::get('details', [NotificationController::class, 'getNotificationDetails'])->name('details');
+    });
 
     // Inventory Management
     Route::resource('inventory', InventoryController::class)->only(['index', 'show', 'edit', 'update']);

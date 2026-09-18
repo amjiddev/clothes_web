@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\OrderItem;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
 
 
 class ReportController extends Controller
@@ -177,19 +178,32 @@ class ReportController extends Controller
         $startDate = $this->getStartDate($period, $request->get('from'));
         $endDate = $this->getEndDate($period, $request->get('to'));
 
-        // Tailors with stitching orders
-        $tailors = User::whereHas('stitchingOrders', function ($q) use ($startDate, $endDate) {
+        // Tailors with stitching orders - get all first, then sort in PHP to avoid database column issue
+        $allTailors = User::whereHas('stitchingOrders', function ($q) use ($startDate, $endDate) {
                         $q->whereBetween('created_at', [$startDate, $endDate]);
                     })
-                    ->withCount(['stitchingOrders' => function ($q) use ($startDate, $endDate) {
-                        $q->whereBetween('created_at', [$startDate, $endDate]);
-                    }])
                     ->with(['stitchingOrders' => function ($q) use ($startDate, $endDate) {
                         $q->whereBetween('created_at', [$startDate, $endDate])
                           ->orderByDesc('created_at');
                     }])
-                    ->orderByDesc('stitchingOrders_count')
-                    ->paginate(50);
+                    ->get();
+
+        // Sort by stitching orders count in PHP
+        $sortedTailors = $allTailors->sortByDesc(function($tailor) {
+            return $tailor->stitchingOrders->count();
+        });
+
+        // Paginate using Laravel's LengthAwarePaginator
+        $page = request()->get('page', 1);
+        $perPage = 50;
+        $items = $sortedTailors->forPage($page, $perPage);
+        $tailors = new \Illuminate\Pagination\LengthAwarePaginator(
+            $items->values(),
+            $sortedTailors->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
 
         // Calculate performance metrics
         $tailorStats = [];
@@ -209,12 +223,14 @@ class ReportController extends Controller
         }
 
         $topTailors = User::role('tailor')
-                    ->withCount(['stitchingOrders' => function ($q) use ($startDate, $endDate) {
+                    ->with(['stitchingOrders' => function ($q) use ($startDate, $endDate) {
                         $q->whereBetween('created_at', [$startDate, $endDate]);
                     }])
-                    ->orderByDesc('stitchingOrders_count')
-                    ->limit(10)
-                    ->get();
+                    ->get()
+                    ->sortByDesc(function($tailor) {
+                        return $tailor->stitchingOrders->count();
+                    })
+                    ->take(10);
 
         return view('admin.reports.tailors', compact('tailors', 'tailorStats', 'topTailors', 'period', 'startDate', 'endDate'));
     }

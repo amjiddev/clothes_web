@@ -26,6 +26,8 @@ class CustomerMeasurement extends Model
         'special_instructions',
         'notes',
         'is_default',
+        'is_seen',
+        'seen_at',
     ];
 
     protected $casts = [
@@ -40,6 +42,8 @@ class CustomerMeasurement extends Model
         'thigh' => 'decimal:2',
         'cuff_size' => 'decimal:2',
         'is_default' => 'boolean',
+        'is_seen' => 'boolean',
+        'seen_at' => 'datetime',
     ];
 
     public function user()
@@ -67,5 +71,71 @@ class CustomerMeasurement extends Model
                 static::where('user_id', $model->user_id)->where('id', '!=', $model->id)->update(['is_default' => false]);
             }
         });
+    }
+
+    /**
+     * Mark measurement as seen in notification
+     */
+    public function markAsSeen()
+    {
+        if (!$this->is_seen) {
+            $this->update([
+                'is_seen' => true,
+                'seen_at' => now(),
+            ]);
+        }
+        return $this;
+    }
+
+    /**
+     * Mark measurement as unseen
+     */
+    public function markAsUnseen()
+    {
+        $this->update([
+            'is_seen' => false,
+            'seen_at' => null,
+        ]);
+        return $this;
+    }
+
+    /**
+     * Check if measurement is seen
+     */
+    public function isSeen()
+    {
+        return $this->is_seen === true;
+    }
+
+    /**
+     * Check if measurement is unseen
+     */
+    public function isUnseen()
+    {
+        return $this->is_seen === false;
+    }
+
+    /**
+     * Get unread/unseen measurements count for admin
+     */
+    public static function getUnseenCount()
+    {
+        return static::where('is_seen', false)->count();
+    }
+
+    /**
+     * Scope: Get unseen measurements
+     */
+    public function scopeUnseen($query)
+    {
+        return $query->where('is_seen', false);
+    }
+
+    /**
+     * Scope: Get seen measurements
+     */
+    public function scopeSeen($query)
+    {
+        return $query->where('is_seen', true);
     }
 }

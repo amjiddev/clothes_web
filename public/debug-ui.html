@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification System Debug Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-content {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .stat:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            color: #333;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .icon {
+            font-size: 20px;
+        }
+
+        .loading {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-box {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .success-box {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .data-table th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        .data-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .spinner {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner-icon {
+            font-size: 40px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔔 Notification System Debug Dashboard</h1>
+            <p>Diagnostic tools to check notification bell data and queries</p>
+        </div>
+
+        <div class="controls">
+            <button onclick="runFullDebug()">📊 Full Diagnostic Report</button>
+            <button onclick="runSimpleCheck()">⚡ Quick Check</button>
+            <button onclick="checkDatabase()">💾 Database Status</button>
+            <button onclick="checkTables()">📋 Table Details</button>
+            <button onclick="runQueries()">🔍 Test Queries</button>
+            <button onclick="clearResults()">🗑️ Clear Results</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = '/admin/debug';
+
+        async function runFullDebug() {
+            showLoading('Full Diagnostic Report');
+            try {
+                const response = await fetch(`${API_BASE}/notifications/full`);
+                const data = await response.json();
+                displayFullReport(data);
+            } catch (error) {
+                showError('Error running full diagnostic: ' + error.message);
+            }
+        }
+
+        async function runSimpleCheck() {
+            showLoading('Quick Check');
+            try {
+                const response = await fetch(`${API_BASE}/notifications/simple`);
+                const data = await response.json();
+                displaySimpleReport(data);
+            } catch (error) {
+                showError('Error running quick check: ' + error.message);
+            }
+        }
+
+        async function checkDatabase() {
+            showLoading('Database Status');
+            try {
+                const response = await fetch(`${API_BASE}/notifications/full`);
+                const data = await response.json();
+                displayDatabaseStatus(data);
+            } catch (error) {
+                showError('Error checking database: ' + error.message);
+            }
+        }
+
+        async function checkTables() {
+            showLoading('Table Details');
+            try {
+                const tables = ['orders', 'customer_measurements', 'contact_submissions', 'users'];
+                let html = '<div class="grid">';
+
+                for (const table of tables) {
+                    const response = await fetch(`${API_BASE}/table/${table}`);
+                    const data = await response.json();
+                    html += createTableCard(data);
+                }
+
+                html += '</div>';
+                document.getElementById('results').innerHTML = html;
+            } catch (error) {
+                showError('Error checking tables: ' + error.message);
+            }
+        }
+
+        async function runQueries() {
+            showLoading('Testing Queries');
+            try {
+                const response = await fetch(`${API_BASE}/notifications/full`);
+                const data = await response.json();
+                displayQueryTests(data);
+            } catch (error) {
+                showError('Error running queries: ' + error.message);
+            }
+        }
+
+        function showLoading(title) {
+            document.getElementById('results').innerHTML = `
+                <div class="card full-width">
+                    <h3>${title}</h3>
+                    <div class="spinner">
+                        <div class="spinner-icon">⏳</div>
+                        <p>Loading...</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showError(message) {
+            document.getElementById('results').innerHTML = `
+                <div class="error-box">
+                    <strong>Error:</strong> ${message}
+                </div>
+            `;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        function displayFullReport(data) {
+            let html = '<div class="grid">';
+
+            // Database Connection
+            html += `
+                <div class="card">
+                    <h3><span class="icon">💾</span> Database Connection</h3>
+                    <div class="card-content">
+                        <div class="stat">
+                            <span class="stat-label">Status</span>
+                            <span class="status ${data.database_connection.status === 'connected' ? 'success' : 'error'}">
+                                ${data.database_connection.status.toUpperCase()}
+                            </span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Database</span>
+                            <span class="stat-value">${data.database_connection.database}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Table Status
+            html += `
+                <div class="card">
+                    <h3><span class="icon">📊</span> Table Status</h3>
+                    <div class="card-content">
+            `;
+            for (const [table, info] of Object.entries(data.tables)) {
+                html += `
+                    <div class="stat">
+                        <span class="stat-label">${table}</span>
+                        <span class="status ${info.exists ? 'success' : 'error'}">
+                            ${info.total_records || 0} records
+                        </span>
+                    </div>
+                `;
+            }
+            html += `
+                    </div>
+                </div>
+            `;
+
+            // Scopes
+            html += `
+                <div class="card">
+                    <h3><span class="icon">🔍</span> Model Scopes</h3>
+                    <div class="card-content">
+            `;
+            for (const [scope, info] of Object.entries(data.scopes)) {
+                html += `
+                    <div class="stat">
+                        <span class="stat-label">${scope}</span>
+                        <span class="status ${info.works ? 'success' : 'error'}">
+                            ${info.works ? 'Works' : 'Failed'}
+                        </span>
+                    </div>
+                `;
+            }
+            html += `
+                    </div>
+                </div>
+            `;
+
+            // Data
+            html += `
+                <div class="card full-width">
+                    <h3><span class="icon">📈</span> Data Summary</h3>
+                    <div class="card-content">
+            `;
+
+            if (data.data.orders) {
+                html += `
+                    <div class="stat">
+                        <span class="stat-label">Orders</span>
+                        <span class="stat-value">${data.data.orders.total} total | ${data.data.orders.unseen || 0} unseen</span>
+                    </div>
+                `;
+            }
+
+            if (data.data.measurements) {
+                html += `
+                    <div class="stat">
+                        <span class="stat-label">Measurements</span>
+                        <span class="stat-value">${data.data.measurements.total} total | ${data.data.measurements.unseen || 0} unseen</span>
+                    </div>
+                `;
+            }
+
+            if (data.data.contact_submissions) {
+                html += `
+                    <div class="stat">
+                        <span class="stat-label">Contact Submissions</span>
+                        <span class="stat-value">${data.data.contact_submissions.total} total | ${data.data.contact_submissions.unread || 0} unread</span>
+                    </div>
+                `;
+            }
+
+            html += `
+                    </div>
+                </div>
+            `;
+
+            // Simulation Results
+            if (data.simulation) {
+                html += `
+                    <div class="card full-width">
+                        <h3><span class="icon">🧪</span> Query Simulation Results</h3>
+                        <div class="card-content">
+                `;
+
+                for (const [query, result] of Object.entries(data.simulation)) {
+                    if (query !== 'error') {
+                        html += `
+                            <div class="stat">
+                                <span class="stat-label">${query}</span>
+                                <span class="status ${result.success ? 'success' : 'error'}">
+                                    ${result.success ? result.count + ' records' : 'Failed'}
+                                </span>
+                            </div>
+                        `;
+                    }
+                }
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += '</div>';
+            document.getElementById('results').innerHTML = html;
+        }
+
+        function displaySimpleReport(data) {
+            let html = `
+                <div class="grid">
+                    <div class="card">
+                        <h3><span class="icon">🛒</span> Orders</h3>
+                        <div class="card-content">
+                            <div class="stat">
+                                <span class="stat-label">Total</span>
+                                <span class="stat-value">${data.orders}</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Unseen</span>
+                                <span class="stat-value">${data.unseen_orders}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3><span class="icon">📏</span> Measurements</h3>
+                        <div class="card-content">
+                            <div class="stat">
+                                <span class="stat-label">Total</span>
+                                <span class="stat-value">${data.measurements}</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Unseen</span>
+                                <span class="stat-value">${data.unseen_measurements}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3><span class="icon">📧</span> Contacts</h3>
+                        <div class="card-content">
+                            <div class="stat">
+                                <span class="stat-label">Total</span>
+                                <span class="stat-value">${data.contacts}</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Unread</span>
+                                <span class="stat-value">${data.unread_contacts}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('results').innerHTML = html;
+        }
+
+        function displayDatabaseStatus(data) {
+            const isConnected = data.database_connection.status === 'connected';
+            let html = `
+                <div class="card full-width">
+                    <h3><span class="icon">💾</span> Database Status</h3>
+                    <div class="card-content">
+                        ${isConnected ? `
+                            <div class="success-box">
+                                ✅ Database Connected: <strong>${data.database_connection.database}</strong>
+                            </div>
+                        ` : `
+                            <div class="error-box">
+                                ❌ Database Connection Failed: ${data.database_connection.error}
+                            </div>
+                        `}
+                        
+                        <h4 style="margin-top: 20px; color: #333;">Tables</h4>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Table</th>
+                                    <th>Status</th>
+                                    <th>Records</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+
+            for (const [table, info] of Object.entries(data.tables)) {
+                html += `
+                    <tr>
+                        <td><strong>${table}</strong></td>
+                        <td>
+                            <span class="status ${info.exists ? 'success' : 'error'}">
+                                ${info.exists ? '✅ Exists' : '❌ Missing'}
+                            </span>
+                        </td>
+                        <td>${info.total_records || 0}</td>
+                    </tr>
+                `;
+            }
+
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            document.getElementById('results').innerHTML = html;
+        }
+
+        function createTableCard(data) {
+            if (!data.columns || data.columns.length === 0) {
+                return `
+                    <div class="card">
+                        <h3>${data.table}</h3>
+                        <div class="error-box">Error loading table data</div>
+                    </div>
+                `;
+            }
+
+            let html = `
+                <div class="card">
+                    <h3>${data.table} <span class="status success">${data.total_records} records</span></h3>
+                    <div class="card-content">
+                        <h4 style="color: #333; margin-bottom: 10px;">Columns</h4>
+                        <table class="data-table" style="font-size: 12px;">
+                            <thead>
+                                <tr>
+                                    <th>Field</th>
+                                    <th>Type</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+
+            for (const col of data.columns) {
+                html += `
+                    <tr>
+                        <td><strong>${col.field}</strong></td>
+                        <td>${col.type}</td>
+                    </tr>
+                `;
+            }
+
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            return html;
+        }
+
+        function displayQueryTests(data) {
+            let html = `<div class="grid full-width">`;
+
+            if (data.simulation) {
+                html += `
+                    <div class="card full-width">
+                        <h3><span class="icon">🧪</span> Query Test Results</h3>
+                        <div class="card-content">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Query</th>
+                                        <th>Status</th>
+                                        <th>Records</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                `;
+
+                for (const [query, result] of Object.entries(data.simulation)) {
+                    if (query !== 'error' && result.success !== undefined) {
+                        html += `
+                            <tr>
+                                <td><strong>${query}</strong></td>
+                                <td>
+                                    <span class="status ${result.success ? 'success' : 'error'}">
+                                        ${result.success ? '✅ Success' : '❌ Failed'}
+                                    </span>
+                                </td>
+                                <td>${result.count || 0}</td>
+                                <td>${result.error || 'OK'}</td>
+                            </tr>
+                        `;
+                    }
+                }
+
+                html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += '</div>';
+            document.getElementById('results').innerHTML = html;
+        }
+
+        // Auto-run on load
+        window.addEventListener('load', () => {
+            console.log('Debug Dashboard Ready. Click buttons to run diagnostics.');
+        });
+    </script>
+</body>
+</html>

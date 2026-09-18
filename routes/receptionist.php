@@ -7,6 +7,7 @@ use App\Http\Controllers\Apps\StitchingOrderController;
 use App\Http\Controllers\Apps\MeasurementController;
 use App\Http\Controllers\Apps\TailorController;
 use App\Http\Controllers\Apps\InvoiceController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,6 +22,15 @@ Route::middleware(['auth', 'verified', 'receptionist.only'])->prefix('receptioni
     
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Notification Bell Endpoints
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', [NotificationController::class, 'getNotifications'])->name('index');
+        Route::get('unread-count', [NotificationController::class, 'getUnreadCount'])->name('unread-count');
+        Route::post('mark-as-seen', [NotificationController::class, 'markAsSeen'])->name('mark-as-seen');
+        Route::post('mark-all-as-seen', [NotificationController::class, 'markAllAsSeen'])->name('mark-all-as-seen');
+        Route::get('details', [NotificationController::class, 'getNotificationDetails'])->name('details');
+    });
 
     // Customers
     Route::resource('customers', CustomerController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update']);

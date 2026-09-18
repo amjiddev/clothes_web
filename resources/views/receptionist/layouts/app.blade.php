@@ -772,10 +772,7 @@
                         </div>
 
                         <!-- Notification Bell -->
-                        <div class="notification-bell" id="notificationBell">
-                            <i class="fas fa-bell"></i>
-                            <span class="notification-badge">3</span>
-                        </div>
+                        @include('components.notification-bell')
 
                         <!-- Profile Dropdown -->
                         <div class="dropdown">

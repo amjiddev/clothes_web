@@ -7,7 +7,7 @@
         <!--begin::Heading-->
         <div class="text-center mb-11">
             <!--begin::Title-->
-            <h1 class="text-gray-900 fw-bolder mb-3">
+            <h1 class="text-gray-900 fw-bolder mb-3" style="font-size: 28px; color: #1a1a1a;">
                 Sign Up
             </h1>
             <!--end::Title-->
@@ -49,7 +49,7 @@
         <div class="fv-row mb-8">
             <!--begin::Name-->
             <input type="text" placeholder="Name" name="name" autocomplete="off"
-                class="form-control bg-transparent" />
+                class="form-control" style="padding: 12px 16px; border: 1px solid #d4d4d4; border-radius: 4px; font-size: 14px;" />
             <!--end::Name-->
         </div>
 
@@ -57,7 +57,7 @@
         <div class="fv-row mb-8">
             <!--begin::Email-->
             <input type="text" placeholder="Email" name="email" autocomplete="off"
-                class="form-control bg-transparent" />
+                class="form-control" style="padding: 12px 16px; border: 1px solid #d4d4d4; border-radius: 4px; font-size: 14px;" />
             <!--end::Email-->
         </div>
 
@@ -67,11 +67,11 @@
             <div class="mb-1">
                 <!--begin::Input wrapper-->
                 <div class="position-relative mb-3">
-                    <input class="form-control bg-transparent" type="password" placeholder="Password" name="password"
-                        autocomplete="off" />
+                    <input class="form-control" type="password" placeholder="Password" name="password"
+                        autocomplete="off" style="padding: 12px 16px; border: 1px solid #d4d4d4; border-radius: 4px; font-size: 14px;" />
 
                     <span class="btn btn-sm btn-icon position-absolute translate-middle top-50 end-0 me-n2"
-                        data-kt-password-meter-control="visibility">
+                        data-kt-password-meter-control="visibility" style="background: none; border: none; color: #999;">
                         <i class="bi bi-eye-slash fs-2"></i>
                         <i class="bi bi-eye fs-2 d-none"></i>
                     </span>
@@ -90,7 +90,7 @@
             <!--end::Wrapper-->
 
             <!--begin::Hint-->
-            <div class="text-muted">
+            <div class="text-muted" style="font-size: 12px; color: #666;">
                 Use 8 or more characters with a mix of letters, numbers & symbols.
             </div>
             <!--end::Hint-->
@@ -101,7 +101,7 @@
         <div class="fv-row mb-8">
             <!--begin::Repeat Password-->
             <input placeholder="Repeat Password" name="password_confirmation" type="password" autocomplete="off"
-                class="form-control bg-transparent" />
+                class="form-control" style="padding: 12px 16px; border: 1px solid #d4d4d4; border-radius: 4px; font-size: 14px;" />
             <!--end::Repeat Password-->
         </div>
         <!--end::Input group--->
@@ -111,10 +111,10 @@
             <div class="form-check form-check-custom form-check-solid form-check-inline">
                 <input class="form-check-input" type="checkbox" name="toc" value="1" />
 
-                <label class="form-check-label fw-semibold text-gray-700 fs-6">
+                <label class="form-check-label fw-semibold text-gray-700 fs-6" style="font-size: 14px;">
                     I Agree &
 
-                    <a href="#" class="ms-1 link-primary">Terms and conditions</a>.
+                    <a href="#" class="ms-1 link-primary" style="color: #d4af37;">Terms and conditions</a>.
                 </label>
             </div>
         </div>
@@ -122,17 +122,17 @@
 
         <!--begin::Submit button-->
         <div class="d-grid mb-10">
-            <button type="submit" id="kt_sign_up_submit" class="btn btn-primary">
+            <button type="submit" id="kt_sign_up_submit" class="btn btn-primary" style="padding: 12px 24px; background-color: #d4af37; color: #1a1a1a; border: none; border-radius: 4px; font-weight: 600; font-size: 14px; cursor: pointer;">
                 @include('partials/general/_button-indicator', ['label' => 'Sign Up'])
             </button>
         </div>
         <!--end::Submit button-->
 
         <!--begin::Sign up-->
-        <div class="text-gray-500 text-center fw-semibold fs-6">
+        <div class="text-gray-500 text-center fw-semibold fs-6" style="font-size: 14px; color: #666;">
             Already have an Account?
 
-            <a href="/login" class="link-primary fw-semibold">
+            <a href="/login" class="link-primary fw-semibold" style="color: #d4af37;">
                 Sign in
             </a>
         </div>
@@ -141,3 +141,42 @@
     <!--end::Form-->
 
 </x-auth-layout>
+
+<style>
+    body {
+        background-color: #fff;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+
+    #kt_sign_up_form {
+        width: min(430px, calc(100vw - 48px)) !important;
+        max-width: none !important;
+        margin-inline: auto !important;
+    }
+
+    #kt_sign_up_form .fv-row,
+    #kt_sign_up_form .form-control,
+    #kt_sign_up_form #kt_sign_up_submit {
+        width: 100% !important;
+        max-width: none !important;
+        box-sizing: border-box;
+    }
+
+    #kt_sign_up_form .form-control {
+        color: #333;
+        background-color: #fff;
+        border-color: #d4d4d4;
+    }
+
+    #kt_sign_up_form .form-control:focus {
+        color: #333;
+        background-color: #fff;
+        border-color: #d4af37;
+        box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.25);
+    }
+
+    #kt_sign_up_form .form-control::placeholder {
+        color: #999;
+        opacity: 1;
+    }
+</style>
