@@ -333,7 +333,7 @@ class WebsiteManagementController extends Controller
             'section_type' => 'home_page',
             'page_slug' => 'home-page',
             'page_title' => $pageTitle,
-            'page_content' => $validated['page_content'],
+            'page_content' => $validated['page_content'] ?? null,
             'meta_description' => $validated['meta_description'] ?? null,
             'meta_keywords' => $validated['meta_keywords'] ?? null,
             'data' => $data,

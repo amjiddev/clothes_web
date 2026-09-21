@@ -38,9 +38,8 @@ Route::middleware(['auth', 'verified', 'receptionist.only'])->prefix('receptioni
     Route::get('customers/{customer}/orders', [CustomerController::class, 'showOrders'])->name('customers.orders');
 
     // Orders
-    Route::resource('orders', OrderController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update']);
-    Route::get('orders/create/select-type', [OrderController::class, 'selectOrderType'])->name('orders.select-type');
-    Route::post('orders/create/summary', [OrderController::class, 'orderSummary'])->name('orders.summary');
+    Route::get('orders/create', [OrderController::class, 'create'])->name('orders.create');
+    Route::resource('orders', OrderController::class)->only(['index', 'show', 'store', 'edit', 'update']);
     Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
     Route::post('orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
     Route::get('orders/{order}/invoice', [OrderController::class, 'downloadInvoice'])->name('orders.invoice');
