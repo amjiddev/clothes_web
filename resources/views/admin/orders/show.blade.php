@@ -58,7 +58,7 @@
             <div class="card border-0 shadow text-center">
                 <div class="card-body">
                     <div class="text-muted mb-2">Order Type</div>
-                    @if($order->type === 'ready_made')
+                    @if($order->type === 'cloth')
                     <span class="badge bg-info fs-6 p-2">Cloth Only</span>
                     @elseif($order->type === 'stitching')
                     <span class="badge bg-warning fs-6 p-2">Stitching Only</span>
@@ -107,7 +107,7 @@
                             <dl class="row">
                                 <dt class="col-sm-4 text-muted">Order Type:</dt>
                                 <dd class="col-sm-8">
-                                    @if($order->type === 'ready_made')
+                                    @if($order->type === 'cloth')
                                     <span class="badge bg-info">Cloth Only</span>
                                     @elseif($order->type === 'stitching')
                                     <span class="badge bg-warning">Stitching Only</span>

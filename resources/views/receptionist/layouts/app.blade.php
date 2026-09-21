@@ -38,6 +38,7 @@
         }
 
         html, body {
+            width: 100%;
             height: 100%;
         }
 
@@ -45,16 +46,20 @@
             background-color: #f5f6fa;
             color: var(--text-dark);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
         }
 
         .receptionist-wrapper {
             display: flex;
+            width: 100%;
+            height: 100%;
             min-height: 100vh;
         }
 
         /* ===================== SIDEBAR STYLING ===================== */
         .sidebar {
-            width: 280px;
+            width: clamp(250px, 20vw, 280px);
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             color: var(--text-light);
             position: fixed;
@@ -172,40 +177,47 @@
 
         /* ===================== MAIN CONTENT ===================== */
         .main-content {
-            margin-left: 280px;
+            margin-left: clamp(250px, 20vw, 280px);
             flex: 1;
             display: flex;
             flex-direction: column;
+            width: auto;
+            height: 100%;
         }
 
         .topbar {
             background: white;
             border-bottom: 1px solid #e0e6ed;
-            padding: 15px 30px;
+            padding: clamp(12px, 2vw, 15px) clamp(20px, 3vw, 30px);
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
             position: sticky;
             top: 0;
             z-index: 100;
+            width: 100%;
         }
 
         .topbar-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 20px;
+            gap: clamp(10px, 2vw, 20px);
+            width: 100%;
+            flex-wrap: wrap;
         }
 
         .breadcrumb-section {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: clamp(10px, 1.5vw, 15px);
+            flex: 1;
+            min-width: 200px;
         }
 
         .mobile-toggle {
             display: none;
             background: none;
             border: none;
-            font-size: 1.5rem;
+            font-size: clamp(1.2rem, 2vw, 1.5rem);
             color: var(--text-dark);
             cursor: pointer;
         }
@@ -213,20 +225,21 @@
         .topbar-actions {
             display: flex;
             align-items: center;
-            gap: 25px;
+            gap: clamp(15px, 2vw, 25px);
+            flex-wrap: wrap;
         }
 
         .search-box {
             position: relative;
-            width: 280px;
+            width: clamp(150px, 15vw, 280px);
         }
 
         .search-box input {
             width: 100%;
-            padding: 10px 15px 10px 40px;
+            padding: clamp(8px, 1vw, 10px) clamp(12px, 2vw, 15px) clamp(8px, 1vw, 10px) clamp(35px, 3vw, 40px);
             border: 1px solid #e0e6ed;
             border-radius: 25px;
-            font-size: 0.9rem;
+            font-size: clamp(0.8rem, 1vw, 0.9rem);
             transition: all 0.3s ease;
         }
 
@@ -238,10 +251,11 @@
 
         .search-box i {
             position: absolute;
-            left: 15px;
+            left: clamp(12px, 1.5vw, 15px);
             top: 50%;
             transform: translateY(-50%);
             color: #95a5a6;
+            font-size: clamp(0.9rem, 1.5vw, 1rem);
         }
 
         .notification-bell,
@@ -331,36 +345,41 @@
         /* ===================== CONTENT AREA ===================== */
         .content-area {
             flex: 1;
-            padding: 30px;
+            padding: clamp(20px, 3vw, 30px);
             overflow-y: auto;
+            width: 100%;
+            height: 100%;
         }
 
         .page-header {
-            margin-bottom: 30px;
+            margin-bottom: clamp(20px, 3vw, 30px);
+            width: 100%;
         }
 
         .page-title {
-            font-size: 2rem;
+            font-size: clamp(1.5rem, 4vw, 2rem);
             font-weight: 700;
             color: var(--text-dark);
-            margin-bottom: 10px;
+            margin-bottom: clamp(8px, 1vw, 10px);
         }
 
         .page-subtitle {
             color: #95a5a6;
-            font-size: 0.95rem;
+            font-size: clamp(0.8rem, 1.5vw, 0.95rem);
         }
 
         /* ===================== STAT CARDS ===================== */
         .stat-card {
             background: white;
-            border-radius: 12px;
-            padding: 25px;
+            border-radius: clamp(8px, 1.5vw, 12px);
+            padding: clamp(15px, 2vw, 25px);
             border: 1px solid #e0e6ed;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            width: 100%;
+            height: auto;
         }
 
         .stat-card::before {
@@ -379,27 +398,27 @@
         }
 
         .stat-icon {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
+            font-size: clamp(1.8rem, 3vw, 2.5rem);
+            margin-bottom: clamp(10px, 1.5vw, 15px);
             color: var(--accent-color);
         }
 
         .stat-value {
-            font-size: 2rem;
+            font-size: clamp(1.5rem, 3vw, 2rem);
             font-weight: 700;
             color: var(--text-dark);
-            margin-bottom: 5px;
+            margin-bottom: clamp(4px, 0.5vw, 5px);
         }
 
         .stat-label {
             color: #95a5a6;
-            font-size: 0.9rem;
+            font-size: clamp(0.8rem, 1vw, 0.9rem);
         }
 
         .stat-change {
-            font-size: 0.85rem;
-            margin-top: 10px;
-            padding: 5px 10px;
+            font-size: clamp(0.75rem, 1vw, 0.85rem);
+            margin-top: clamp(8px, 1vw, 10px);
+            padding: clamp(4px, 0.5vw, 5px) clamp(8px, 1vw, 10px);
             border-radius: 5px;
             display: inline-block;
         }
@@ -417,28 +436,32 @@
         /* ===================== TABLES ===================== */
         .table-card {
             background: white;
-            border-radius: 12px;
+            border-radius: clamp(8px, 1.5vw, 12px);
             overflow: hidden;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             border: 1px solid #e0e6ed;
+            width: 100%;
         }
 
         .table-card .table-header {
-            padding: 20px;
+            padding: clamp(15px, 2vw, 20px);
             border-bottom: 1px solid #e0e6ed;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: clamp(10px, 2vw, 15px);
         }
 
         .table-card .table-title {
-            font-size: 1.1rem;
+            font-size: clamp(1rem, 1.5vw, 1.1rem);
             font-weight: 600;
             color: var(--text-dark);
         }
 
         .table-card table {
             margin-bottom: 0;
+            width: 100%;
         }
 
         .table-card thead {
@@ -449,16 +472,17 @@
         .table-card th {
             color: var(--text-dark);
             font-weight: 600;
-            padding: 15px;
+            padding: clamp(12px, 1.5vw, 15px);
             border: none;
-            font-size: 0.9rem;
+            font-size: clamp(0.8rem, 1vw, 0.9rem);
         }
 
         .table-card td {
-            padding: 15px;
+            padding: clamp(12px, 1.5vw, 15px);
             vertical-align: middle;
             border: none;
             border-bottom: 1px solid #e0e6ed;
+            font-size: clamp(0.8rem, 1vw, 0.9rem);
         }
 
         .table-card tbody tr:last-child td {
@@ -505,12 +529,13 @@
 
         /* ===================== BUTTONS ===================== */
         .btn-custom {
-            padding: 10px 20px;
-            border-radius: 8px;
+            padding: clamp(8px, 1vw, 10px) clamp(16px, 2vw, 20px);
+            border-radius: clamp(6px, 1vw, 8px);
             font-weight: 600;
             transition: all 0.3s ease;
             border: none;
             cursor: pointer;
+            font-size: clamp(0.8rem, 1vw, 0.95rem);
         }
 
         .btn-primary-custom {
@@ -539,16 +564,17 @@
         /* ===================== QUICK ACTIONS ===================== */
         .quick-actions {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(clamp(150px, 20vw, 180px), 1fr));
+            gap: clamp(10px, 2vw, 15px);
+            margin-bottom: clamp(20px, 3vw, 30px);
+            width: 100%;
         }
 
         .quick-action-btn {
             background: white;
             border: 2px solid #e0e6ed;
-            border-radius: 10px;
-            padding: 15px;
+            border-radius: clamp(8px, 1.5vw, 10px);
+            padding: clamp(12px, 2vw, 15px);
             text-align: center;
             text-decoration: none;
             color: var(--text-dark);
@@ -556,11 +582,13 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: clamp(8px, 1.5vw, 10px);
+            width: 100%;
+            height: auto;
         }
 
         .quick-action-btn i {
-            font-size: 2rem;
+            font-size: clamp(1.5rem, 3vw, 2rem);
             color: var(--accent-color);
         }
 
@@ -573,10 +601,24 @@
         }
 
         /* ===================== RESPONSIVE ===================== */
+        @media (max-width: 1200px) {
+            .sidebar {
+                width: clamp(200px, 18vw, 250px);
+            }
+
+            .main-content {
+                margin-left: clamp(200px, 18vw, 250px);
+            }
+
+            .search-box {
+                width: clamp(130px, 12vw, 200px);
+            }
+        }
+
         @media (max-width: 768px) {
             .sidebar {
-                width: 250px;
-                transform: translateX(-250px);
+                width: min(250px, 80vw);
+                transform: translateX(calc(-100% - 10px));
             }
 
             .sidebar.show {
@@ -585,6 +627,7 @@
 
             .main-content {
                 margin-left: 0;
+                width: 100%;
             }
 
             .mobile-toggle {
@@ -592,37 +635,46 @@
             }
 
             .search-box {
-                width: 150px;
+                width: clamp(120px, 30vw, 150px);
             }
 
             .search-box input {
-                padding: 8px 12px 8px 35px;
-                font-size: 0.85rem;
+                padding: clamp(6px, 1vw, 8px) clamp(10px, 1.5vw, 12px) clamp(6px, 1vw, 8px) clamp(30px, 2vw, 35px);
+                font-size: clamp(0.75rem, 2vw, 0.85rem);
             }
 
             .topbar-actions {
-                gap: 15px;
+                gap: clamp(10px, 1.5vw, 15px);
             }
 
             .content-area {
-                padding: 20px;
+                padding: clamp(12px, 2vw, 20px);
             }
 
             .quick-actions {
                 grid-template-columns: repeat(2, 1fr);
+                gap: clamp(10px, 2vw, 15px);
             }
 
             .table-card {
-                font-size: 0.85rem;
+                font-size: clamp(0.75rem, 1.5vw, 0.85rem);
             }
 
             .table-card th,
             .table-card td {
-                padding: 10px;
+                padding: clamp(8px, 1vw, 10px);
             }
 
             .stat-value {
-                font-size: 1.5rem;
+                font-size: clamp(1.2rem, 2vw, 1.5rem);
+            }
+
+            .page-title {
+                font-size: clamp(1.2rem, 3vw, 1.5rem);
+            }
+
+            .stat-card {
+                padding: clamp(12px, 1.5vw, 15px);
             }
         }
 
@@ -632,11 +684,34 @@
             }
 
             .page-title {
-                font-size: 1.5rem;
+                font-size: clamp(1.1rem, 4vw, 1.3rem);
             }
 
             .stat-card {
-                padding: 15px;
+                padding: clamp(10px, 2vw, 12px);
+            }
+
+            .breadcrumb-section {
+                gap: clamp(8px, 1vw, 10px);
+                min-width: auto;
+            }
+
+            .topbar-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .topbar-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .content-area {
+                padding: clamp(10px, 2vw, 15px);
             }
         }
     </style>

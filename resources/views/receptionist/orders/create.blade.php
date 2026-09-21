@@ -3,6 +3,7 @@
 @section('title', 'Create Order')
 
 @section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{ route('receptionist.orders.index') }}">Orders</a></li>
     <li class="breadcrumb-item active">Create Order</li>
 @endsection
 
@@ -10,457 +11,816 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="card-title mb-0">Create New Order</h4>
+            <div class="card border-0 shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-plus me-2"></i>Create New Order
+                    </h4>
                 </div>
                 <div class="card-body">
-                    <form @submit.prevent="submitForm" action="{{ route('receptionist.orders.store') }}" method="POST" id="orderForm">
+                    @if ($errors->any())
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <h5 class="alert-heading mb-3">
+                                <i class="fas fa-exclamation-circle me-2"></i>Validation Errors
+                            </h5>
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li class="mb-2">{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    <form action="{{ route('receptionist.orders.store') }}" method="POST" enctype="multipart/form-data" id="orderForm">
                         @csrf
+
                         <div x-data="orderForm()" class="row">
-                            <!-- SECTION 1: CUSTOMER DETAILS -->
-                            <div class="col-md-6 mb-4">
-                                <div class="card card-outline card-primary">
-                                    <div class="card-header">
-                                        <h5 class="card-title">Customer Details</h5>
+                            <!-- SECTION A: CUSTOMER SELECTION -->
+                            <div class="col-lg-12 mb-4">
+                                <div class="card border-1">
+                                    <div class="card-header bg-light">
+                                        <h5 class="card-title mb-0">
+                                            <i class="fas fa-user me-2"></i>Customer Information
+                                        </h5>
                                     </div>
                                     <div class="card-body">
-                                        <!-- Hidden Customer ID -->
-                                        <input type="hidden" name="customer_id" x-model="selectedCustomerId">
+                                        <!-- Tabs: Existing vs New Customer -->
+                                        <ul class="nav nav-tabs" role="tablist">
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link" id="existingCustomerTab" data-bs-toggle="tab" data-bs-target="#existingCustomer" type="button" role="tab" aria-controls="existingCustomer" aria-selected="false">
+                                                    <i class="fas fa-search me-2"></i>Existing Customer
+                                                </button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link active" id="newCustomerTab" data-bs-toggle="tab" data-bs-target="#newCustomer" type="button" role="tab" aria-controls="newCustomer" aria-selected="true">
+                                                    <i class="fas fa-user-plus me-2"></i>New Customer
+                                                </button>
+                                            </li>
+                                        </ul>
 
-                                        <!-- Select Existing Customer Button -->
-                                        <div class="mb-3">
-                                            <button type="button" 
-                                                @click="showCustomerModal = true"
-                                                class="btn btn-outline-primary btn-block"
-                                                style="width: 100%; border-radius: 6px;">
-                                                <i class="fas fa-search me-2"></i>Select Existing Customer
-                                            </button>
+                                        <div class="tab-content mt-3">
+                                            <!-- Existing Customer Tab -->
+                                            <div class="tab-pane fade" id="existingCustomer" role="tabpanel" aria-labelledby="existingCustomerTab">
+                                                <div class="mb-3">
+                                                    <label for="customerSearch" class="form-label">Search Customer <span class="text-danger">*</span></label>
+                                                    <div class="position-relative">
+                                                        <input 
+                                                            type="text" 
+                                                            id="customerSearch" 
+                                                            class="form-control form-control-lg"
+                                                            x-model="customerSearch"
+                                                            placeholder="Search by name, email, or phone..."
+                                                            autocomplete="off"
+                                                        >
+                                                        <div class="position-absolute top-100 start-0 end-0 mt-1 bg-white border rounded shadow-sm" 
+                                                             x-show="customerSearch.length > 0 && filteredCustomers.length > 0"
+                                                             style="max-height: 200px; overflow-y: auto; z-index: 1000;">
+                                                            <template x-for="customer in filteredCustomers" :key="customer.id">
+                                                                <div class="p-2 border-bottom cursor-pointer hover-light" 
+                                                                     @click="selectExistingCustomer(customer)"
+                                                                     :class="{ 'bg-light': selectedCustomerId === customer.id }">
+                                                                    <div class="fw-bold" x-text="customer.name"></div>
+                                                                    <small class="text-muted">
+                                                                        <span x-text="customer.email"></span>
+                                                                        <template x-if="customer.phone">
+                                                                            | <span x-text="customer.phone"></span>
+                                                                        </template>
+                                                                    </small>
+                                                                </div>
+                                                            </template>
+                                                        </div>
+                                                    </div>
+                                                    <small class="text-muted d-block mt-2">
+                                                        <i class="fas fa-info-circle me-1"></i>Start typing to search customers
+                                                    </small>
+                                                </div>
+
+                                                <!-- Selected Customer Display -->
+                                                <div x-show="selectedCustomerId !== null" class="alert alert-info">
+                                                    <strong>Selected Customer:</strong>
+                                                    <div x-text="getSelectedCustomerName()"></div>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger mt-2" @click="clearCustomerSelection()">
+                                                        <i class="fas fa-times me-1"></i>Clear Selection
+                                                    </button>
+                                                </div>
+
+                                                <!-- Hidden input for form submission -->
+                                                <input type="hidden" name="customer_id" x-model="selectedCustomerId" @change="clearNewCustomerFields()">
+                                                @error('customer_id')
+                                                    <div class="alert alert-danger mt-2">
+                                                        <i class="fas fa-exclamation-circle me-2"></i>{{ $message }}
+                                                    </div>
+                                                @enderror
+                                            </div>
+
+                                            <!-- New Customer Tab -->
+                                            <div class="tab-pane fade show active" id="newCustomer" role="tabpanel" aria-labelledby="newCustomerTab">
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="newCustomerName" class="form-label">Full Name <span class="text-danger">*</span></label>
+                                                        <input 
+                                                            type="text" 
+                                                            id="newCustomerName"
+                                                            class="form-control @error('new_customer_name') is-invalid @enderror"
+                                                            name="new_customer_name"
+                                                            x-model="newCustomer.name"
+                                                            placeholder="Enter customer name"
+                                                            @change="clearExistingCustomerSelection()"
+                                                        >
+                                                        @error('new_customer_name')
+                                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="newCustomerEmail" class="form-label">Email <span class="text-danger">*</span></label>
+                                                        <input 
+                                                            type="email" 
+                                                            id="newCustomerEmail"
+                                                            class="form-control @error('new_customer_email') is-invalid @enderror"
+                                                            name="new_customer_email"
+                                                            x-model="newCustomer.email"
+                                                            placeholder="email@example.com"
+                                                            @change="clearExistingCustomerSelection()"
+                                                        >
+                                                        @error('new_customer_email')
+                                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="newCustomerPhone" class="form-label">Phone <span class="text-danger">*</span></label>
+                                                        <input 
+                                                            type="tel" 
+                                                            id="newCustomerPhone"
+                                                            class="form-control @error('new_customer_phone') is-invalid @enderror"
+                                                            name="new_customer_phone"
+                                                            x-model="newCustomer.phone"
+                                                            placeholder="03001234567"
+                                                            @change="clearExistingCustomerSelection()"
+                                                        >
+                                                        @error('new_customer_phone')
+                                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="newCustomerCity" class="form-label">City</label>
+                                                        <input 
+                                                            type="text" 
+                                                            id="newCustomerCity"
+                                                            class="form-control"
+                                                            name="new_customer_city"
+                                                            x-model="newCustomer.city"
+                                                            placeholder="Enter city"
+                                                            @change="clearExistingCustomerSelection()"
+                                                        >
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="newCustomerAddress" class="form-label">Address</label>
+                                                    <textarea 
+                                                        id="newCustomerAddress"
+                                                        class="form-control"
+                                                        name="new_customer_address"
+                                                        x-model="newCustomer.address"
+                                                        placeholder="Enter address"
+                                                        rows="2"
+                                                        @change="clearExistingCustomerSelection()"
+                                                    ></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- SECTION B: ORDER TYPE SELECTION -->
+                            <div class="col-lg-12 mb-4">
+                                <div class="card border-1">
+                                    <div class="card-header bg-light">
+                                        <h5 class="card-title mb-0">
+                                            <i class="fas fa-box me-2"></i>Order Type
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-4">
+                                                <div class="form-check">
+                                                    <input 
+                                                        class="form-check-input" 
+                                                        type="radio" 
+                                                        name="order_type" 
+                                                        id="orderTypeReady" 
+                                                        value="ready_made"
+                                                        x-model="orderType"
+                                                    >
+                                                    <label class="form-check-label w-100 p-3 border rounded cursor-pointer" for="orderTypeReady" :class="{ 'bg-light border-primary': orderType === 'ready_made' }">
+                                                        <strong>Ready Made</strong>
+                                                        <div class="small text-muted mt-1">Cloth/fabric products only</div>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-check">
+                                                    <input 
+                                                        class="form-check-input" 
+                                                        type="radio" 
+                                                        name="order_type" 
+                                                        id="orderTypeStitching" 
+                                                        value="stitching"
+                                                        x-model="orderType"
+                                                        :checked="orderType === 'stitching'"
+                                                    >
+                                                    <label class="form-check-label w-100 p-3 border rounded cursor-pointer" for="orderTypeStitching" :class="{ 'bg-light border-primary': orderType === 'stitching' }">
+                                                        <strong>Custom Stitching</strong>
+                                                        <div class="small text-muted mt-1">Tailoring/custom stitching only</div>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-check">
+                                                    <input 
+                                                        class="form-check-input" 
+                                                        type="radio" 
+                                                        name="order_type" 
+                                                        id="orderTypeCombined" 
+                                                        value="combined"
+                                                        x-model="orderType"
+                                                        :checked="orderType === 'combined'"
+                                                    >
+                                                    <label class="form-check-label w-100 p-3 border rounded cursor-pointer" for="orderTypeCombined" :class="{ 'bg-light border-primary': orderType === 'combined' }">
+                                                        <strong>Cloth + Stitching</strong>
+                                                        <div class="small text-muted mt-1">Products and tailoring service</div>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Hidden input to ensure order_type is submitted -->
+                            <input type="hidden" name="order_type_hidden" x-model="orderType">
+                            @error('order_type')
+                                <div class="col-lg-12 mb-4">
+                                    <div class="alert alert-danger">
+                                        <i class="fas fa-exclamation-circle me-2"></i>{{ $message }}
+                                    </div>
+                                </div>
+                            @enderror
+
+                            <!-- SECTION C: PRODUCTS (for ready_made and combined) -->
+                            <div class="col-lg-12 mb-4" x-show="['ready_made', 'combined'].includes(orderType)">
+                                <div class="card border-1">
+                                    <div class="card-header bg-light">
+                                        <h5 class="card-title mb-0">
+                                            <i class="fas fa-shopping-bag me-2"></i>Products
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label for="productSearch" class="form-label">Search Products</label>
+                                                <input 
+                                                    type="text" 
+                                                    id="productSearch"
+                                                    class="form-control"
+                                                    x-model="productSearch"
+                                                    placeholder="Search by product name..."
+                                                    autocomplete="off"
+                                                >
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="categoryFilter" class="form-label">Filter by Category</label>
+                                                <select 
+                                                    id="categoryFilter"
+                                                    class="form-select"
+                                                    x-model="selectedCategory"
+                                                >
+                                                    <option value="">All Categories</option>
+                                                    @foreach($categories as $category)
+                                                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
                                         </div>
 
-                                        <!-- Divider -->
-                                        <div class="text-center mb-3">
-                                            <small class="text-muted">
-                                                <span style="display: inline-block; width: 30%; border-bottom: 1px solid #ccc;"></span>
-                                                <span style="margin: 0 10px;">OR ENTER NEW DETAILS</span>
-                                                <span style="display: inline-block; width: 30%; border-bottom: 1px solid #ccc;"></span>
+                                        <!-- Products List -->
+                                        <div class="table-responsive">
+                                            <table class="table table-hover mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Product Name</th>
+                                                        <th>Price</th>
+                                                        <th>Stock</th>
+                                                        <th>Quantity</th>
+                                                        <th>Total</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <template x-for="product in filteredProducts" :key="product.id">
+                                                        <tr>
+                                                            <td x-text="product.name"></td>
+                                                            <td>
+                                                                <strong>{{ env('CURRENCY_SYMBOL', 'Rs.') }} <span x-text="(parseFloat(product.final_price || product.price)).toFixed(2)"></span></strong>
+                                                            </td>
+                                                            <td>
+                                                                <span class="badge" :class="product.stock_quantity > 5 ? 'bg-success' : (product.stock_quantity > 0 ? 'bg-warning' : 'bg-danger')">
+                                                                    <span x-text="product.stock_quantity"></span>
+                                                                </span>
+                                                            </td>
+                                                            <td>
+                                                                <input 
+                                                                    type="number" 
+                                                                    class="form-control form-control-sm" 
+                                                                    style="width: 80px;"
+                                                                    :value="getProductQuantity(product.id)"
+                                                                    @input="updateProductQuantity(product.id, $event.target.value)"
+                                                                    min="0"
+                                                                    :max="product.stock_quantity"
+                                                                >
+                                                            </td>
+                                                            <td>
+                                                                {{ env('CURRENCY_SYMBOL', 'Rs.') }} <span x-text="(getProductQuantity(product.id) * parseFloat(product.final_price || product.price)).toFixed(2)"></span>
+                                                            </td>
+                                                            <td>
+                                                                <button 
+                                                                    type="button" 
+                                                                    class="btn btn-sm btn-danger"
+                                                                    @click="removeProduct(product.id)"
+                                                                    x-show="getProductQuantity(product.id) > 0"
+                                                                >
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    </template>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div x-show="filteredProducts.length === 0" class="alert alert-info mt-3">
+                                            <i class="fas fa-info-circle me-2"></i>No products found. Try adjusting your search or filters.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- SECTION E: STITCHING INFORMATION (for stitching and combined) -->
+                            <div class="col-lg-12 mb-4" x-show="['stitching', 'combined'].includes(orderType)">
+                                <div class="card border-1">
+                                    <div class="card-header bg-light">
+                                        <h5 class="card-title mb-0">
+                                            <i class="fas fa-scissors me-2"></i>Stitching Details
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="fabricType" class="form-label">Fabric Type</label>
+                                                <input 
+                                                    type="text" 
+                                                    id="fabricType"
+                                                    class="form-control @error('fabric_type') is-invalid @enderror"
+                                                    name="fabric_type"
+                                                    x-model="stitching.fabricType"
+                                                    placeholder="e.g., Cotton, Silk, Wool"
+                                                >
+                                                @error('fabric_type')
+                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="fabricColor" class="form-label">Fabric Color</label>
+                                                <input 
+                                                    type="text" 
+                                                    id="fabricColor"
+                                                    class="form-control @error('fabric_color') is-invalid @enderror"
+                                                    name="fabric_color"
+                                                    x-model="stitching.fabricColor"
+                                                    placeholder="e.g., Black, Blue, Red"
+                                                >
+                                                @error('fabric_color')
+                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="garmentType" class="form-label">Garment Type</label>
+                                                <select 
+                                                    id="garmentType"
+                                                    class="form-select @error('garment_type') is-invalid @enderror"
+                                                    name="garment_type"
+                                                    x-model="stitching.garmentType"
+                                                >
+                                                    <option value="">Select garment type</option>
+                                                    <option value="shirt">Shirt</option>
+                                                    <option value="pants">Pants</option>
+                                                    <option value="suit">Suit</option>
+                                                    <option value="dress">Dress</option>
+                                                    <option value="custom">Custom</option>
+                                                </select>
+                                                @error('garment_type')
+                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="measurementId" class="form-label">Measurement</label>
+                                                <select 
+                                                    id="measurementId"
+                                                    class="form-select @error('measurement_id') is-invalid @enderror"
+                                                    name="measurement_id"
+                                                    x-model="stitching.measurementId"
+                                                >
+                                                    <option value="">Select measurement</option>
+                                                    <template x-if="selectedCustomerId !== null">
+                                                        <template x-for="measurement in customerMeasurements" :key="measurement.id">
+                                                            <option :value="measurement.id" x-text="measurement.name + ' (' + measurement.created_at + ')'"></option>
+                                                        </template>
+                                                    </template>
+                                                </select>
+                                                <small class="text-muted d-block mt-1">Select customer first to load measurements or create a new one below</small>
+                                                @error('measurement_id')
+                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+
+                                        <!-- New Measurement Fields -->
+                                        <div class="alert alert-light border mb-3">
+                                            <h6 class="alert-heading mb-3">
+                                                <i class="fas fa-tape me-2"></i>Or Create New Measurement
+                                            </h6>
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="newMeasurementName" class="form-label">Measurement Profile Name</label>
+                                                    <input 
+                                                        type="text" 
+                                                        id="newMeasurementName"
+                                                        class="form-control"
+                                                        x-model="newMeasurement.profile_name"
+                                                        placeholder="e.g., My Standard Shirt"
+                                                    >
+                                                    <small class="text-muted">Save this measurement for future use</small>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="border-top pt-3 mb-3">
+                                                <h6 class="mb-3"><i class="fas fa-ruler me-2"></i>Enter Your Measurements (in cm)</h6>
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="newMeasurementChest" class="form-label">Chest <span class="text-danger">*</span></label>
+                                                        <input 
+                                                            type="number" 
+                                                            id="newMeasurementChest"
+                                                            class="form-control"
+                                                            x-model.number="newMeasurement.chest"
+                                                            placeholder="Chest circumference"
+                                                            step="0.5"
+                                                        >
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="newMeasurementShoulder" class="form-label">Shoulder <span class="text-danger">*</span></label>
+                                                        <input 
+                                                            type="number" 
+                                                            id="newMeasurementShoulder"
+                                                            class="form-control"
+                                                            x-model.number="newMeasurement.shoulder"
+                                                            placeholder="Shoulder width"
+                                                            step="0.5"
+                                                        >
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="newMeasurementSleeveLength" class="form-label">Sleeve Length <span class="text-danger">*</span></label>
+                                                        <input 
+                                                            type="number" 
+                                                            id="newMeasurementSleeveLength"
+                                                            class="form-control"
+                                                            x-model.number="newMeasurement.sleeve_length"
+                                                            placeholder="Length from shoulder to wrist"
+                                                            step="0.5"
+                                                        >
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="newMeasurementShirtLength" class="form-label">Shirt Length <span class="text-danger">*</span></label>
+                                                        <input 
+                                                            type="number" 
+                                                            id="newMeasurementShirtLength"
+                                                            class="form-control"
+                                                            x-model.number="newMeasurement.shirt_length"
+                                                            placeholder="Length from shoulder to hem"
+                                                            step="0.5"
+                                                        >
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="newMeasurementNeck" class="form-label">Neck <span class="text-danger">*</span></label>
+                                                        <input 
+                                                            type="number" 
+                                                            id="newMeasurementNeck"
+                                                            class="form-control"
+                                                            x-model.number="newMeasurement.neck"
+                                                            placeholder="Neck circumference"
+                                                            step="0.5"
+                                                        >
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="newMeasurementWaist" class="form-label">Waist <span class="text-danger">*</span></label>
+                                                        <input 
+                                                            type="number" 
+                                                            id="newMeasurementWaist"
+                                                            class="form-control"
+                                                            x-model.number="newMeasurement.waist"
+                                                            placeholder="Waist circumference"
+                                                            step="0.5"
+                                                        >
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="newMeasurementTrouserLength" class="form-label">Trouser Length <span class="text-danger">*</span></label>
+                                                        <input 
+                                                            type="number" 
+                                                            id="newMeasurementTrouserLength"
+                                                            class="form-control"
+                                                            x-model.number="newMeasurement.trouser_length"
+                                                            placeholder="Inseam length"
+                                                            step="0.5"
+                                                        >
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="newMeasurementBottom" class="form-label">Bottom (Pant Width) <span class="text-danger">*</span></label>
+                                                        <input 
+                                                            type="number" 
+                                                            id="newMeasurementBottom"
+                                                            class="form-control"
+                                                            x-model.number="newMeasurement.bottom"
+                                                            placeholder="Bottom opening width"
+                                                            step="0.5"
+                                                        >
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="newMeasurementThigh" class="form-label">Thigh</label>
+                                                        <input 
+                                                            type="number" 
+                                                            id="newMeasurementThigh"
+                                                            class="form-control"
+                                                            x-model.number="newMeasurement.thigh"
+                                                            placeholder="Thigh circumference"
+                                                            step="0.5"
+                                                        >
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="newMeasurementCuff" class="form-label">Cuff Size</label>
+                                                        <input 
+                                                            type="number" 
+                                                            id="newMeasurementCuff"
+                                                            class="form-control"
+                                                            x-model.number="newMeasurement.cuff_size"
+                                                            placeholder="Cuff circumference"
+                                                            step="0.5"
+                                                        >
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="stitchingInstructions" class="form-label">Stitching Instructions</label>
+                                            <textarea 
+                                                id="stitchingInstructions"
+                                                class="form-control @error('stitching_instructions') is-invalid @enderror"
+                                                name="stitching_instructions"
+                                                x-model="stitching.instructions"
+                                                placeholder="Provide any special stitching instructions..."
+                                                rows="3"
+                                            ></textarea>
+                                            @error('stitching_instructions')
+                                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="designImage" class="form-label">Design Image</label>
+                                            <div class="input-group">
+                                                <input 
+                                                    type="file" 
+                                                    id="designImage"
+                                                    class="form-control @error('design_image') is-invalid @enderror"
+                                                    name="design_image"
+                                                    accept="image/*"
+                                                    @change="previewDesignImage($event)"
+                                                >
+                                                <small class="form-text text-muted d-block mt-1">Accepted formats: JPG, PNG, GIF (Max: 5MB)</small>
+                                            </div>
+                                            <div x-show="designImagePreview" class="mt-2">
+                                                <img :src="designImagePreview" style="max-width: 150px; max-height: 150px;" class="rounded border">
+                                            </div>
+                                            @error('design_image')
+                                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="stitchingCharge" class="form-label">Stitching Charge</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">{{ env('CURRENCY_SYMBOL', 'Rs.') }}</span>
+                                                <input 
+                                                    type="number" 
+                                                    id="stitchingCharge"
+                                                    class="form-control @error('stitching_charge') is-invalid @enderror"
+                                                    name="stitching_charge"
+                                                    x-model.number="stitching.charge"
+                                                    placeholder="0.00"
+                                                    step="0.01"
+                                                    min="0"
+                                                    @input="recalculateTotal()"
+                                                >
+                                            </div>
+                                            @error('stitching_charge')
+                                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- SECTION F: FINANCIAL INFORMATION -->
+                            <div class="col-lg-12 mb-4">
+                                <div class="card border-1 bg-light">
+                                    <div class="card-header bg-light">
+                                        <h5 class="card-title mb-0">
+                                            <i class="fas fa-calculator me-2"></i>Financial Summary
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label fw-bold">Subtotal</label>
+                                                <div class="form-control-plaintext fs-5">
+                                                    {{ env('CURRENCY_SYMBOL', 'Rs.') }} <span x-text="subtotal.toFixed(2)"></span>
+                                                </div>
+                                                <input type="hidden" name="subtotal" :value="subtotal.toFixed(2)">
+                                            </div>
+
+                                            <div class="col-md-3 mb-3">
+                                                <label for="discount" class="form-label fw-bold">Discount</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text">{{ env('CURRENCY_SYMBOL', 'Rs.') }}</span>
+                                                    <input 
+                                                        type="number" 
+                                                        id="discount"
+                                                        class="form-control @error('discount') is-invalid @enderror"
+                                                        name="discount"
+                                                        x-model.number="discount"
+                                                        placeholder="0.00"
+                                                        step="0.01"
+                                                        min="0"
+                                                        @input="recalculateTotal()"
+                                                    >
+                                                </div>
+                                                @error('discount')
+                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+
+                                            <div class="col-md-3 mb-3">
+                                                <label for="tax" class="form-label fw-bold">Tax</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text">{{ env('CURRENCY_SYMBOL', 'Rs.') }}</span>
+                                                    <input 
+                                                        type="number" 
+                                                        id="tax"
+                                                        class="form-control @error('tax') is-invalid @enderror"
+                                                        name="tax"
+                                                        x-model.number="tax"
+                                                        placeholder="0.00"
+                                                        step="0.01"
+                                                        min="0"
+                                                        @input="recalculateTotal()"
+                                                    >
+                                                </div>
+                                                @error('tax')
+                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label fw-bold text-success">Total</label>
+                                                <div class="form-control-plaintext fs-5 fw-bold text-success">
+                                                    {{ env('CURRENCY_SYMBOL', 'Rs.') }} <span x-text="total.toFixed(2)"></span>
+                                                </div>
+                                                <input type="hidden" name="total" :value="total.toFixed(2)">
+                                            </div>
+                                        </div>
+
+                                        <div class="alert alert-info mt-3 mb-0">
+                                            <small>
+                                                <strong>Formula:</strong> Subtotal + Stitching Charge + Tax - Discount = Total
                                             </small>
                                         </div>
 
-                                        <!-- Walk-in / New Customer Form (Default) -->
-                                        <div>
-                                            <!-- Full Name -->
-                                            <div class="form-group mb-3">
-                                                <label for="walkInName">Full Name *</label>
-                                                <input type="text" 
-                                                    id="walkInName" 
-                                                    x-model="walkInName"
-                                                    name="new_customer_name" 
-                                                    class="form-control @error('new_customer_name') is-invalid @enderror" 
-                                                    placeholder="Full Name"
-                                                    :disabled="selectedCustomerId !== null"
-                                                    required>
-                                                @error('new_customer_name')
-                                                    <span class="invalid-feedback">{{ $message }}</span>
-                                                @enderror
+                                        @error('subtotal')
+                                            <div class="alert alert-danger mt-2 mb-0">
+                                                <i class="fas fa-exclamation-circle me-2"></i>{{ $message }}
                                             </div>
-
-                                            <!-- Email -->
-                                            <div class="form-group mb-3">
-                                                <label for="walkInEmail">Email</label>
-                                                <input type="email" 
-                                                    id="walkInEmail" 
-                                                    x-model="walkInEmail"
-                                                    name="new_customer_email" 
-                                                    class="form-control @error('new_customer_email') is-invalid @enderror" 
-                                                    placeholder="email@example.com"
-                                                    :disabled="selectedCustomerId !== null">
-                                                @error('new_customer_email')
-                                                    <span class="invalid-feedback">{{ $message }}</span>
-                                                @enderror
+                                        @enderror
+                                        @error('total')
+                                            <div class="alert alert-danger mt-2 mb-0">
+                                                <i class="fas fa-exclamation-circle me-2"></i>{{ $message }}
                                             </div>
-
-                                            <!-- Phone Number -->
-                                            <div class="form-group mb-3">
-                                                <label for="walkInPhone">Phone Number *</label>
-                                                <input type="tel" 
-                                                    id="walkInPhone" 
-                                                    x-model="walkInPhone"
-                                                    name="new_customer_phone" 
-                                                    class="form-control @error('new_customer_phone') is-invalid @enderror" 
-                                                    placeholder="03001234567"
-                                                    :disabled="selectedCustomerId !== null"
-                                                    required>
-                                                @error('new_customer_phone')
-                                                    <span class="invalid-feedback">{{ $message }}</span>
-                                                @enderror
-                                            </div>
-
-                                            <!-- Address -->
-                                            <div class="form-group mb-3">
-                                                <label for="walkInAddress">Address</label>
-                                                <textarea 
-                                                    id="walkInAddress" 
-                                                    x-model="walkInAddress"
-                                                    name="new_customer_address" 
-                                                    class="form-control @error('new_customer_address') is-invalid @enderror" 
-                                                    placeholder="Street Address (Optional)"
-                                                    rows="2"
-                                                    :disabled="selectedCustomerId !== null"></textarea>
-                                                @error('new_customer_address')
-                                                    <span class="invalid-feedback">{{ $message }}</span>
-                                                @enderror
-                                            </div>
-
-                                            <!-- Selected Customer Indicator -->
-                                            <template x-if="selectedCustomerId !== null">
-                                                <div class="alert alert-info mb-0" style="display: flex; justify-content: space-between; align-items: center;">
-                                                    <div>
-                                                        <i class="fas fa-check-circle me-2"></i>
-                                                        <strong>Selected:</strong> <span x-text="walkInName"></span>
-                                                    </div>
-                                                    <button type="button" 
-                                                        @click="selectedCustomerId = null; walkInName = 'Walk-in Customer'; walkInEmail = ''; walkInPhone = ''; walkInAddress = '';"
-                                                        class="btn btn-sm btn-light"
-                                                        style="padding: 0.25rem 0.5rem;">
-                                                        Change
-                                                    </button>
-                                                </div>
-                                            </template>
-                                        </div>
+                                        @enderror
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- SECTION 2: ORDER TYPE -->
-                            <div class="col-md-6 mb-4">
-                                <div class="card card-outline card-info">
-                                    <div class="card-header">
-                                        <h5 class="card-title">Order Type</h5>
+                            <!-- SECTION G: ADDITIONAL INFORMATION -->
+                            <div class="col-lg-12 mb-4">
+                                <div class="card border-1">
+                                    <div class="card-header bg-light">
+                                        <h5 class="card-title mb-0">
+                                            <i class="fas fa-sticky-note me-2"></i>Additional Information
+                                        </h5>
                                     </div>
                                     <div class="card-body">
-                                        <div class="form-group">
-                                            <label>Select Order Type</label>
-                                            <div class="custom-control custom-radio mb-2">
-                                                <input type="radio" id="clothOnly" class="custom-control-input" 
-                                                    x-model="orderType" value="cloth_only" name="order_type" required>
-                                                <label class="custom-control-label" for="clothOnly">
-                                                    Cloth Only
-                                                </label>
-                                            </div>
-                                            <div class="custom-control custom-radio mb-2">
-                                                <input type="radio" id="stitchingOnly" class="custom-control-input" 
-                                                    x-model="orderType" value="stitching_only" name="order_type" required>
-                                                <label class="custom-control-label" for="stitchingOnly">
-                                                    Stitching Only
-                                                </label>
-                                            </div>
-                                            <div class="custom-control custom-radio">
-                                                <input type="radio" id="clothStitching" class="custom-control-input" 
-                                                    x-model="orderType" value="cloth_stitching" name="order_type" required>
-                                                <label class="custom-control-label" for="clothStitching">
-                                                    Cloth + Stitching
-                                                </label>
-                                            </div>
-                                            @error('order_type')
-                                                <span class="invalid-feedback d-block">{{ $message }}</span>
+                                        <div class="mb-3">
+                                            <label for="notes" class="form-label">Notes</label>
+                                            <textarea 
+                                                id="notes"
+                                                class="form-control @error('notes') is-invalid @enderror"
+                                                name="notes"
+                                                x-model="notes"
+                                                placeholder="Add any special notes about this order..."
+                                                rows="2"
+                                            ></textarea>
+                                            @error('notes')
+                                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="deliveryDate" class="form-label">Delivery Date</label>
+                                            <input 
+                                                type="date" 
+                                                id="deliveryDate"
+                                                class="form-control @error('delivery_date') is-invalid @enderror"
+                                                name="delivery_date"
+                                                x-model="deliveryDate"
+                                                :min="minDeliveryDate"
+                                            >
+                                            <small class="text-muted d-block mt-1">Must be a future date</small>
+                                            @error('delivery_date')
+                                                <div class="invalid-feedback d-block">{{ $message }}</div>
                                             @enderror
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- SECTION 3: PRODUCTS GRID -->
-                            <template x-if="['cloth_only', 'cloth_stitching'].includes(orderType)">
-                                <div class="col-12 mb-4">
-                                    <div class="card card-outline card-success">
-                                        <div class="card-header">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <h5 class="card-title mb-0">Select Products</h5>
-                                                <input type="text" 
-                                                    x-model="productSearch"
-                                                    placeholder="🔍 Search products..." 
-                                                    class="form-control" 
-                                                    style="max-width: 300px; border-radius: 20px; padding: 0.5rem 1rem;">
-                                            </div>
-                                        </div>
-                                        <div class="card-body">
-                                            <!-- Category Tabs -->
-                                            <div class="mb-3 d-flex gap-2 flex-wrap">
-                                                <button type="button" 
-                                                    @click="selectedCategory = null"
-                                                    :class="['btn', 'btn-sm', selectedCategory === null ? 'btn-primary' : 'btn-outline-primary']"
-                                                    style="border-radius: 20px;">
-                                                    All Products
-                                                </button>
-                                                @foreach($categories as $category)
-                                                    <button type="button" 
-                                                        @click="selectedCategory = {{ $category->id }}"
-                                                        :class="['btn', 'btn-sm', selectedCategory === {{ $category->id }} ? 'btn-primary' : 'btn-outline-primary']"
-                                                        style="border-radius: 20px;">
-                                                        {{ $category->name }}
-                                                    </button>
-                                                @endforeach
-                                            </div>
-
-                                            <!-- Products Grid -->
-                                            <div class="row g-2">
-                                                @foreach($products as $product)
-                                                    <div class="col-lg-3 col-md-4 col-sm-6" 
-                                                        x-show="isProductVisible({{ $product->category_id }}, '{{ addslashes($product->name) }}', '{{ $product->color }}', '{{ $product->size }}')">
-                                                        <div class="product-card h-100" :class="quantities[{{ $product->id }}] > 0 ? 'selected' : ''">
-                                                            <div class="product-header">
-                                                                <h6 class="product-name">{{ $product->name }}</h6>
-                                                                <div class="product-badges">
-                                                                    <span class="badge badge-light">{{ $product->color }}</span>
-                                                                    <span class="badge badge-light">{{ $product->size }}</span>
-                                                                </div>
-                                                            </div>
-                                                            
-                                                            <div class="product-price">
-                                                                PKR <strong>{{ number_format($product->price, 2) }}</strong>
-                                                                @if($product->discount_price)
-                                                                    <del class="text-muted ms-2" style="font-size: 0.85rem;">
-                                                                        {{ number_format($product->discount_price, 2) }}
-                                                                    </del>
-                                                                @endif
-                                                            </div>
-
-                                                            <div class="product-stock">
-                                                                <small class="text-muted">Stock: <strong>{{ $product->stock_quantity }}</strong></small>
-                                                            </div>
-
-                                                            <input type="hidden" 
-                                                                name="products[{{ $loop->index }}][id]" 
-                                                                value="{{ $product->id }}">
-
-                                                            <div class="product-quantity">
-                                                                <div class="input-group input-group-sm">
-                                                                    <button type="button" 
-                                                                        @click="quantities[{{ $product->id }}] = Math.max(0, (quantities[{{ $product->id }}] || 0) - 1)"
-                                                                        class="btn btn-outline-secondary btn-sm"
-                                                                        style="padding: 0.25rem 0.5rem;">
-                                                                        <i class="fas fa-minus"></i>
-                                                                    </button>
-                                                                    <input type="number" 
-                                                                        x-model.number="quantities[{{ $product->id }}]"
-                                                                        name="products[{{ $loop->index }}][qty]"
-                                                                        min="0" max="{{ $product->stock_quantity }}"
-                                                                        class="form-control form-control-sm text-center" 
-                                                                        placeholder="0"
-                                                                        style="width: 50px;">
-                                                                    <button type="button" 
-                                                                        @click="quantities[{{ $product->id }}] = Math.min({{ $product->stock_quantity }}, (quantities[{{ $product->id }}] || 0) + 1)"
-                                                                        class="btn btn-outline-secondary btn-sm"
-                                                                        style="padding: 0.25rem 0.5rem;">
-                                                                        <i class="fas fa-plus"></i>
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="product-total">
-                                                                <span class="line-total" x-text="(quantities[{{ $product->id }}] || 0) > 0 ? 'PKR ' + ((quantities[{{ $product->id }}] || 0) * {{ $product->price }}).toFixed(2) : '-'"></span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-
-                                            <!-- No Products Message -->
-                                            <template x-if="!hasVisibleProducts()">
-                                                <div class="text-center py-5">
-                                                    <i class="fas fa-inbox" style="font-size: 3rem; color: #ccc;"></i>
-                                                    <p class="text-muted mt-3">No products match your search</p>
-                                                </div>
-                                            </template>
-
-                                            <!-- Selected Products Summary -->
-                                            <template x-if="getSelectedProductsCount() > 0">
-                                                <div class="mt-3 p-3 bg-light rounded">
-                                                    <small class="text-muted">
-                                                        <strong x-text="getSelectedProductsCount()"></strong> product<span x-show="getSelectedProductsCount() !== 1">s</span> selected | 
-                                                        Total: <strong class="text-primary" x-text="'PKR ' + calculateSubtotal().toFixed(2)"></strong>
-                                                    </small>
-                                                </div>
-                                            </template>
-
-                                            @error('products.*')
-                                                <span class="invalid-feedback d-block">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                </div>
+                            <!-- Hidden inputs for products array -->
+                            <template x-for="(product, index) in selectedProducts" :key="product.id">
+                                <input type="hidden" :name="`product_ids[${index}]`" :value="product.id">
+                                <input type="hidden" :name="`quantities[${index}]`" :value="product.quantity">
                             </template>
 
-                            <!-- SECTION 4: STITCHING DETAILS -->
-                            <template x-if="['stitching_only', 'cloth_stitching'].includes(orderType)">
-                                <div class="col-12 mb-4">
-                                    <div class="card card-outline card-warning">
-                                        <div class="card-header">
-                                            <h5 class="card-title">Stitching Details</h5>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="fabricType">Fabric Type</label>
-                                                    <input type="text" id="fabricType" name="fabric_type" 
-                                                        class="form-control @error('fabric_type') is-invalid @enderror"
-                                                        placeholder="e.g., Cotton, Silk">
-                                                    @error('fabric_type')
-                                                        <span class="invalid-feedback">{{ $message }}</span>
-                                                    @enderror
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="fabricColor">Fabric Color</label>
-                                                    <input type="text" id="fabricColor" name="fabric_color" 
-                                                        class="form-control @error('fabric_color') is-invalid @enderror"
-                                                        placeholder="e.g., Navy, White">
-                                                    @error('fabric_color')
-                                                        <span class="invalid-feedback">{{ $message }}</span>
-                                                    @enderror
-                                                </div>
-                            <div class="col-md-6 mb-3">
-                                                    <label for="garmentType">Garment Type</label>
-                                                    <select id="garmentType" name="garment_type" 
-                                                        class="form-control @error('garment_type') is-invalid @enderror">
-                                                        <option value="custom">Custom</option>
-                                                        <option value="shirt">Shirt</option>
-                                                        <option value="trouser">Trouser</option>
-                                                        <option value="kurta">Kurta</option>
-                                                        <option value="dress">Dress</option>
-                                                    </select>
-                                                    @error('garment_type')
-                                                        <span class="invalid-feedback">{{ $message }}</span>
-                                                    @enderror
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="measurementId">Measurement ID (if existing)</label>
-                                                    <input type="number" id="measurementId" name="measurement_id" 
-                                                        class="form-control @error('measurement_id') is-invalid @enderror"
-                                                        placeholder="Optional">
-                                                    @error('measurement_id')
-                                                        <span class="invalid-feedback">{{ $message }}</span>
-                                                    @enderror
-                                                </div>
-                                                <div class="col-12 mb-3">
-                                                    <label for="stitchingInstructions">Design Details / Instructions</label>
-                                                    <textarea id="stitchingInstructions" name="stitching_instructions" 
-                                                        class="form-control @error('stitching_instructions') is-invalid @enderror"
-                                                        rows="3" placeholder="Describe the design or special instructions..."></textarea>
-                                                    @error('stitching_instructions')
-                                                        <span class="invalid-feedback">{{ $message }}</span>
-                                                    @enderror
-                                                </div>
-                                                <div class="col-12">
-                                                    <label for="designImage">Design Image (Optional)</label>
-                                                    <input type="file" id="designImage" name="design_image" 
-                                                        class="form-control @error('design_image') is-invalid @enderror"
-                                                        accept="image/*">
-                                                    @error('design_image')
-                                                        <span class="invalid-feedback">{{ $message }}</span>
-                                                    @enderror
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                            <!-- Hidden inputs for new measurement -->
+                            <template x-if="newMeasurement.profile_name.trim() !== ''">
+                                <input type="hidden" name="new_measurement_profile_name" x-model="newMeasurement.profile_name">
+                                <input type="hidden" name="new_measurement_chest" x-model.number="newMeasurement.chest">
+                                <input type="hidden" name="new_measurement_shoulder" x-model.number="newMeasurement.shoulder">
+                                <input type="hidden" name="new_measurement_sleeve_length" x-model.number="newMeasurement.sleeve_length">
+                                <input type="hidden" name="new_measurement_shirt_length" x-model.number="newMeasurement.shirt_length">
+                                <input type="hidden" name="new_measurement_neck" x-model.number="newMeasurement.neck">
+                                <input type="hidden" name="new_measurement_waist" x-model.number="newMeasurement.waist">
+                                <input type="hidden" name="new_measurement_trouser_length" x-model.number="newMeasurement.trouser_length">
+                                <input type="hidden" name="new_measurement_bottom" x-model.number="newMeasurement.bottom">
+                                <input type="hidden" name="new_measurement_thigh" x-model.number="newMeasurement.thigh">
+                                <input type="hidden" name="new_measurement_cuff_size" x-model.number="newMeasurement.cuff_size">
                             </template>
 
-                            <!-- SECTION 5: ADDITIONAL CHARGES -->
-                            <div class="col-md-6 mb-4">
-                                <div class="card card-outline card-secondary">
-                                    <div class="card-header">
-                                        <h5 class="card-title">Additional Charges</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="form-group mb-3">
-                                            <label for="stitchingCharge">Stitching Charge (PKR)</label>
-                                            <input type="number" id="stitchingCharge" x-model.number="stitchingCharge"
-                                                name="stitching_charge" class="form-control @error('stitching_charge') is-invalid @enderror"
-                                                step="0.01" min="0" placeholder="0.00">
-                                            @error('stitching_charge')
-                                                <span class="invalid-feedback">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-                                        <div class="form-group mb-3">
-                                            <label for="discount">Discount (PKR)</label>
-                                            <input type="number" id="discount" x-model.number="discount"
-                                                name="discount" class="form-control @error('discount') is-invalid @enderror"
-                                                step="0.01" min="0" placeholder="0.00">
-                                            @error('discount')
-                                                <span class="invalid-feedback">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="advancePayment">Advance Payment (PKR)</label>
-                                            <input type="number" id="advancePayment" x-model.number="advancePayment"
-                                                name="advance_payment" class="form-control @error('advance_payment') is-invalid @enderror"
-                                                step="0.01" min="0" placeholder="0.00">
-                                            @error('advance_payment')
-                                                <span class="invalid-feedback">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-                                    </div>
+                            <!-- SUBMIT BUTTON -->
+                            <div class="col-lg-12">
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary btn-lg" @click="prepareSubmission($event)">
+                                        <i class="fas fa-save me-2"></i>Create Order
+                                    </button>
+                                    <a href="{{ route('receptionist.orders.index') }}" class="btn btn-outline-secondary btn-lg">
+                                        <i class="fas fa-arrow-left me-2"></i>Back
+                                    </a>
                                 </div>
-                            </div>
-
-                            <!-- SECTION 6: LIVE ORDER SUMMARY -->
-                            <div class="col-md-6 mb-4">
-                                <div class="card card-outline card-danger">
-                                    <div class="card-header bg-danger text-white">
-                                        <h5 class="card-title mb-0">Order Summary</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row mb-2">
-                                            <div class="col-8">Subtotal (Products):</div>
-                                            <div class="col-4 text-right font-weight-bold">
-                                                PKR <span x-text="calculateSubtotal().toFixed(2)">0.00</span>
-                                            </div>
-                                        </div>
-                                        <div class="row mb-2">
-                                            <div class="col-8">Stitching Charge:</div>
-                                            <div class="col-4 text-right">
-                                                PKR <span x-text="(stitchingCharge || 0).toFixed(2)">0.00</span>
-                                            </div>
-                                        </div>
-                                        <div class="row mb-2">
-                                            <div class="col-8">Discount:</div>
-                                            <div class="col-4 text-right text-danger">
-                                                -PKR <span x-text="(discount || 0).toFixed(2)">0.00</span>
-                                            </div>
-                                        </div>
-                                        <hr>
-                                        <div class="row mb-3">
-                                            <div class="col-8 font-weight-bold">Grand Total:</div>
-                                            <div class="col-4 text-right font-weight-bold text-danger" style="font-size: 1.25rem;">
-                                                PKR <span x-text="calculateGrandTotal().toFixed(2)">0.00</span>
-                                            </div>
-                                        </div>
-                                        <hr>
-                                        <div class="row">
-                                            <div class="col-8">Advance Payment:</div>
-                                            <div class="col-4 text-right">
-                                                PKR <span x-text="(advancePayment || 0).toFixed(2)">0.00</span>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-8 text-muted">Remaining Due:</div>
-                                            <div class="col-4 text-right text-muted font-weight-bold">
-                                                PKR <span x-text="(calculateGrandTotal() - (advancePayment || 0)).toFixed(2)">0.00</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- FORM ACTIONS -->
-                            <div class="col-12 mb-3">
-                                <button type="submit" class="btn btn-primary btn-lg">
-                                    <i class="fas fa-save"></i> Create Order
-                                </button>
-                                <a href="{{ route('receptionist.orders.index') }}" class="btn btn-secondary btn-lg">
-                                    <i class="fas fa-arrow-left"></i> Cancel
-                                </a>
                             </div>
                         </div>
                     </form>
@@ -470,349 +830,292 @@
     </div>
 </div>
 
-<!-- MODAL: SELECT EXISTING CUSTOMER -->
-<div x-cloak x-show="showCustomerModal" style="display: none;" class="modal fade" style="display: block !important; background: rgba(0,0,0,0.5);" @click.self="showCustomerModal = false">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Select Existing Customer</h5>
-                <button type="button" class="btn-close" @click="showCustomerModal = false"></button>
-            </div>
-            <div class="modal-body">
-                <!-- Search Input -->
-                <div class="mb-3">
-                    <input type="text" 
-                        x-model="customerSearch"
-                        placeholder="🔍 Search by name, email, or phone..."
-                        class="form-control form-control-lg"
-                        style="border-radius: 6px;">
-                </div>
-
-                <!-- Customer List -->
-                <div class="table-responsive">
-                    <table class="table table-hover" style="margin-bottom: 0;">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>Address</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template x-for="customer in filteredCustomers()" :key="customer.id">
-                                <tr style="cursor: pointer;" @click="selectCustomer(customer)" class="align-middle">
-                                    <td>
-                                        <strong x-text="customer.name"></strong>
-                                    </td>
-                                    <td>
-                                        <small x-text="customer.email || '-'"></small>
-                                    </td>
-                                    <td>
-                                        <small x-text="customer.phone || '-'"></small>
-                                    </td>
-                                    <td>
-                                        <small class="text-muted" x-text="customer.address || '-'"></small>
-                                    </td>
-                                    <td class="text-end">
-                                        <i class="fas fa-arrow-right text-primary"></i>
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Empty State -->
-                <template x-if="filteredCustomers().length === 0">
-                    <div class="text-center py-5">
-                        <i class="fas fa-search" style="font-size: 2rem; color: #ccc;"></i>
-                        <p class="text-muted mt-3">No customers found</p>
-                    </div>
-                </template>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" @click="showCustomerModal = false">Cancel</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
 function orderForm() {
     return {
-        // Customer selection state
-        showCustomerModal: false,
+        // Customer section
         customerSearch: '',
         selectedCustomerId: null,
-        walkInName: 'Walk-in Customer',
-        walkInEmail: '',
-        walkInPhone: '',
-        walkInAddress: '',
-        allCustomers: {!! json_encode($customers->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'email' => $c->email, 'phone' => $c->phone ?? '', 'address' => $c->address ?? ''])->values()) !!},
+        customerMeasurements: [],
+        newCustomer: {
+            name: '',
+            email: '',
+            phone: '',
+            city: '',
+            address: ''
+        },
 
-        // Order state
-        orderType: '',
-        quantities: {},
-        stitchingCharge: 0,
-        discount: 0,
-        advancePayment: 0,
+        // Order type
+        orderType: 'ready_made',
+
+        // Products section
         productSearch: '',
-        selectedCategory: null,
-        allProducts: {!! json_encode($products->map(fn($p) => ['id' => $p->id, 'category_id' => $p->category_id, 'name' => $p->name, 'color' => $p->color, 'size' => $p->size])->values()) !!},
+        selectedCategory: '',
+        productQuantities: {},
 
-        // Product prices (passed from controller as JSON)
-        productPrices: {!! $productPrices !!},
-
-        // ==================== CUSTOMER METHODS ====================
+        // Stitching section
+        stitching: {
+            fabricType: '',
+            fabricColor: '',
+            garmentType: '',
+            measurementId: null,
+            instructions: '',
+            charge: 0
+        },
         
-        // Filter customers based on search
-        filteredCustomers() {
-            if (!this.customerSearch) return this.allCustomers;
+        // New measurement section
+        newMeasurement: {
+            profile_name: '',
+            chest: null,
+            shoulder: null,
+            sleeve_length: null,
+            shirt_length: null,
+            neck: null,
+            waist: null,
+            trouser_length: null,
+            bottom: null,
+            thigh: null,
+            cuff_size: null,
+        },
+        
+        designImagePreview: null,
+
+        // Financial section
+        discount: 0,
+        tax: 0,
+
+        // Additional info
+        notes: '',
+        deliveryDate: null,
+
+        // All data
+        allCustomers: @json($customers),
+        allProducts: @json($products),
+        allCategories: @json($categories),
+
+        // Computed properties
+        get filteredCustomers() {
+            if (!this.customerSearch.trim()) return [];
             const search = this.customerSearch.toLowerCase();
             return this.allCustomers.filter(c => 
-                c.name.toLowerCase().includes(search) || 
-                c.email.toLowerCase().includes(search) || 
-                c.phone.includes(search)
+                c.name.toLowerCase().includes(search) ||
+                c.email.toLowerCase().includes(search) ||
+                (c.phone && c.phone.includes(search))
             );
         },
 
-        // Select a customer from modal
-        selectCustomer(customer) {
-            this.selectedCustomerId = customer.id;
-            this.walkInName = customer.name;
-            this.walkInEmail = customer.email || '';
-            this.walkInPhone = customer.phone || '';
-            this.walkInAddress = customer.address || '';
-            this.showCustomerModal = false;
-            this.customerSearch = '';
-        },
+        get filteredProducts() {
+            let products = this.allProducts;
 
-        // Clear customer selection
-        clearCustomerSelection() {
-            this.selectedCustomerId = null;
-            this.walkInName = 'Walk-in Customer';
-            this.walkInEmail = '';
-            this.walkInPhone = '';
-            this.walkInAddress = '';
-        },
-
-        // ==================== PRODUCT METHODS ====================
-
-        // Check if product is visible based on category and search
-        isProductVisible(categoryId, name, color, size) {
-            const matchesCategory = this.selectedCategory === null || this.selectedCategory === categoryId;
-            const matchesSearch = this.productMatchesSearch(name, color, size);
-            return matchesCategory && matchesSearch;
-        },
-
-        // Check if product matches search
-        productMatchesSearch(name, color, size) {
-            if (!this.productSearch) return true;
-            const search = this.productSearch.toLowerCase();
-            return name.toLowerCase().includes(search) || 
-                   color.toLowerCase().includes(search) || 
-                   size.toLowerCase().includes(search);
-        },
-
-        // Check if any products are visible
-        hasVisibleProducts() {
-            return this.allProducts.some(p => this.isProductVisible(p.category_id, p.name, p.color, p.size));
-        },
-
-        // Get count of selected products
-        getSelectedProductsCount() {
-            return Object.values(this.quantities).filter(q => q > 0).length;
-        },
-
-        // Calculate subtotal by summing all selected product quantities × prices
-        calculateSubtotal() {
-            let subtotal = 0;
-            for (let productId in this.quantities) {
-                if (this.quantities[productId] > 0) {
-                    subtotal += (this.quantities[productId] * this.productPrices[productId]);
-                }
-            }
-            return subtotal;
-        },
-
-        // Calculate grand total: Subtotal + Stitching Charge - Discount
-        calculateGrandTotal() {
-            return this.calculateSubtotal() + (this.stitchingCharge || 0) - (this.discount || 0);
-        },
-
-        // ==================== FORM SUBMISSION ====================
-
-        // Form submission
-        submitForm() {
-            // Client-side validation before submission
-            if (!this.selectedCustomerId && !this.walkInPhone) {
-                alert('Please select a customer or enter a phone number');
-                return false;
-            }
-            if (!this.orderType) {
-                alert('Please select an order type');
-                return false;
+            if (this.selectedCategory) {
+                products = products.filter(p => p.category_id == this.selectedCategory);
             }
 
-            // For cloth orders, ensure at least one product is selected
-            if (['cloth_only', 'cloth_stitching'].includes(this.orderType)) {
-                let hasProducts = false;
-                for (let qty in this.quantities) {
-                    if (this.quantities[qty] > 0) {
-                        hasProducts = true;
-                        break;
+            if (this.productSearch.trim()) {
+                const search = this.productSearch.toLowerCase();
+                products = products.filter(p => p.name.toLowerCase().includes(search));
+            }
+
+            return products;
+        },
+
+        get selectedProducts() {
+            const products = [];
+            for (const [productId, quantity] of Object.entries(this.productQuantities)) {
+                if (quantity > 0) {
+                    const product = this.allProducts.find(p => p.id == productId);
+                    if (product) {
+                        products.push({
+                            id: parseInt(productId),
+                            quantity: parseInt(quantity),
+                            price: parseFloat(product.final_price || product.price)
+                        });
                     }
                 }
-                if (!hasProducts) {
-                    alert('Please select at least one product with quantity');
-                    return false;
-                }
+            }
+            return products;
+        },
+
+        get subtotal() {
+            return this.selectedProducts.reduce((sum, p) => sum + (p.price * p.quantity), 0);
+        },
+
+        get total() {
+            return this.subtotal + this.stitching.charge + this.tax - this.discount;
+        },
+
+        get minDeliveryDate() {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            return tomorrow.toISOString().split('T')[0];
+        },
+
+        // Methods
+        selectExistingCustomer(customer) {
+            this.selectedCustomerId = customer.id;
+            this.customerSearch = '';
+            this.loadCustomerMeasurements(customer.id);
+        },
+
+        getSelectedCustomerName() {
+            const customer = this.allCustomers.find(c => c.id == this.selectedCustomerId);
+            return customer ? `${customer.name} (${customer.email})` : '';
+        },
+
+        clearCustomerSelection() {
+            this.selectedCustomerId = null;
+            this.customerSearch = '';
+            this.customerMeasurements = [];
+        },
+
+        clearExistingCustomerSelection() {
+            this.selectedCustomerId = null;
+        },
+
+        clearNewCustomerFields() {
+            this.newCustomer = {
+                name: '',
+                email: '',
+                phone: '',
+                city: '',
+                address: ''
+            };
+        },
+
+        loadCustomerMeasurements(customerId) {
+            // Fetch customer measurements from API
+            fetch(`/receptionist/customers/${customerId}/measurements-api`)
+                .then(response => response.json())
+                .then(data => {
+                    this.customerMeasurements = data || [];
+                    console.log('Loaded measurements:', this.customerMeasurements);
+                })
+                .catch(error => {
+                    console.error('Error loading measurements:', error);
+                    this.customerMeasurements = [];
+                });
+        },
+
+        getProductQuantity(productId) {
+            return parseInt(this.productQuantities[productId] || 0);
+        },
+
+        updateProductQuantity(productId, quantity) {
+            const qty = parseInt(quantity) || 0;
+            if (qty > 0) {
+                this.productQuantities[productId] = qty;
+            } else {
+                delete this.productQuantities[productId];
+            }
+            this.recalculateTotal();
+        },
+
+        removeProduct(productId) {
+            delete this.productQuantities[productId];
+            this.recalculateTotal();
+        },
+
+        previewDesignImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.designImagePreview = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        },
+
+        recalculateTotal() {
+            // Just trigger reactivity
+            this.tax = this.tax;
+        },
+
+        prepareSubmission(event) {
+            // Client-side validation - prevent submission if required fields are missing
+            if (this.selectedCustomerId === null && this.newCustomer.name.trim() === '') {
+                event.preventDefault();
+                alert('❌ Please select an existing customer or enter a new customer name');
+                return;
             }
 
-            // Submit the form
-            document.getElementById('orderForm').submit();
+            if (!this.orderType) {
+                event.preventDefault();
+                alert('❌ Please select an order type (Ready Made, Stitching, or Combined)');
+                return;
+            }
+
+            if (['ready_made', 'combined'].includes(this.orderType) && this.selectedProducts.length === 0) {
+                event.preventDefault();
+                alert('❌ Please select at least one product for ' + this.orderType + ' order');
+                return;
+            }
+
+            // Server-side validation will check all other fields and show detailed errors
+            // Update all hidden inputs BEFORE form submission
+            const form = document.getElementById('orderForm');
+            
+            // Remove old hidden product inputs before adding new ones
+            const oldProductInputs = form.querySelectorAll('input[name*="product_ids"], input[name*="quantities"]');
+            oldProductInputs.forEach(input => input.remove());
+            
+            // Create new hidden inputs for selected products
+            this.selectedProducts.forEach((product, index) => {
+                const productIdInput = document.createElement('input');
+                productIdInput.type = 'hidden';
+                productIdInput.name = `product_ids[${index}]`;
+                productIdInput.value = product.id;
+                form.appendChild(productIdInput);
+                
+                const quantityInput = document.createElement('input');
+                quantityInput.type = 'hidden';
+                quantityInput.name = `quantities[${index}]`;
+                quantityInput.value = product.quantity;
+                form.appendChild(quantityInput);
+            });
+            
+            // Ensure order_type is set - check which radio button should be checked
+            const radioButtons = form.querySelectorAll('input[name="order_type"]');
+            radioButtons.forEach(radio => {
+                radio.checked = (radio.value === this.orderType);
+            });
+            
+            // Update financial hidden inputs
+            const subtotalInput = form.querySelector('input[name="subtotal"]');
+            const totalInput = form.querySelector('input[name="total"]');
+            const orderTypeHidden = form.querySelector('input[name="order_type_hidden"]');
+            
+            if (subtotalInput) subtotalInput.value = this.subtotal.toFixed(2);
+            if (totalInput) totalInput.value = this.total.toFixed(2);
+            if (orderTypeHidden) orderTypeHidden.value = this.orderType;
+            
+            console.log('Form validation passed, submitting to server...');
+            console.log('Order Type:', this.orderType);
+            console.log('Customer ID:', this.selectedCustomerId);
+            console.log('Selected Products:', this.selectedProducts.length);
+            console.log('Products:', this.selectedProducts);
         }
     };
 }
 </script>
 
 <style>
-.product-card {
-    background: white;
-    border: 2px solid #e0e6ed;
-    border-radius: 8px;
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    transition: all 0.3s ease;
-    cursor: default;
+.cursor-pointer {
+    cursor: pointer;
 }
 
-.product-card:hover {
-    border-color: var(--accent-color);
-    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15);
-    transform: translateY(-2px);
+.hover-light:hover {
+    background-color: #f8f9fa !important;
 }
 
-.product-card.selected {
-    border-color: var(--accent-color);
-    background: rgba(212, 175, 55, 0.05);
-    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
-}
-
-.product-header {
-    flex-shrink: 0;
-}
-
-.product-name {
-    margin: 0;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--text-dark);
-    word-break: break-word;
-}
-
-.product-badges {
-    display: flex;
-    gap: 4px;
-    margin-top: 4px;
-    flex-wrap: wrap;
-}
-
-.product-badges .badge {
-    font-size: 0.75rem;
-    padding: 2px 6px;
-    background: #f5f6fa;
-    color: #666;
-}
-
-.product-price {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--accent-color);
-    flex-shrink: 0;
-}
-
-.product-price del {
-    opacity: 0.6;
-}
-
-.product-stock {
-    font-size: 0.85rem;
-    flex-shrink: 0;
-}
-
-.product-quantity {
-    flex-shrink: 0;
-}
-
-.product-quantity .input-group-sm {
-    height: 32px;
-}
-
-.product-quantity .btn-outline-secondary {
-    border-color: #dee2e6;
-    color: #666;
-}
-
-.product-quantity .btn-outline-secondary:hover {
-    border-color: var(--accent-color);
-    color: var(--accent-color);
-    background: rgba(212, 175, 55, 0.1);
-}
-
-.product-quantity .form-control-sm {
-    border-color: #dee2e6;
-    font-size: 0.875rem;
-}
-
-.product-total {
-    padding-top: 6px;
-    border-top: 1px solid #e0e6ed;
-    text-align: center;
-    flex-shrink: 0;
-}
-
-.line-total {
-    font-weight: 600;
-    color: var(--accent-color);
-    font-size: 0.9rem;
-}
-
-/* Gap utility for Bootstrap 4 compatibility */
-.gap-2 {
-    gap: 0.5rem;
-}
-
-/* Responsive adjustments */
-@media (max-width: 1200px) {
-    .product-card {
-        padding: 10px;
-    }
-
-    .product-name {
-        font-size: 0.9rem;
-    }
+.form-check-label {
+    margin: 0 !important;
+    display: block !important;
 }
 
 @media (max-width: 768px) {
-    .product-card {
-        padding: 8px;
-    }
-
-    .product-name {
-        font-size: 0.85rem;
-    }
-
-    .product-price {
-        font-size: 0.95rem;
-    }
-
-    .product-badges .badge {
-        font-size: 0.7rem;
+    .col-md-3, .col-md-4, .col-md-6 {
+        margin-bottom: 1rem;
     }
 }
 </style>

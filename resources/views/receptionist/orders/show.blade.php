@@ -54,7 +54,7 @@
                 <div class="mb-3">
                     <small class="text-muted d-block">Order Type</small>
                     <span class="badge bg-info p-2">
-                        @if($order->type === 'ready_made')
+                        @if($order->type === 'cloth')
                             <i class="fas fa-shopping-bag me-1"></i>Cloth Only
                         @elseif($order->type === 'stitching')
                             <i class="fas fa-needle me-1"></i>Stitching Only

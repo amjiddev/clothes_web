@@ -40,9 +40,9 @@
                     <label class="form-label fw-bold">Order Type</label>
                     <select name="order_type" class="form-select">
                         <option value="all">All Types</option>
-                        <option value="ready_made" {{ $orderType === 'ready_made' ? 'selected' : '' }}>Cloth Only</option>
+                        <option value="ready_made" {{ $orderType === 'ready_made' ? 'selected' : '' }}>Ready Made</option>
                         <option value="stitching" {{ $orderType === 'stitching' ? 'selected' : '' }}>Stitching Only</option>
-                        <option value="combined" {{ $orderType === 'combined' ? 'selected' : '' }}>Cloth + Stitching</option>
+                        <option value="combined" {{ $orderType === 'combined' ? 'selected' : '' }}>Ready Made + Stitching</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -154,11 +154,11 @@
                         <td>{{ $order->user->name ?? 'Unknown' }}</td>
                         <td>
                             @if($order->type === 'ready_made')
-                                <span class="badge bg-light text-dark">Cloth</span>
+                                <span class="badge bg-light text-dark">Ready Made</span>
                             @elseif($order->type === 'stitching')
                                 <span class="badge bg-light text-dark">Stitching</span>
                             @else
-                                <span class="badge bg-light text-dark">Cloth + Stitching</span>
+                                <span class="badge bg-light text-dark">Ready Made + Stitching</span>
                             @endif
                         </td>
                         <td>Rs. {{ number_format($order->subtotal, 2) }}</td>

@@ -30,6 +30,7 @@
         }
 
         html, body {
+            width: 100%;
             height: 100%;
             scroll-behavior: smooth;
         }
@@ -37,13 +38,14 @@
         body {
             background-color: #FFFFFF;
             color: var(--text-dark);
-            padding-top: 70px;
+            padding-top: clamp(50px, 8vw, 70px);
+            width: 100%;
         }
 
         /* Navbar Styles */
         .navbar-premium {
             background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
-            padding: 1rem 0;
+            padding: clamp(0.8rem, 1.5vw, 1rem) 0;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
             position: fixed;
             top: 0;
@@ -52,6 +54,7 @@
             z-index: 1000;
             border-bottom: 2px solid var(--accent-gold);
             transition: transform 0.3s ease-in-out;
+            width: 100%;
         }
 
         .navbar-premium.navbar-hidden {
@@ -59,7 +62,7 @@
         }
 
         .navbar-premium .navbar-brand {
-            font-size: 1.5rem;
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
             font-weight: 700;
             color: var(--accent-gold) !important;
             letter-spacing: 2px;
@@ -68,10 +71,11 @@
 
         .navbar-premium .nav-link {
             color: var(--text-light) !important;
-            margin: 0 1rem;
+            margin: 0 clamp(0.5rem, 1.5vw, 1rem);
             font-weight: 500;
             position: relative;
             transition: all 0.3s ease;
+            font-size: clamp(0.85rem, 1.5vw, 1rem);
         }
 
         .navbar-premium .nav-link::after {
@@ -98,7 +102,7 @@
         .cart-icon {
             position: relative;
             color: var(--accent-gold);
-            font-size: 1.3rem;
+            font-size: clamp(1rem, 2vw, 1.3rem);
             cursor: pointer;
             transition: all 0.3s ease;
         }
@@ -114,12 +118,12 @@
             background: var(--accent-gold);
             color: var(--primary-dark);
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
+            width: clamp(18px, 3vw, 20px);
+            height: clamp(18px, 3vw, 20px);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.75rem;
+            font-size: clamp(0.65rem, 1vw, 0.75rem);
             font-weight: 700;
         }
 
@@ -127,10 +131,11 @@
         .hero-section {
             background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
             color: white;
-            padding: 120px 0;
+            padding: clamp(80px, 12vw, 120px) 0;
             position: relative;
             overflow: hidden;
             border-bottom: 3px solid var(--accent-gold);
+            width: 100%;
         }
 
         .hero-section::before {
@@ -138,8 +143,8 @@
             position: absolute;
             top: -50%;
             right: -10%;
-            width: 500px;
-            height: 500px;
+            width: clamp(300px, 50vw, 500px);
+            height: clamp(300px, 50vw, 500px);
             background: radial-gradient(circle, var(--accent-gold) 0%, transparent 70%);
             opacity: 0.1;
             animation: float 6s ease-in-out infinite;
@@ -156,16 +161,16 @@
         }
 
         .hero-section h1 {
-            font-size: 3.5rem;
+            font-size: clamp(2rem, 6vw, 3.5rem);
             font-weight: 700;
-            margin-bottom: 1rem;
+            margin-bottom: clamp(0.8rem, 2vw, 1rem);
             font-family: 'Playfair Display', serif;
             line-height: 1.2;
         }
 
         .hero-section h2 {
-            font-size: 1.3rem;
-            margin-bottom: 2rem;
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            margin-bottom: clamp(1.5rem, 3vw, 2rem);
             color: var(--accent-gold);
             font-weight: 300;
         }
@@ -173,13 +178,14 @@
         .btn-premium {
             background: var(--accent-gold);
             color: var(--primary-dark);
-            padding: 12px 30px;
+            padding: clamp(10px, 1.5vw, 12px) clamp(24px, 3vw, 30px);
             border: 2px solid var(--accent-gold);
             border-radius: 5px;
             font-weight: 600;
             transition: all 0.3s ease;
             text-decoration: none;
             display: inline-block;
+            font-size: clamp(0.85rem, 1.5vw, 1rem);
         }
 
         .btn-premium:hover {
@@ -190,13 +196,14 @@
         .btn-outline-premium {
             background: transparent;
             color: var(--accent-gold);
-            padding: 12px 30px;
+            padding: clamp(10px, 1.5vw, 12px) clamp(24px, 3vw, 30px);
             border: 2px solid var(--accent-gold);
             border-radius: 5px;
             font-weight: 600;
             transition: all 0.3s ease;
             text-decoration: none;
             display: inline-block;
+            font-size: clamp(0.85rem, 1.5vw, 1rem);
         }
 
         .btn-outline-premium:hover {
@@ -206,46 +213,49 @@
 
         /* Section Spacing */
         .section-padding {
-            padding: 80px 0;
+            padding: clamp(50px, 10vw, 80px) 0;
+            width: 100%;
         }
 
         .section-title {
             text-align: center;
-            margin-bottom: 50px;
+            margin-bottom: clamp(30px, 5vw, 50px);
+            width: 100%;
         }
 
         .section-title h2 {
-            font-size: 2.5rem;
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
             font-weight: 700;
             font-family: 'Playfair Display', serif;
             color: var(--primary-dark);
-            margin-bottom: 0.5rem;
+            margin-bottom: clamp(0.3rem, 1vw, 0.5rem);
         }
 
         .section-title p {
-            font-size: 1rem;
+            font-size: clamp(0.9rem, 1.5vw, 1rem);
             color: var(--text-muted);
             font-weight: 300;
         }
 
         .divider {
-            width: 80px;
+            width: clamp(60px, 8vw, 80px);
             height: 3px;
             background: var(--accent-gold);
-            margin: 10px auto;
+            margin: clamp(8px, 1vw, 10px) auto;
         }
 
         /* Category Card */
         .category-card {
             text-align: center;
-            padding: 2rem;
+            padding: clamp(1.5rem, 3vw, 2rem);
             background: white;
-            border-radius: 10px;
+            border-radius: clamp(8px, 1.5vw, 10px);
             transition: all 0.3s ease;
             cursor: pointer;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            height: 100%;
+            height: auto;
             border: 2px solid transparent;
+            width: 100%;
         }
 
         .category-card:hover {
@@ -255,31 +265,33 @@
         }
 
         .category-card i {
-            font-size: 3rem;
+            font-size: clamp(2rem, 4vw, 3rem);
             color: var(--accent-gold);
-            margin-bottom: 1rem;
+            margin-bottom: clamp(0.8rem, 1.5vw, 1rem);
         }
 
         .category-card h3 {
-            font-size: 1.3rem;
+            font-size: clamp(1rem, 2vw, 1.3rem);
             font-weight: 600;
             color: var(--primary-dark);
-            margin-bottom: 0.5rem;
+            margin-bottom: clamp(0.3rem, 1vw, 0.5rem);
         }
 
         .category-card p {
             color: var(--text-muted);
-            font-size: 0.9rem;
+            font-size: clamp(0.8rem, 1.5vw, 0.9rem);
         }
 
         /* Product Card */
         .product-card {
             background: white;
-            border-radius: 10px;
+            border-radius: clamp(8px, 1.5vw, 10px);
             overflow: hidden;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
             border: 2px solid transparent;
+            width: 100%;
+            height: auto;
         }
 
         .product-card:hover {
@@ -290,7 +302,7 @@
 
         .product-image {
             width: 100%;
-            height: 300px;
+            height: clamp(200px, 30vw, 300px);
             background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
             display: flex;
             align-items: center;
@@ -312,62 +324,67 @@
 
         .product-badge {
             position: absolute;
-            top: 15px;
-            right: 15px;
+            top: clamp(12px, 2vw, 15px);
+            right: clamp(12px, 2vw, 15px);
             background: var(--accent-gold);
             color: var(--primary-dark);
-            padding: 5px 15px;
+            padding: clamp(4px, 0.8vw, 5px) clamp(12px, 2vw, 15px);
             border-radius: 20px;
-            font-size: 0.8rem;
+            font-size: clamp(0.7rem, 1.2vw, 0.8rem);
             font-weight: 600;
         }
 
         .product-info {
-            padding: 1.5rem;
+            padding: clamp(1rem, 2vw, 1.5rem);
         }
 
         .product-name {
-            font-size: 1.1rem;
+            font-size: clamp(0.95rem, 1.5vw, 1.1rem);
             font-weight: 600;
             color: var(--primary-dark);
-            margin-bottom: 0.5rem;
+            margin-bottom: clamp(0.3rem, 1vw, 0.5rem);
         }
 
         .product-price {
             display: flex;
-            gap: 10px;
-            margin-bottom: 1rem;
+            gap: clamp(6px, 1vw, 10px);
+            margin-bottom: clamp(0.8rem, 1.5vw, 1rem);
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .product-price .current {
-            font-size: 1.3rem;
+            font-size: clamp(1.1rem, 2vw, 1.3rem);
             font-weight: 700;
             color: var(--accent-gold);
         }
 
         .product-price .original {
-            font-size: 0.9rem;
+            font-size: clamp(0.8rem, 1.2vw, 0.9rem);
             color: var(--text-muted);
             text-decoration: line-through;
         }
 
         .product-actions {
             display: flex;
-            gap: 10px;
+            gap: clamp(6px, 1vw, 10px);
+            width: 100%;
+            flex-wrap: wrap;
         }
 
         .product-actions a,
         .product-actions button {
             flex: 1;
-            padding: 10px;
+            min-width: clamp(60px, 15vw, 120px);
+            padding: clamp(8px, 1vw, 10px);
             border: none;
-            border-radius: 5px;
+            border-radius: clamp(4px, 1vw, 5px);
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             text-decoration: none;
             text-align: center;
+            font-size: clamp(0.8rem, 1.2vw, 0.9rem);
         }
 
         .btn-add-cart {
@@ -396,16 +413,19 @@
             background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
             color: white;
             border-bottom: 3px solid var(--accent-gold);
+            width: 100%;
         }
 
         .tailoring-card {
             background: rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(10px);
-            padding: 2rem;
-            border-radius: 10px;
+            padding: clamp(1.5rem, 3vw, 2rem);
+            border-radius: clamp(8px, 1.5vw, 10px);
             border: 2px solid var(--accent-gold);
             text-align: center;
             transition: all 0.3s ease;
+            width: 100%;
+            height: auto;
         }
 
         .tailoring-card:hover {
@@ -415,81 +435,88 @@
         }
 
         .tailoring-card i {
-            font-size: 2.5rem;
+            font-size: clamp(2rem, 3.5vw, 2.5rem);
             color: var(--accent-gold);
-            margin-bottom: 1rem;
+            margin-bottom: clamp(0.8rem, 1.5vw, 1rem);
         }
 
         .tailoring-card h3 {
-            font-size: 1.3rem;
+            font-size: clamp(1rem, 2vw, 1.3rem);
             font-weight: 600;
-            margin-bottom: 1rem;
+            margin-bottom: clamp(0.8rem, 1.5vw, 1rem);
         }
 
         /* Why Choose Us */
         .why-choose-us-card {
             text-align: center;
-            padding: 2rem;
+            padding: clamp(1.5rem, 3vw, 2rem);
+            width: 100%;
         }
 
         .why-choose-us-card i {
-            font-size: 3rem;
+            font-size: clamp(2rem, 4vw, 3rem);
             color: var(--accent-gold);
-            margin-bottom: 1rem;
+            margin-bottom: clamp(0.8rem, 1.5vw, 1rem);
         }
 
         .why-choose-us-card h3 {
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 2vw, 1.2rem);
             font-weight: 600;
             color: var(--primary-dark);
-            margin-bottom: 1rem;
+            margin-bottom: clamp(0.8rem, 1.5vw, 1rem);
         }
 
         /* Review Card */
         .review-card {
             background: white;
-            padding: 2rem;
-            border-radius: 10px;
+            padding: clamp(1.5rem, 3vw, 2rem);
+            border-radius: clamp(8px, 1.5vw, 10px);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             text-align: center;
+            width: 100%;
+            height: auto;
         }
 
         .review-stars {
             color: var(--accent-gold);
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
+            margin-bottom: clamp(0.8rem, 1.5vw, 1rem);
+            font-size: clamp(0.95rem, 1.5vw, 1.1rem);
         }
 
         .review-text {
             color: var(--text-muted);
-            margin-bottom: 1rem;
+            margin-bottom: clamp(0.8rem, 1.5vw, 1rem);
             font-style: italic;
+            font-size: clamp(0.85rem, 1.2vw, 0.95rem);
         }
 
         .review-author {
             font-weight: 600;
             color: var(--primary-dark);
-            margin-bottom: 0.3rem;
+            margin-bottom: clamp(0.2rem, 0.5vw, 0.3rem);
+            font-size: clamp(0.9rem, 1.2vw, 1rem);
         }
 
         .review-title {
             color: var(--text-muted);
-            font-size: 0.9rem;
+            font-size: clamp(0.8rem, 1vw, 0.9rem);
         }
 
         /* Footer */
         .footer {
             background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
             color: var(--text-light);
-            padding: 60px 0 20px;
-            margin-top: 80px;
+            padding: clamp(40px, 8vw, 60px) 0 clamp(12px, 2vw, 20px);
+            margin-top: clamp(60px, 10vw, 80px);
             border-top: 3px solid var(--accent-gold);
+            width: 100%;
         }
 
         .footer-section h4 {
             color: var(--accent-gold);
-            margin-bottom: 1.5rem;
+            margin-bottom: clamp(1rem, 2vw, 1.5rem);
             font-weight: 600;
+            font-size: clamp(1rem, 1.5vw, 1.1rem);
         }
 
         .footer-section ul {
@@ -498,13 +525,14 @@
         }
 
         .footer-section ul li {
-            margin-bottom: 0.8rem;
+            margin-bottom: clamp(0.6rem, 1vw, 0.8rem);
         }
 
         .footer-section ul li a {
             color: var(--text-light);
             text-decoration: none;
             transition: all 0.3s ease;
+            font-size: clamp(0.85rem, 1.2vw, 0.95rem);
         }
 
         .footer-section ul li a:hover {
@@ -514,13 +542,13 @@
 
         .social-links {
             display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
+            gap: clamp(0.8rem, 1.5vw, 1rem);
+            margin-top: clamp(0.8rem, 1.5vw, 1rem);
         }
 
         .social-links a {
-            width: 40px;
-            height: 40px;
+            width: clamp(36px, 5vw, 40px);
+            height: clamp(36px, 5vw, 40px);
             background: var(--accent-gold);
             color: var(--primary-dark);
             display: flex;
@@ -528,7 +556,7 @@
             justify-content: center;
             border-radius: 50%;
             transition: all 0.3s ease;
-            font-size: 1rem;
+            font-size: clamp(0.9rem, 1.5vw, 1rem);
         }
 
         .social-links a:hover {
@@ -539,18 +567,19 @@
 
         .footer-bottom {
             border-top: 1px solid rgba(212, 175, 55, 0.3);
-            margin-top: 3rem;
-            padding-top: 2rem;
+            margin-top: clamp(2rem, 3vw, 3rem);
+            padding-top: clamp(1.5rem, 2vw, 2rem);
             text-align: center;
             color: rgba(255, 255, 255, 0.7);
+            font-size: clamp(0.8rem, 1.2vw, 0.9rem);
         }
 
         /* Shopping Cart Sidebar */
         .cart-sidebar {
             position: fixed;
-            right: -400px;
+            right: -100%;
             top: 0;
-            width: 400px;
+            width: clamp(300px, 90vw, 400px);
             height: 100vh;
             background: white;
             box-shadow: -5px 0 20px rgba(0, 0, 0, 0.3);
@@ -565,7 +594,7 @@
         }
 
         .cart-header {
-            padding: 1.5rem;
+            padding: clamp(1rem, 2vw, 1.5rem);
             border-bottom: 2px solid var(--accent-gold);
             display: flex;
             justify-content: space-between;
@@ -577,13 +606,15 @@
         .cart-header h5 {
             margin: 0;
             font-weight: 700;
-            font-size: 1.3rem;
+            font-size: clamp(1.1rem, 1.8vw, 1.3rem);
         }
 
         .cart-header .btn-close {
             filter: invert(1);
             opacity: 0.8;
             transition: opacity 0.3s ease;
+            width: clamp(30px, 4vw, 38px);
+            height: clamp(30px, 4vw, 38px);
         }
 
         .cart-header .btn-close:hover {
@@ -593,7 +624,7 @@
         .cart-body {
             flex: 1;
             overflow-y: auto;
-            padding: 1.5rem;
+            padding: clamp(1rem, 2vw, 1.5rem);
         }
 
         .empty-cart-message {
@@ -607,26 +638,27 @@
         }
 
         .empty-cart-message i {
-            font-size: 3rem;
+            font-size: clamp(2rem, 4vw, 3rem);
             color: var(--accent-gold);
-            margin-bottom: 1rem;
+            margin-bottom: clamp(0.8rem, 1.5vw, 1rem);
             opacity: 0.5;
         }
 
         .cart-item {
             display: flex;
-            gap: 1rem;
-            padding: 1.5rem;
+            gap: clamp(0.8rem, 1.5vw, 1rem);
+            padding: clamp(1rem, 1.5vw, 1.5rem);
             border: 1px solid #e0e0e0;
             border-radius: 8px;
             align-items: flex-start;
-            margin-bottom: 1rem;
+            margin-bottom: clamp(0.8rem, 1.5vw, 1rem);
             background: #fafafa;
+            width: 100%;
         }
 
         .cart-item-image {
-            width: 100px;
-            height: 100px;
+            width: clamp(80px, 15vw, 100px);
+            height: clamp(80px, 15vw, 100px);
             object-fit: cover;
             border-radius: 8px;
             background: #f5f5f5;
@@ -637,33 +669,33 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: clamp(0.4rem, 0.8vw, 0.5rem);
         }
 
         .cart-item-name {
             font-weight: 600;
             color: var(--primary-dark);
             margin: 0;
-            font-size: 0.95rem;
+            font-size: clamp(0.85rem, 1.2vw, 0.95rem);
         }
 
         .cart-item-price {
             color: var(--accent-gold);
             font-weight: 700;
-            font-size: 1rem;
+            font-size: clamp(0.9rem, 1.2vw, 1rem);
             margin: 0;
         }
 
         .cart-item-controls {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
+            gap: clamp(0.4rem, 0.8vw, 0.5rem);
+            margin-top: clamp(0.4rem, 0.8vw, 0.5rem);
         }
 
         .quantity-btn {
-            width: 28px;
-            height: 28px;
+            width: clamp(24px, 4vw, 28px);
+            height: clamp(24px, 4vw, 28px);
             padding: 0;
             border: 1px solid #ddd;
             background: white;
@@ -671,7 +703,7 @@
             border-radius: 4px;
             transition: all 0.3s ease;
             font-weight: 600;
-            font-size: 1rem;
+            font-size: clamp(0.8rem, 1vw, 1rem);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -684,22 +716,22 @@
         }
 
         .quantity-input {
-            width: 50px;
+            width: clamp(45px, 8vw, 50px);
             text-align: center;
             border: 1px solid #ddd;
-            padding: 4px;
+            padding: clamp(3px, 0.5vw, 4px);
             border-radius: 4px;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: clamp(0.8rem, 1vw, 0.9rem);
         }
 
         .cart-item-delete {
             cursor: pointer;
             color: #dc3545;
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 1.5vw, 1.2rem);
             transition: all 0.3s ease;
             margin-left: auto;
-            padding-top: 0.5rem;
+            padding-top: clamp(0.4rem, 0.8vw, 0.5rem);
         }
 
         .cart-item-delete:hover {
@@ -708,18 +740,19 @@
         }
 
         .cart-footer {
-            padding: 1.5rem;
+            padding: clamp(1rem, 2vw, 1.5rem);
             border-top: 2px solid #e0e0e0;
             background: #f8f9fa;
+            width: 100%;
         }
 
         .cart-total {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 1.5vw, 1.2rem);
             font-weight: 700;
-            margin-bottom: 1rem;
+            margin-bottom: clamp(0.8rem, 1.5vw, 1rem);
             color: var(--primary-dark);
         }
 
@@ -727,11 +760,13 @@
             background: var(--accent-gold);
             color: var(--primary-dark);
             border: none;
-            padding: 12px;
+            padding: clamp(10px, 1.5vw, 12px);
             font-weight: 600;
             border-radius: 5px;
             transition: all 0.3s ease;
             cursor: pointer;
+            width: 100%;
+            font-size: clamp(0.85rem, 1.2vw, 0.95rem);
         }
 
         .btn-checkout:hover {
@@ -743,12 +778,15 @@
             background: transparent;
             color: var(--primary-dark);
             border: 2px solid var(--primary-dark);
-            padding: 10px;
+            padding: clamp(8px, 1.2vw, 10px);
             font-weight: 600;
             border-radius: 5px;
             transition: all 0.3s ease;
             text-decoration: none;
             display: inline-block;
+            width: 100%;
+            text-align: center;
+            font-size: clamp(0.85rem, 1.2vw, 0.95rem);
         }
 
         .btn-view-cart:hover {
@@ -781,7 +819,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 1rem;
+            padding: clamp(0.8rem, 2vw, 1rem);
             background: rgba(0, 0, 0, 0.65);
             opacity: 0;
             visibility: hidden;
@@ -795,8 +833,8 @@
 
         .login-modal-dialog {
             position: relative;
-            width: min(560px, 100%);
-            height: min(460px, calc(100vh - 2rem));
+            width: min(clamp(400px, 90vw, 560px), 100%);
+            height: min(clamp(350px, 80vh, 460px), calc(100vh - clamp(1.6rem, 4vw, 2rem)));
             overflow: hidden;
             border-radius: 12px;
             background: #fff;
@@ -804,7 +842,7 @@
         }
 
         .login-modal-dialog.forgot-active {
-            height: min(520px, calc(100vh - 2rem));
+            height: min(clamp(400px, 85vh, 520px), calc(100vh - clamp(1.6rem, 4vw, 2rem)));
         }
 
         .login-modal-dialog iframe {
@@ -823,40 +861,47 @@
 
         .login-modal-close {
             position: absolute;
-            top: 12px;
-            right: 14px;
+            top: clamp(10px, 1.5vw, 12px);
+            right: clamp(12px, 1.5vw, 14px);
             z-index: 2;
-            width: 38px;
-            height: 38px;
+            width: clamp(32px, 5vw, 38px);
+            height: clamp(32px, 5vw, 38px);
             border: 0;
             border-radius: 50%;
             background: rgba(11, 11, 11, 0.75);
             color: #fff;
-            font-size: 1.8rem;
+            font-size: clamp(1.4rem, 2.5vw, 1.8rem);
             line-height: 1;
             cursor: pointer;
         }
 
         /* Responsive */
+        @media (max-width: 1200px) {
+            .container-fluid {
+                padding-left: clamp(12px, 2vw, 20px);
+                padding-right: clamp(12px, 2vw, 20px);
+            }
+        }
+
         @media (max-width: 768px) {
             .hero-section h1 {
-                font-size: 2rem;
+                font-size: clamp(1.5rem, 5vw, 2rem);
             }
 
             .hero-section h2 {
-                font-size: 1rem;
+                font-size: clamp(0.9rem, 2vw, 1rem);
             }
 
             .section-title h2 {
-                font-size: 1.8rem;
+                font-size: clamp(1.4rem, 3.5vw, 1.8rem);
             }
 
             .navbar-premium .nav-link {
-                margin: 0.5rem 0;
+                margin: clamp(0.3rem, 0.8vw, 0.5rem) 0;
             }
 
             .product-image {
-                height: 200px;
+                height: clamp(150px, 25vw, 200px);
             }
 
             .cart-sidebar {
@@ -865,7 +910,22 @@
             }
 
             body {
-                padding-top: 60px;
+                padding-top: clamp(50px, 8vw, 60px);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .hero-section {
+                padding: clamp(50px, 10vw, 80px) 0;
+            }
+
+            .navbar-premium .nav-link {
+                font-size: clamp(0.75rem, 2vw, 0.9rem);
+                margin: 0 clamp(0.3rem, 1vw, 0.5rem);
+            }
+
+            .section-padding {
+                padding: clamp(30px, 5vw, 50px) 0;
             }
         }
     </style>

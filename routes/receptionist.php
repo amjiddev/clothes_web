@@ -1,8 +1,8 @@
 <?php
 
 use App\Http\Controllers\Receptionist\DashboardController;
+use App\Http\Controllers\Receptionist\OrderController;
 use App\Http\Controllers\Apps\CustomerController;
-use App\Http\Controllers\Apps\OrderController;
 use App\Http\Controllers\Apps\StitchingOrderController;
 use App\Http\Controllers\Apps\MeasurementController;
 use App\Http\Controllers\Apps\TailorController;
@@ -39,6 +39,10 @@ Route::middleware(['auth', 'verified', 'receptionist.only'])->prefix('receptioni
 
     // Orders
     Route::get('orders/create', [OrderController::class, 'create'])->name('orders.create');
+    Route::get('orders/test-form', function() {
+        return view('receptionist.orders.test-form');
+    })->name('orders.test-form');
+    Route::get('customers/{customerId}/measurements-api', [OrderController::class, 'getCustomerMeasurements'])->name('customers.measurements-api');
     Route::resource('orders', OrderController::class)->only(['index', 'show', 'store', 'edit', 'update']);
     Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
     Route::post('orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
