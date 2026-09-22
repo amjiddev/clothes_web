@@ -17,7 +17,7 @@
                 <p class="text-muted">Revenue analysis and sales performance</p>
             </div>
             <div class="col-auto">
-                <a href="{{ route('admin.reports.export', ['type' => 'sales', 'period' => $period]) }}" class="btn btn-primary">
+                <a href="{{ route('admin.reports.export', ['type' => 'sales', 'period' => $period]) }}" class="btn btn-primary" target="_blank">
                     <i class="fas fa-file-pdf me-2"></i>Export PDF
                 </a>
             </div>

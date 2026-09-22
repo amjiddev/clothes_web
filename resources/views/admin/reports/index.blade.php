@@ -136,7 +136,7 @@
                     <a href="{{ route('admin.reports.sales') }}" class="btn btn-success btn-sm">
                         <i class="fas fa-arrow-right me-1"></i>View Report
                     </a>
-                    <a href="{{ route('admin.reports.export', ['type' => 'sales', 'period' => $period]) }}" class="btn btn-outline-success btn-sm">
+                    <a href="{{ route('admin.reports.export', ['type' => 'sales', 'period' => $period]) }}" class="btn btn-outline-success btn-sm" target="_blank">
                         <i class="fas fa-download me-1"></i>Export PDF
                     </a>
                 </div>
@@ -156,7 +156,7 @@
                     <a href="{{ route('admin.reports.orders') }}" class="btn btn-info btn-sm">
                         <i class="fas fa-arrow-right me-1"></i>View Report
                     </a>
-                    <a href="{{ route('admin.reports.export', ['type' => 'orders', 'period' => $period]) }}" class="btn btn-outline-info btn-sm">
+                    <a href="{{ route('admin.reports.export', ['type' => 'orders', 'period' => $period]) }}" class="btn btn-outline-info btn-sm" target="_blank">
                         <i class="fas fa-download me-1"></i>Export PDF
                     </a>
                 </div>
@@ -176,7 +176,7 @@
                     <a href="{{ route('admin.reports.stitching') }}" class="btn btn-warning btn-sm">
                         <i class="fas fa-arrow-right me-1"></i>View Report
                     </a>
-                    <a href="{{ route('admin.reports.export', ['type' => 'stitching', 'period' => $period]) }}" class="btn btn-outline-warning btn-sm">
+                    <a href="{{ route('admin.reports.export', ['type' => 'stitching', 'period' => $period]) }}" class="btn btn-outline-warning btn-sm" target="_blank">
                         <i class="fas fa-download me-1"></i>Export PDF
                     </a>
                 </div>

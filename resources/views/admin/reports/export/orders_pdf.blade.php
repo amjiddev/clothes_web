@@ -65,7 +65,7 @@
     </style>
 </head>
 <body>
-    <div class="download-button">
+    <div class="download-button" style="display: none;">
         <button class="btn btn-primary" onclick="window.print()">
             <i class="fas fa-download"></i> Download as PDF
         </button>
@@ -121,5 +121,16 @@
     @else
         <p>No orders data available for the selected period.</p>
     @endif
+    <script>
+        // Auto-print when page loads
+        window.addEventListener('load', function() {
+            window.print();
+            
+            // When print dialog is closed/cancelled, go back to orders report
+            window.addEventListener('afterprint', function() {
+                window.location.href = "{{ route('admin.reports.orders') }}";
+            });
+        });
+    </script>
 </body>
 </html>

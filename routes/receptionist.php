@@ -74,9 +74,9 @@ Route::middleware(['auth', 'verified', 'receptionist.only'])->prefix('receptioni
 
     // Invoices
     Route::get('invoices', [InvoiceController::class, 'index'])->name('invoices.index');
-    Route::get('invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
-    Route::get('invoices/{invoice}/download', [InvoiceController::class, 'download'])->name('invoices.download');
-    Route::get('invoices/{invoice}/print', [InvoiceController::class, 'print'])->name('invoices.print');
+    Route::get('invoices/{order}', [InvoiceController::class, 'show'])->name('invoices.show');
+    Route::get('invoices/{order}/download', [InvoiceController::class, 'download'])->name('invoices.download');
+    Route::get('invoices/{order}/print', [InvoiceController::class, 'print'])->name('invoices.print');
 
     // Reports
     Route::prefix('reports')->name('reports.')->group(function () {

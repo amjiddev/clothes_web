@@ -53,7 +53,7 @@ class InvoiceController extends Controller
     }
 
     /**
-     * Download invoice as PDF
+     * Download invoice as PDF (auto-triggers print dialog)
      */
     public function download(Order $order)
     {
@@ -61,8 +61,8 @@ class InvoiceController extends Controller
 
         $order->load(['user', 'orderItems']);
 
-        // Return print view - users can use browser print to PDF
-        return view('receptionist.invoices.print', compact('order'));
+        // Return print view with auto-print script
+        return view('receptionist.invoices.print-auto', compact('order'));
     }
 
     /**

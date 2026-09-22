@@ -606,6 +606,7 @@ class OrderController extends Controller
         $garmentType = $validated['garment_type'] ?? $request->input('garment_type', 'custom');
         $measurementId = $validated['measurement_id'] ?? $request->input('measurement_id');
         $stitchingInstructions = $validated['stitching_instructions'] ?? $request->input('stitching_instructions');
+        $stitchingCharge = floatval($validated['stitching_charge'] ?? $request->input('stitching_charge', 0));
 
         \Log::warning('Stitching order data being created:', [
             'order_id' => $order->id,
@@ -614,6 +615,7 @@ class OrderController extends Controller
             'garment_type' => $garmentType,
             'measurement_id' => $measurementId,
             'design_details' => $stitchingInstructions,
+            'estimated_cost' => $stitchingCharge,
             'stitching_status' => 'pending',
         ]);
 
@@ -624,6 +626,7 @@ class OrderController extends Controller
             'garment_type' => $garmentType,
             'measurement_id' => $measurementId,
             'design_details' => $stitchingInstructions,
+            'estimated_cost' => $stitchingCharge,
             'stitching_status' => 'pending',
         ];
 
