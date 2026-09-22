@@ -274,7 +274,10 @@
                             <div class="col-lg-12 mb-4" x-show="['ready_made', 'combined'].includes(orderType)">
                                 <div class="card border-1">
                                     <div class="card-header bg-light">
-                                        <h5 class="card-title mb-0">
+                                        <h5 class="card-title mb-0" x-show="!productSearch.trim() && !selectedCategory">
+                                            <i class="fas fa-clock me-2"></i>Recently Used Products
+                                        </h5>
+                                        <h5 class="card-title mb-0" x-show="productSearch.trim() || selectedCategory">
                                             <i class="fas fa-shopping-bag me-2"></i>Products
                                         </h5>
                                     </div>
@@ -362,7 +365,12 @@
                                         </div>
 
                                         <div x-show="filteredProducts.length === 0" class="alert alert-info mt-3">
-                                            <i class="fas fa-info-circle me-2"></i>No products found. Try adjusting your search or filters.
+                                            <span x-show="!productSearch.trim() && !selectedCategory">
+                                                <i class="fas fa-info-circle me-2"></i>No recently used products. Search or filter to find products.
+                                            </span>
+                                            <span x-show="productSearch.trim() || selectedCategory">
+                                                <i class="fas fa-info-circle me-2"></i>No products found. Try adjusting your search or filters.
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -907,16 +915,30 @@ function orderForm() {
         get filteredProducts() {
             let products = this.allProducts;
 
-            if (this.selectedCategory) {
-                products = products.filter(p => p.category_id == this.selectedCategory);
+            // If no search term and no category filter, show last 4 used products
+            if (!this.productSearch.trim() && !this.selectedCategory) {
+                const lastUsedIds = this.getLastUsedProductIds();
+                if (lastUsedIds.length > 0) {
+                    products = products.filter(p => lastUsedIds.includes(p.id));
+                    // Sort by usage order (most recent first)
+                    products = products.sort((a, b) => {
+                        return lastUsedIds.indexOf(a.id) - lastUsedIds.indexOf(b.id);
+                    });
+                }
+            } else {
+                // Apply filters - search through ALL products
+                if (this.selectedCategory) {
+                    products = products.filter(p => p.category_id == this.selectedCategory);
+                }
+
+                if (this.productSearch.trim()) {
+                    const search = this.productSearch.toLowerCase();
+                    products = products.filter(p => p.name.toLowerCase().includes(search));
+                }
             }
 
-            if (this.productSearch.trim()) {
-                const search = this.productSearch.toLowerCase();
-                products = products.filter(p => p.name.toLowerCase().includes(search));
-            }
-
-            return products;
+            // Limit to 4 products
+            return products.slice(0, 4);
         },
 
         get selectedProducts() {
@@ -1004,6 +1026,8 @@ function orderForm() {
             const qty = parseInt(quantity) || 0;
             if (qty > 0) {
                 this.productQuantities[productId] = qty;
+                // Save product to last used products
+                this.saveLastUsedProduct(productId);
             } else {
                 delete this.productQuantities[productId];
             }
@@ -1013,6 +1037,32 @@ function orderForm() {
         removeProduct(productId) {
             delete this.productQuantities[productId];
             this.recalculateTotal();
+        },
+
+        // LocalStorage methods for last used products
+        getLastUsedProductIds() {
+            try {
+                const stored = localStorage.getItem('lastUsedProducts');
+                return stored ? JSON.parse(stored) : [];
+            } catch (error) {
+                console.error('Error reading last used products:', error);
+                return [];
+            }
+        },
+
+        saveLastUsedProduct(productId) {
+            try {
+                let lastUsed = this.getLastUsedProductIds();
+                // Remove if already exists
+                lastUsed = lastUsed.filter(id => id !== productId);
+                // Add to beginning
+                lastUsed.unshift(productId);
+                // Keep only last 4
+                lastUsed = lastUsed.slice(0, 4);
+                localStorage.setItem('lastUsedProducts', JSON.stringify(lastUsed));
+            } catch (error) {
+                console.error('Error saving last used product:', error);
+            }
         },
 
         previewDesignImage(event) {
