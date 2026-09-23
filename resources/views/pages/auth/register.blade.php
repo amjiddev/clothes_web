@@ -4,6 +4,7 @@
     <form class="form w-100" method="POST" novalidate="novalidate" id="kt_sign_up_form" data-kt-redirect-url="{{ route('login') }}"
         action="{{ route('register') }}">
         @csrf
+        <input type="hidden" name="_iframe" value="1">
         <!--begin::Heading-->
         <div class="text-center mb-11">
             <!--begin::Title-->

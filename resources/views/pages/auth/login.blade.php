@@ -2,8 +2,9 @@
 
     <!--begin::Form-->
     <form class="form w-100" method="POST" autocomplete="off" novalidate="novalidate" id="kt_sign_in_form" data-kt-redirect-url="{{ route('dashboard') }}"
-        action="{{ route('login') }}" target="_top">
+        action="{{ route('login') }}">
         @csrf
+        <input type="hidden" name="_iframe" value="1">
         <!--begin::Heading-->
         <div class="text-center mb-11">
             <!--begin::Title-->

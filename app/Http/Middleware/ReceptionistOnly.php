@@ -18,7 +18,7 @@ class ReceptionistOnly
     {
         // Check if user is authenticated
         if (!auth()->check()) {
-            return redirect()->route('login');
+            return redirect()->route('home');
         }
 
         // Check if email is verified

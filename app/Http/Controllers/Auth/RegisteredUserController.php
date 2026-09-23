@@ -59,12 +59,25 @@ class RegisteredUserController extends Controller
             event(new Registered($user));
         }
 
-        // Return success response
-        return response()->json([
-            'message' => $user->hasVerifiedEmail()
-                ? 'Registration successful. You can now sign in.'
+        // Auto-login the user after registration
+        Auth::login($user);
+
+        // Determine redirect URL
+        $redirectUrl = route('home');
+
+        // Check if request is from iframe (modal registration)
+        if ($request->header('Sec-Fetch-Dest') === 'iframe' || $request->input('_iframe') === '1') {
+            return response()->view('auth.redirect-parent', [
+                'redirectUrl' => $redirectUrl
+            ]);
+        }
+
+        // Normal redirect for non-iframe requests
+        return redirect($redirectUrl)->with('success', 
+            $user->hasVerifiedEmail()
+                ? 'Registration successful! Welcome to our store.'
                 : 'Please check your email to verify your account.'
-        ]);
+        );
     }
 
     public function changePassword()
