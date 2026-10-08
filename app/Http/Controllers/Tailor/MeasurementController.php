@@ -41,7 +41,7 @@ class MeasurementController extends Controller
         $measurementTypes = [
             'custom' => 'Custom',
             'standard' => 'Standard',
-            'ready_made' => 'Ready Made',
+            'ready_made' => 'Cloth Only',
         ];
 
         return view('tailor.measurements.index', [

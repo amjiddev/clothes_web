@@ -145,7 +145,7 @@
                                                 <input type="radio" id="readyMade" class="custom-control-input" 
                                                     x-model="orderType" value="ready_made" name="order_type" required>
                                                 <label class="custom-control-label" for="readyMade">
-                                                    Ready Made
+                                                    Cloth Only
                                                 </label>
                                             </div>
                                             <div class="custom-control custom-radio mb-2">

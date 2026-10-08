@@ -33,7 +33,7 @@
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="order_type" id="orderType1" value="ready_made" checked>
                         <label class="form-check-label" for="orderType1">
-                            Ready Made
+                            Cloth Only
                         </label>
                     </div>
                     <div class="form-check">

@@ -216,7 +216,7 @@
                                                         x-model="orderType"
                                                     >
                                                     <label class="form-check-label w-100 p-3 border rounded cursor-pointer" for="orderTypeReady" :class="{ 'bg-light border-primary': orderType === 'ready_made' }">
-                                                        <strong>Ready Made</strong>
+                                                        <strong>Cloth Only</strong>
                                                         <div class="small text-muted mt-1">Cloth/fabric products only</div>
                                                     </label>
                                                 </div>
@@ -900,6 +900,20 @@ function orderForm() {
         allCustomers: @json($customers),
         allProducts: @json($products),
         allCategories: @json($categories),
+        preselectedCustomer: @json($selectedCustomer ?? null),
+
+        // Initialization
+        init() {
+            // If customer is pre-selected from customer table, auto-select them
+            if (this.preselectedCustomer) {
+                this.selectedCustomerId = this.preselectedCustomer.id;
+                this.loadCustomerMeasurements(this.preselectedCustomer.id);
+                // Switch to "Existing Customer" tab
+                setTimeout(() => {
+                    document.getElementById('existingCustomerTab').click();
+                }, 100);
+            }
+        },
 
         // Computed properties
         get filteredCustomers() {
@@ -1091,7 +1105,7 @@ function orderForm() {
 
             if (!this.orderType) {
                 event.preventDefault();
-                alert('❌ Please select an order type (Ready Made, Stitching, or Combined)');
+                alert('❌ Please select an order type (Cloth Only, Stitching, or Combined)');
                 return;
             }
 

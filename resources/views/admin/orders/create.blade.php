@@ -46,14 +46,14 @@
                             <label for="type" class="form-label fw-bold">Order Type <span class="text-danger">*</span></label>
                             <select class="form-select @error('type') is-invalid @enderror" id="type" name="type" required onchange="updateFormFields()">
                                 <option value="">Select Order Type</option>
-                                <option value="ready_made" {{ old('type') == 'ready_made' ? 'selected' : '' }}>Ready Made</option>
+                                <option value="ready_made" {{ old('type') == 'ready_made' ? 'selected' : '' }}>Cloth Only</option>
                                 <option value="stitching" {{ old('type') == 'stitching' ? 'selected' : '' }}>Stitching Only</option>
-                                <option value="combined" {{ old('type') == 'combined' ? 'selected' : '' }}>Combined (Clothes + Stitching)</option>
+                                <option value="combined" {{ old('type') == 'combined' ? 'selected' : '' }}>Cloth Only + Stitching</option>
                             </select>
                             @error('type')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
 
-                        <!-- Ready Made / Combined Items -->
+                        <!-- Cloth Only / Combined Items -->
                         <div id="itemsSection" style="display: none;">
                             <h5 class="fw-bold mt-4 mb-3">Products</h5>
                             <div id="itemsContainer"></div>

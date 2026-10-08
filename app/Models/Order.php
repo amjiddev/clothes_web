@@ -103,9 +103,9 @@ class Order extends Model
     public function getOrderTypeAttribute()
     {
         $types = [
-            'ready_made' => 'Ready Made',
+            'ready_made' => 'Cloth Only',
             'stitching' => 'Stitching Only',
-            'combined' => 'Ready Made + Stitching',
+            'combined' => 'Cloth Only + Stitching',
         ];
         return $types[$this->type] ?? ucfirst($this->type);
     }

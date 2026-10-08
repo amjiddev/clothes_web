@@ -84,7 +84,7 @@ class OrderController extends Controller
      * Show order creation form - Single Page
      * Fetch ALL required data for the single-page form
      */
-    public function create()
+    public function create(Request $request)
     {
         // Get all non-blocked customers
         $customers = User::where(function($q) {
@@ -104,7 +104,14 @@ class OrderController extends Controller
         // Get all categories
         $categories = Category::active()->orderBy('name')->get();
 
-        return view('receptionist.orders.create', compact('customers', 'products', 'categories'));
+        // Get customer_id from query parameter if provided
+        $selectedCustomer = null;
+        $customerId = $request->query('customer_id');
+        if ($customerId) {
+            $selectedCustomer = $customers->find($customerId);
+        }
+
+        return view('receptionist.orders.create', compact('customers', 'products', 'categories', 'selectedCustomer'));
     }
 
     /**
