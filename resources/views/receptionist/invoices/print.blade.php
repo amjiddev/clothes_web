@@ -3,515 +3,391 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice #{{ $order->order_number }}</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 13px;
-            line-height: 1.5;
-            color: #333;
-            background: #f5f5f5;
-            padding: 20px;
-        }
-
-        .print-container {
-            background: white;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 40px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-
-        /* Header */
-        .invoice-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 40px;
-            border-bottom: 3px solid #2c3e50;
-            padding-bottom: 20px;
-        }
-
-        .shop-logo-area {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .shop-logo {
-            font-size: 36px;
-            width: 60px;
-            height: 60px;
-            background: #2c3e50;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 5px;
-        }
-
-        .shop-info h1 {
-            font-size: 26px;
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 5px;
-        }
-
-        .shop-info p {
-            color: #666;
-            font-size: 12px;
-            margin: 2px 0;
-        }
-
-        .invoice-title-area {
-            text-align: right;
-        }
-
-        .invoice-title {
-            font-size: 36px;
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-
-        .invoice-number {
-            font-size: 12px;
-            color: #666;
-            line-height: 1.8;
-        }
-
-        /* Details Grid */
-        .details-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-
-        .detail-block {
-            background: #f9f9f9;
-            padding: 15px;
-            border-left: 4px solid #2c3e50;
-        }
-
-        .detail-block h3 {
-            font-size: 12px;
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
-
-        .detail-block p {
-            font-size: 12px;
-            margin: 5px 0;
-            color: #555;
-        }
-
-        .detail-block strong {
-            color: #2c3e50;
-        }
-
-        /* Items Table */
-        .items-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 30px 0;
-        }
-
-        .items-table thead {
-            background: #2c3e50;
-            color: white;
-        }
-
-        .items-table th {
-            padding: 12px;
-            text-align: left;
-            font-weight: bold;
-            font-size: 12px;
-            border: 1px solid #2c3e50;
-        }
-
-        .items-table td {
-            padding: 12px;
-            border: 1px solid #ddd;
-            font-size: 12px;
-        }
-
-        .items-table tbody tr:nth-child(even) {
-            background: #f9f9f9;
-        }
-
-        .items-table .text-right {
-            text-align: right;
-        }
-
-        .items-table .text-center {
-            text-align: center;
-        }
-
-        .items-table .item-name {
-            font-weight: bold;
-            color: #2c3e50;
-        }
-
-        .items-table .item-desc {
-            font-size: 11px;
-            color: #999;
-            margin-top: 3px;
-        }
-
-        /* Summary */
-        .summary-container {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
-            margin: 30px 0;
-        }
-
-        .payment-info {
-            background: #e8f4f8;
-            padding: 20px;
-            border-left: 4px solid #0288d1;
-            border-radius: 3px;
-        }
-
-        .payment-info p {
-            margin: 8px 0;
-            font-size: 12px;
-        }
-
-        .payment-info strong {
-            color: #0288d1;
-        }
-
-        .summary-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .summary-table tr {
-            border-bottom: 1px solid #ddd;
-        }
-
-        .summary-table td {
-            padding: 12px 10px;
-            font-size: 12px;
-        }
-
-        .summary-table .label {
-            text-align: left;
-            width: 60%;
-            font-weight: 500;
-        }
-
-        .summary-table .value {
-            text-align: right;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-
-        .summary-table .total-row {
-            background: #2c3e50;
-            color: white;
-            font-size: 14px;
-        }
-
-        .summary-table .total-row .label,
-        .summary-table .total-row .value {
-            background: #2c3e50;
-            color: white;
-            padding: 15px 10px;
-            font-weight: bold;
-        }
-
-        /* Status Badges */
-        .badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .badge-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .badge-warning {
-            background: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeaa7;
-        }
-
-        .badge-danger {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        /* Footer */
-        .invoice-footer {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 2px solid #ddd;
-        }
-
-        .footer-message {
-            text-align: center;
-            font-size: 14px;
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 15px;
-        }
-
-        .footer-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px;
-            font-size: 11px;
-            color: #666;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .footer-note {
-            background: #fffbea;
-            padding: 15px;
-            border-left: 4px solid #ff9800;
-            font-size: 11px;
-            color: #555;
-            line-height: 1.6;
-            margin-top: 15px;
-        }
-
-        /* Print Styles */
-        @media print {
-            body {
-                background: white;
-                padding: 0;
-            }
-
-            .print-container {
-                box-shadow: none;
-                padding: 0;
-                page-break-after: always;
-            }
-
-            .print-button {
-                display: none;
-            }
-
-            a {
-                text-decoration: none;
-                color: inherit;
-            }
-        }
-
-        .print-button {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 10px 20px;
-            background: #2c3e50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: bold;
-            z-index: 100;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        .print-button:hover {
-            background: #1a252f;
-        }
-    </style>
+    <title>Invoice {{ $invoice->invoice_number }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <button class="print-button" onclick="window.print()">🖨️ Print Invoice</button>
 
-    <div class="print-container">
-        <!-- Header -->
-        <div class="invoice-header">
-            <div class="shop-logo-area">
-                <div class="shop-logo">🧵</div>
-                <div class="shop-info">
-                    <h1>TAILOR SHOP</h1>
-                    <p>Professional Tailoring Services</p>
-                    <p>📍 Shop No. 123, Main Street, City</p>
-                    <p>📞 +92-300-1234567 | ✉️ info@tailorshop.com</p>
-                </div>
+<!-- Print-only header with logo and company name -->
+<div class="print-header">
+    <div class="print-logo-container">
+        @if(config('app.logo'))
+            <img src="{{ asset(config('app.logo')) }}" alt="{{ config('app.name') }}" class="print-logo">
+        @else
+            <div class="print-logo-placeholder">
+                <i class="fas fa-store"></i>
             </div>
-            <div class="invoice-title-area">
-                <div class="invoice-title">INVOICE</div>
-                <div class="invoice-number">
-                    <strong>Invoice #:</strong> {{ $order->order_number }}<br>
-                    <strong>Date:</strong> {{ $order->created_at?->format('M d, Y') ?? 'N/A' }}<br>
-                    <strong>Time:</strong> {{ $order->created_at?->format('h:i A') ?? 'N/A' }}
-                </div>
-            </div>
-        </div>
-
-        <!-- Details Section -->
-        <div class="details-grid">
-            <div class="detail-block">
-                <h3>📋 Bill To:</h3>
-                @if($order->user)
-                <p><strong>{{ $order->user->name }}</strong></p>
-                <p>{{ $order->user->email }}</p>
-                <p>{{ $order->user->contact_number ?? 'N/A' }}</p>
-                <p>{{ $order->user->address ?? 'N/A' }}</p>
-                @else
-                <p><strong>Customer Information Not Available</strong></p>
-                <p>Order ID: {{ $order->id }}</p>
-                @endif
-            </div>
-
-            <div class="detail-block">
-                <h3>📦 Order Details:</h3>
-                <p><strong>Order #:</strong> {{ $order->order_number }}</p>
-                <p><strong>Type:</strong> {{ $order->order_type ?? ucfirst($order->type) }}</p>
-                <p><strong>Status:</strong> <span class="badge badge-{{ $order->status === 'delivered' ? 'success' : ($order->status === 'cancelled' ? 'danger' : 'warning') }}">{{ $order->status_text ?? ucfirst(str_replace('_', ' ', $order->status)) }}</span></p>
-                @if($order->delivery_date)
-                <p><strong>Delivery:</strong> {{ $order->delivery_date->format('M d, Y') }}</p>
-                @endif
-            </div>
-        </div>
-
-        <!-- Items Table -->
-        <table class="items-table">
-            <thead>
-                <tr>
-                    <th style="width: 40%;">Description</th>
-                    <th style="width: 15%; text-align: center;">Qty</th>
-                    <th style="width: 22.5%; text-align: right;">Unit Price</th>
-                    <th style="width: 22.5%; text-align: right;">Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($order->orderItems as $item)
-                <tr>
-                    <td>
-                        <div class="item-name">{{ $item->product->name ?? 'N/A' }}</div>
-                        <div class="item-desc">
-                            @if($item->product?->size)Size: {{ $item->product->size }}@endif
-                            @if($item->product?->color) | Color: {{ $item->product->color }}@endif
-                        </div>
-                    </td>
-                    <td class="text-center">{{ $item->quantity }}</td>
-                    <td class="text-right">PKR {{ number_format($item->unit_price, 2) }}</td>
-                    <td class="text-right"><strong>PKR {{ number_format($item->quantity * $item->unit_price, 2) }}</strong></td>
-                </tr>
-                @empty
-                @endforelse
-
-                @if($order->stitchingOrder)
-                <tr>
-                    <td>
-                        <div class="item-name">Stitching Services</div>
-                        <div class="item-desc">Professional tailoring work @if($order->stitchingOrder->measurement) | {{ $order->stitchingOrder->measurement->profile_name }}@endif</div>
-                    </td>
-                    <td class="text-center">1</td>
-                    <td class="text-right">PKR {{ number_format($order->stitching_charge, 2) }}</td>
-                    <td class="text-right"><strong>PKR {{ number_format($order->stitching_charge, 2) }}</strong></td>
-                </tr>
-                @endif
-            </tbody>
-        </table>
-
-        <!-- Summary Section -->
-        <div class="summary-container">
-            <div class="payment-info">
-                <p><strong style="font-size: 13px;">PAYMENT INFORMATION</strong></p>
-                <p style="margin-top: 12px;">
-                    <strong>Method:</strong> 💵 Cash
-                </p>
-                <p><strong>Status:</strong>
-                    <span class="badge badge-success">✓ Confirmed</span>
-                </p>
-            </div>
-
-            <table class="summary-table">
-                <tr>
-                    <td class="label">Subtotal:</td>
-                    <td class="value">PKR {{ number_format($order->subtotal ?? 0, 2) }}</td>
-                </tr>
-                @if($order->stitching_charge > 0)
-                <tr>
-                    <td class="label">Stitching Charge:</td>
-                    <td class="value">PKR {{ number_format($order->stitching_charge, 2) }}</td>
-                </tr>
-                @endif
-                @if($order->tax > 0)
-                <tr>
-                    <td class="label">Tax (GST/VAT):</td>
-                    <td class="value">PKR {{ number_format($order->tax, 2) }}</td>
-                </tr>
-                @endif
-                @if($order->discount > 0)
-                <tr>
-                    <td class="label">Discount:</td>
-                    <td class="value">-PKR {{ number_format($order->discount, 2) }}</td>
-                </tr>
-                @endif
-                <tr class="total-row">
-                    <td class="label">TOTAL AMOUNT DUE:</td>
-                    <td class="value">PKR {{ number_format($order->total, 2) }}</td>
-                </tr>
-            </table>
-        </div>
-
-        <!-- Special Notes -->
-        @if($order->notes)
-        <div class="footer-note">
-            <strong>📝 Special Instructions:</strong><br>
-            {{ $order->notes }}
-        </div>
         @endif
-
-        <!-- Footer -->
-        <div class="invoice-footer">
-            <div class="footer-message">🙏 Thank You for Your Business! 🙏</div>
-            
-            <div class="footer-content">
-                <div>
-                    <strong>Contact Us</strong><br>
-                    info@tailorshop.com<br>
-                    +92-300-1234567
-                </div>
-                <div>
-                    <strong>Hours</strong><br>
-                    Mon-Sat: 10AM-8PM<br>
-                    Sunday: Closed
-                </div>
-                <div>
-                    <strong>Generated</strong><br>
-                    {{ now()->format('M d, Y') }}<br>
-                    {{ now()->format('h:i A') }}
-                </div>
-            </div>
-
-            <div class="footer-note" style="background: #f0f8ff; border-color: #0288d1; margin-top: 15px;">
-                <strong>Terms & Conditions:</strong><br>
-                • Payment should be made as per agreed terms • All garments must be picked up within 30 days of completion • Returns/Refunds subject to shop policy • This is a computer-generated invoice - no signature required
-            </div>
+        <div class="print-company-info">
+            <h1 class="print-company-name">{{ config('app.name', 'Laravel') }}</h1>
+            <p class="print-tagline">Tailoring & Fashion Store</p>
         </div>
     </div>
+    <div class="print-invoice-title">
+        <h2>ORDER INVOICE</h2>
+        <p class="invoice-number">{{ $invoice->invoice_number }}</p>
+        <p class="invoice-date">{{ $invoice->invoice_date->format('M d, Y') }}</p>
+    </div>
+</div>
 
-    <script>
-        // Auto-print for direct printing (uncomment to enable)
-        // window.print();
-    </script>
+<!-- Customer Information -->
+<div class="customer-info-section">
+    <div class="info-column">
+        <p class="info-label">NAME</p>
+        <p class="info-value">{{ $invoice->order->user->name }}</p>
+        
+        <p class="info-label">EMAIL</p>
+        <p class="info-value">{{ $invoice->order->user->email }}</p>
+        
+        <p class="info-label">PHONE</p>
+        <p class="info-value">{{ $invoice->order->user->phone ?? 'Not provided' }}</p>
+    </div>
+    <div class="info-column">
+        <p class="info-label">CITY</p>
+        <p class="info-value">{{ $invoice->order->user->address?->city ?? 'Not provided' }}</p>
+        
+        <p class="info-label">ADDRESS</p>
+        <p class="info-value">{{ $invoice->order->user->address?->address_line_1 ?? 'Not provided' }}</p>
+        
+        <p class="info-label">CUSTOMER ID</p>
+        <p class="info-value">#{{ $invoice->order->user->id }}</p>
+
+        @if($invoice->order->stitchingOrder)
+        <p class="info-label">GARMENT TYPE</p>
+        <p class="info-value">{{ $invoice->order->stitchingOrder->garment_type ?? 'Not specified' }}</p>
+        
+        <p class="info-label">FABRIC TYPE</p>
+        <p class="info-value">{{ $invoice->order->stitchingOrder->fabric_details ?? 'Not specified' }}</p>
+        @endif
+    </div>
+</div>
+
+<!-- Items Table -->
+@if($invoice->order->orderItems->count() > 0)
+<table class="items-table">
+    <thead>
+        <tr>
+            <th>PRODUCT</th>
+            <th>CATEGORY</th>
+            <th style="text-align: center;">QUANTITY</th>
+            <th style="text-align: right;">PRICE</th>
+            <th style="text-align: right;">TOTAL</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($invoice->order->orderItems as $item)
+        <tr>
+            <td>{{ $item->product->name }}</td>
+            <td>{{ $item->product->category?->name ?? 'N/A' }}</td>
+            <td style="text-align: center;">{{ $item->quantity }}</td>
+            <td style="text-align: right;">Rs. {{ number_format($item->price, 2) }}</td>
+            <td style="text-align: right;">Rs. {{ number_format($item->total, 2) }}</td>
+        </tr>
+        @endforeach
+    </tbody>
+</table>
+@endif
+
+<!-- Totals Section -->
+<div class="totals-section">
+    <table class="totals-table">
+        <tr>
+            <td class="total-label">Subtotal</td>
+            <td class="total-amount">Rs. {{ number_format($invoice->subtotal, 2) }}</td>
+        </tr>
+        @if($invoice->order->stitching_charge > 0)
+        <tr>
+            <td class="total-label">Stitching Charges</td>
+            <td class="total-amount">Rs. {{ number_format($invoice->order->stitching_charge, 2) }}</td>
+        </tr>
+        @endif
+        <tr class="grand-total-row">
+            <td class="total-label"><strong>Total Amount</strong></td>
+            <td class="total-amount"><strong>Rs. {{ number_format($invoice->total_amount, 2) }}</strong></td>
+        </tr>
+    </table>
+</div>
+
+<!-- Payment Status -->
+@if($invoice->balance_due > 0)
+<div class="balance-due-box">
+    <p class="balance-label">AMOUNT DUE</p>
+    <p class="balance-amount">Rs. {{ number_format($invoice->balance_due, 2) }}</p>
+</div>
+@else
+<div class="paid-full-box">
+    PAID IN FULL
+</div>
+@endif
+
+<!-- Payment History -->
+@if($invoice->payments->count() > 0)
+<div class="payment-history-section">
+    <h3>PAYMENT HISTORY</h3>
+    @foreach($invoice->payments as $payment)
+    <div class="payment-item">
+        Rs. {{ number_format($payment->amount, 2) }} - {{ $payment->payment_method_text }} - {{ $payment->payment_date->format('M d, Y') }}
+    </div>
+    @endforeach
+</div>
+@endif
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: #ffffff !important;
+}
+
+@page { 
+    size: A4; 
+    margin: 0.5cm; 
+}
+
+body {
+    font-family: Arial, sans-serif;
+    font-size: 10pt;
+    line-height: 1.4;
+    color: #000;
+    background: #ffffff !important;
+    padding: 15px;
+}
+
+/* Print Header */
+.print-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #000;
+}
+
+.print-logo-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.print-logo {
+    max-width: 50px;
+    max-height: 50px;
+    object-fit: contain;
+}
+
+.print-logo-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    background: #000;
+    border-radius: 4px;
+}
+
+.print-logo-placeholder i {
+    font-size: 24px;
+    color: #fff;
+}
+
+.print-company-name {
+    font-size: 18pt;
+    font-weight: bold;
+    margin: 0;
+    line-height: 1;
+}
+
+.print-tagline {
+    font-size: 9pt;
+    color: #0066cc;
+    margin: 3px 0 0 0;
+}
+
+.print-invoice-title {
+    text-align: right;
+}
+
+.print-invoice-title h2 {
+    font-size: 16pt;
+    font-weight: bold;
+    margin: 0 0 5px 0;
+}
+
+.print-invoice-title .invoice-number,
+.print-invoice-title .invoice-date {
+    font-size: 9pt;
+    margin: 2px 0;
+}
+
+/* Customer Info Section */
+.customer-info-section {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.info-column {
+    width: 48%;
+}
+
+.info-label {
+    font-size: 8pt;
+    color: #ff8c00;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin: 8px 0 2px 0;
+}
+
+.info-label:first-child {
+    margin-top: 0;
+}
+
+.info-value {
+    font-size: 9.5pt;
+    margin: 0 0 0 0;
+    color: #000;
+}
+
+/* Items Table */
+.items-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+}
+
+.items-table thead {
+    background: #fff;
+}
+
+.items-table th,
+.items-table td {
+    border: 1px solid #000;
+    padding: 8px 10px;
+    font-size: 9pt;
+}
+
+.items-table th {
+    font-weight: bold;
+    text-align: left;
+    font-size: 8.5pt;
+}
+
+.items-table tbody tr:nth-child(even) {
+    background: #f9f9f9;
+}
+
+/* Totals Section */
+.totals-section {
+    margin: 15px 0;
+    text-align: right;
+}
+
+.totals-table {
+    width: 350px;
+    margin-left: auto;
+    border-collapse: collapse;
+}
+
+.totals-table td {
+    padding: 6px 10px;
+    font-size: 9.5pt;
+}
+
+.total-label {
+    text-align: right;
+    padding-right: 20px;
+}
+
+.total-amount {
+    text-align: right;
+    font-weight: bold;
+}
+
+.grand-total-row td {
+    border-top: 2px solid #000;
+    padding-top: 10px;
+    font-size: 11pt;
+}
+
+/* Payment Status Boxes */
+.balance-due-box {
+    margin: 20px 0;
+    padding: 15px;
+    background: #fff3cd;
+    border: 2px solid #000;
+    text-align: center;
+}
+
+.balance-label {
+    font-size: 10pt;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.balance-amount {
+    font-size: 18pt;
+    font-weight: bold;
+}
+
+.paid-full-box {
+    margin: 20px 0;
+    padding: 15px;
+    background: #d4edda;
+    border: 2px solid #28a745;
+    text-align: center;
+    font-size: 14pt;
+    font-weight: bold;
+    color: #155724;
+}
+
+/* Payment History */
+.payment-history-section {
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+}
+
+.payment-history-section h3 {
+    font-size: 10pt;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.payment-item {
+    padding: 8px;
+    margin-bottom: 6px;
+    background: #f8f9fa;
+    border-left: 4px solid #28a745;
+    font-size: 9pt;
+}
+
+@media print {
+    html, body {
+        background: #ffffff !important;
+        width: 100%;
+        height: 100%;
+    }
+    
+    body {
+        padding: 0;
+    }
+}
+</style>
+
+<script>
+// Auto-trigger print dialog when page loads
+window.onload = function() {
+    window.print();
+}
+</script>
+
 </body>
 </html>

@@ -38,7 +38,7 @@ class Tailor extends Model
 
     public function stitchingOrders()
     {
-        return $this->user->tailorAssignments();
+        return $this->hasMany(StitchingOrder::class, 'tailor_id', 'user_id');
     }
 
     public function isActive()
@@ -58,7 +58,7 @@ class Tailor extends Model
      */
     public function getTotalAssignedOrders()
     {
-        return $this->user->tailorAssignments()->count();
+        return $this->stitchingOrders()->count();
     }
 
     /**
@@ -66,7 +66,7 @@ class Tailor extends Model
      */
     public function getCompletedOrders()
     {
-        return $this->user->tailorAssignments()
+        return $this->stitchingOrders()
             ->where('stitching_status', 'completed')
             ->count();
     }
@@ -76,7 +76,7 @@ class Tailor extends Model
      */
     public function getPendingOrders()
     {
-        return $this->user->tailorAssignments()
+        return $this->stitchingOrders()
             ->whereIn('stitching_status', ['pending', 'assigned', 'in_progress', 'ready_for_fitting', 'in_fitting'])
             ->count();
     }
@@ -86,7 +86,7 @@ class Tailor extends Model
      */
     public function getActiveOrders()
     {
-        return $this->user->tailorAssignments()
+        return $this->stitchingOrders()
             ->whereIn('stitching_status', ['assigned', 'in_progress', 'ready_for_fitting', 'in_fitting'])
             ->count();
     }

@@ -157,10 +157,27 @@
                                 <i class="fas fa-edit"></i>
                             </a>
 
-                            <button class="btn btn-outline-success" type="button" 
-                                    onclick="window.open('{{ route('receptionist.orders.show', $order) }}', '_blank')"
-                                    title="Print Invoice">
-                                <i class="fas fa-print"></i>
+                            @if($order->invoice)
+                                <!-- View Invoice if exists -->
+                                <a href="{{ route('receptionist.invoices.show', $order->invoice) }}" 
+                                   class="btn btn-outline-success" title="View Invoice">
+                                    <i class="fas fa-file-invoice"></i>
+                                </a>
+                            @else
+                                <!-- Create Invoice if doesn't exist -->
+                                <a href="{{ route('receptionist.invoices.create', $order) }}" 
+                                   class="btn btn-outline-primary" title="Create Invoice">
+                                    <i class="fas fa-plus-circle"></i> Invoice
+                                </a>
+                            @endif
+                            
+                            <!-- Delete Button -->
+                            <button type="button" 
+                               class="btn btn-outline-danger delete-btn" 
+                               title="Delete Order"
+                               data-bs-toggle="modal" 
+                               data-bs-target="#deleteModal{{ $order->id }}">
+                                <i class="fas fa-trash"></i>
                             </button>
                         </div>
                     </td>
@@ -196,6 +213,42 @@
                                     <button type="submit" class="btn btn-sm btn-primary">Update</button>
                                 </div>
                             </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delete Confirmation Modal for each order -->
+                <div class="modal fade" id="deleteModal{{ $order->id }}" tabindex="-1">
+                    <div class="modal-dialog modal-sm">
+                        <div class="modal-content">
+                            <div class="modal-header bg-danger bg-opacity-10">
+                                <h6 class="modal-title text-danger">
+                                    <i class="fas fa-trash me-2"></i>Delete Order
+                                </h6>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="mb-3"><strong>Are you sure you want to delete this order?</strong></p>
+                                <p class="text-muted mb-2">
+                                    Order: <strong>{{ $order->order_number }}</strong><br>
+                                    Customer: <strong>{{ $order->user->name }}</strong><br>
+                                    Amount: <strong>Rs. {{ number_format($order->total, 2) }}</strong>
+                                </p>
+                                <div class="alert alert-warning mb-0">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    <small>This action cannot be undone. All related order items will also be deleted.</small>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <form method="POST" action="{{ route('receptionist.orders.destroy', $order) }}" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash me-1"></i>Delete
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>

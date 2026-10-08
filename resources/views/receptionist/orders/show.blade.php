@@ -8,6 +8,28 @@
 @endsection
 
 @section('content')
+<!-- Print-only header with logo and company name -->
+<div class="print-header" style="display: none;">
+    <div class="print-logo-container">
+        @if(config('app.logo'))
+            <img src="{{ asset(config('app.logo')) }}" alt="{{ config('app.name') }}" class="print-logo">
+        @else
+            <div class="print-logo-placeholder">
+                <i class="fas fa-store"></i>
+            </div>
+        @endif
+        <div class="print-company-info">
+            <h1 class="print-company-name">{{ config('app.name', 'CLOTHES') }}</h1>
+            <p class="print-tagline">Tailoring & Fashion Store</p>
+        </div>
+    </div>
+    <div class="print-invoice-title">
+        <h2>ORDER INVOICE</h2>
+        <p class="invoice-number">{{ $order->order_number }}</p>
+        <p class="invoice-date">{{ $order->created_at->format('M d, Y') }}</p>
+    </div>
+</div>
+
 <div class="page-header mb-4">
     <div class="row align-items-center">
         <div class="col">
@@ -20,6 +42,14 @@
             <a href="{{ route('receptionist.orders.index') }}" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-2"></i>Back
             </a>
+                    <a href="{{ route('receptionist.orders.edit', $order) }}" class="btn btn-warning">
+            <i class="fas fa-edit me-2"></i>Edit Order
+        </a>
+        @if(in_array($order->status, ['pending', 'confirmed']))
+        <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelOrderModal">
+            <i class="fas fa-ban me-2"></i>Cancel Order
+        </button>
+        @endif
             <button class="btn btn-primary" onclick="window.print()">
                 <i class="fas fa-print me-2"></i>Print Invoice
             </button>
@@ -28,7 +58,7 @@
 </div>
 
 <!-- Status & Payment Overview -->
-<div class="row mb-4">
+<div class="row mb-4 status-payment-overview">
     <div class="col-md-6">
         <div class="card border-0 shadow">
             <div class="card-body">
@@ -136,10 +166,20 @@
                     <small class="text-muted d-block">Address</small>
                     <strong>{{ $order->user->address?->address_line_1 ?? 'Not provided' }}</strong>
                 </p>
-                <p>
+                <p class="mb-2">
                     <small class="text-muted d-block">Customer ID</small>
                     <strong>#{{ $order->user->id }}</strong>
                 </p>
+                @if($order->stitchingOrder)
+                <p class="mb-2 garment-type-print">
+                    <small class="text-muted d-block">Garment Type</small>
+                    <strong>{{ $order->stitchingOrder->garment_type ?? 'Not specified' }}</strong>
+                </p>
+                <p class="fabric-type-print">
+                    <small class="text-muted d-block">Fabric Type</small>
+                    <strong>{{ $order->stitchingOrder->fabric_details ?? 'Not specified' }}</strong>
+                </p>
+                @endif
             </div>
         </div>
     </div>
@@ -270,8 +310,7 @@
 
 <!-- Order Summary & Pricing -->
 <div class="row mb-4">
-    <div class="col-md-6"></div>
-    <div class="col-md-6">
+    <div class="col-md-12">
         <div class="card border-0 shadow">
             <div class="card-header bg-light border-bottom">
                 <h6 class="mb-0 fw-bold">
@@ -309,77 +348,6 @@
         </div>
     </div>
 </div>
-<!-- Order Timeline -->
-<div class="card border-0 shadow mb-4">
-    <div class="card-header bg-light border-bottom">
-        <h6 class="mb-0 fw-bold">
-            <i class="fas fa-clock me-2"></i>Order Timeline & Status Flow
-        </h6>
-    </div>
-    <div class="card-body">
-        <!-- Status Flow Diagram -->
-        <div class="status-flow-container mb-4">
-            @php
-                $statusFlows = [
-                    'pending' => ['step' => 1, 'label' => 'Pending'],
-                    'confirmed' => ['step' => 2, 'label' => 'Confirmed'],
-                    'in_progress' => ['step' => 3, 'label' => 'In Progress'],
-                    'assigned_to_tailor' => ['step' => 4, 'label' => 'Assigned'],
-                    'stitching_started' => ['step' => 5, 'label' => 'Stitching'],
-                    'completed' => ['step' => 6, 'label' => 'Completed'],
-                    'quality_check' => ['step' => 7, 'label' => 'QC'],
-                    'ready_for_delivery' => ['step' => 8, 'label' => 'Ready'],
-                    'delivered' => ['step' => 9, 'label' => 'Delivered'],
-                ];
-                
-                $currentStep = $statusFlows[$order->status]['step'] ?? 0;
-                $isCancelled = $order->status === 'cancelled';
-            @endphp
-            
-            @if($isCancelled)
-            <div class="alert alert-danger mb-3">
-                <i class="fas fa-ban me-2"></i>
-                <strong>Order Cancelled</strong> - This order is no longer active
-            </div>
-            @else
-            <div class="status-flow d-flex align-items-center gap-2 flex-wrap">
-                @foreach($statusFlows as $statusKey => $statusInfo)
-                <div class="status-step {{ $statusKey === $order->status ? 'active' : '' }} {{ $statusInfo['step'] < $currentStep ? 'completed' : '' }}">
-                    <div class="step-circle">
-                        @if($statusInfo['step'] < $currentStep)
-                        <i class="fas fa-check"></i>
-                        @else
-                        {{ $statusInfo['step'] }}
-                        @endif
-                    </div>
-                    <div class="step-text">{{ $statusInfo['label'] }}</div>
-                </div>
-                @if($loop->index < count($statusFlows) - 1)
-                <div class="status-connector {{ $statusInfo['step'] < $currentStep ? 'completed' : '' }}"></div>
-                @endif
-                @endforeach
-            </div>
-            @endif
-        </div>
-
-        <hr class="my-4">
-
-        <!-- Timeline Events -->
-        <div class="timeline">
-            @foreach($order->getTimeline() as $event)
-            <div class="timeline-item">
-                <div class="timeline-marker">
-                    <i class="fas fa-circle"></i>
-                </div>
-                <div class="timeline-content">
-                    <h6 class="fw-bold">{{ $event['event'] }}</h6>
-                    <small class="text-muted">{{ $event['date']->format('M d, Y h:i A') }}</small>
-                </div>
-            </div>
-            @endforeach
-        </div>
-    </div>
-</div>
 
 <!-- Order Notes -->
 @if($order->notes)
@@ -395,30 +363,7 @@
 </div>
 @endif
 
-<!-- Action Buttons -->
-<div class="card border-0 shadow">
-    <div class="card-body text-center">
-        <button class="btn btn-primary" onclick="window.print()">
-            <i class="fas fa-print me-2"></i>Print Invoice
-        </button>
-        <a href="{{ route('receptionist.orders.edit', $order) }}" class="btn btn-warning">
-            <i class="fas fa-edit me-2"></i>Edit Order
-        </a>
-        @if(!in_array($order->status, ['delivered', 'cancelled']))
-        <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#updateStatusModal">
-            <i class="fas fa-sync me-2"></i>Update Status
-        </button>
-        @endif
-        @if(in_array($order->status, ['pending', 'confirmed']))
-        <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelOrderModal">
-            <i class="fas fa-ban me-2"></i>Cancel Order
-        </button>
-        @endif
-        <a href="{{ route('receptionist.orders.index') }}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-2"></i>Back to Orders
-        </a>
-    </div>
-</div>
+
 
 <!-- Update Status Modal -->
 @if(!in_array($order->status, ['delivered', 'cancelled']))
@@ -515,6 +460,12 @@
 @endif
 
 <style>
+/* Hide garment/fabric type on screen, show only in print */
+.garment-type-print,
+.fabric-type-print {
+    display: none;
+}
+
 .page-title {
     font-size: 24px;
     font-weight: 600;
@@ -551,80 +502,6 @@
 .step-indicator.active .step-label {
     color: #0d6efd;
     font-weight: bold;
-}
-
-/* Status Flow Styles */
-.status-flow-container {
-    overflow-x: auto;
-}
-
-.status-flow {
-    min-height: 100px;
-    padding: 20px 0;
-}
-
-.status-step {
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-}
-
-.status-step .step-circle {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    background-color: #e9ecef;
-    color: #6c757d;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 14px;
-    border: 2px solid #e9ecef;
-}
-
-.status-step.completed .step-circle {
-    background-color: #28a745;
-    color: white;
-    border-color: #28a745;
-}
-
-.status-step.active .step-circle {
-    background-color: #0d6efd;
-    color: white;
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
-}
-
-.status-step .step-text {
-    font-size: 11px;
-    color: #6c757d;
-    font-weight: 500;
-    text-align: center;
-    max-width: 50px;
-}
-
-.status-step.active .step-text {
-    color: #0d6efd;
-    font-weight: 600;
-}
-
-.status-step.completed .step-text {
-    color: #28a745;
-}
-
-.status-connector {
-    width: 30px;
-    height: 3px;
-    background-color: #e9ecef;
-    flex-shrink: 0;
-    margin-top: 20px;
-}
-
-.status-connector.completed {
-    background-color: #28a745;
 }
 
 /* Timeline Styles */
@@ -665,34 +542,362 @@
 }
 
 @media print {
-    .btn, .card-header, .card-footer, .modal {
+    /* Reset everything */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    @page { size: A4; margin: 0.5cm; }
+    
+    html, body {
+        width: 100% !important;
+        height: auto !important;
+        font-family: Arial, sans-serif !important;
+        font-size: 10pt !important;
+        line-height: 1.3 !important;
+        color: #000 !important;
+        background: #fff !important;
+    }
+    
+    /* HIDE UI */
+    #kt_app_sidebar, #kt_app_header, #kt_app_toolbar, #kt_app_footer,
+    .sidebar, nav, aside, .navbar, .breadcrumb, .page-header,
+    .btn, button, .modal, .alert, .debugbar, #debugbar, .phpdebugbar,
+    [class*="debug"], footer, .card-header,
+    .search-bar, [class*="search"], input[type="search"],
+    .user-menu, .profile, [class*="profile"], .dropdown,
+    .app-navbar, .navbar-nav, form[role="search"],
+    #kt_header, .app-header-menu, .header-menu,
+    [data-kt-menu="true"], .menu, .menu-item,
+    .separator, hr.border-gray-200,
+    [class*="user-"], [class*="avatar"], .symbol,
+    .card:has(.fa-needle) {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    
+    /* SHOW PRINT HEADER */
+    .print-header {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: flex-start !important;
+        margin-bottom: 6px !important;
+        padding-bottom: 4px !important;
+        border-bottom: 2px solid #000 !important;
+    }
+    
+    .print-logo-container {
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+    }
+    
+    .print-logo {
+        display: block !important;
+        max-width: 60px !important;
+        max-height: 60px !important;
+        object-fit: contain !important;
+    }
+    
+    .print-logo-placeholder {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 60px !important;
+        height: 60px !important;
+        background: #f0f0f0 !important;
+        border: 2px solid #000 !important;
+        border-radius: 4px !important;
+    }
+    
+    .print-logo-placeholder i {
+        font-size: 30px !important;
+        color: #000 !important;
+    }
+    
+    .print-company-info {
+        display: block !important;
+    }
+    
+    .print-company-name {
+        font-size: 20pt !important;
+        font-weight: bold !important;
+        margin: 0 !important;
+        color: #000 !important;
+        line-height: 1 !important;
+    }
+    
+    .print-tagline {
+        font-size: 9pt !important;
+        color: #0066cc !important;
+        margin: 3px 0 0 0 !important;
+        font-weight: normal !important;
+    }
+    
+    .print-invoice-title {
+        text-align: right !important;
+        line-height: 1.1 !important;
+    }
+    
+    .print-invoice-title h2 {
+        font-size: 16pt !important;
+        font-weight: bold !important;
+        margin: 0 0 2px 0 !important;
+        color: #000 !important;
+        letter-spacing: 0 !important;
+    }
+    
+    .print-invoice-title .invoice-number {
+        font-size: 8.5pt !important;
+        margin: 0 !important;
+        color: #000 !important;
+        font-weight: normal !important;
+        line-height: 1.3 !important;
+    }
+    
+    .print-invoice-title .invoice-date {
+        font-size: 8.5pt !important;
+        margin: 0 !important;
+        color: #000 !important;
+        font-weight: normal !important;
+        line-height: 1.3 !important;
+    }
+    
+    /* SHOW GARMENT & FABRIC TYPE IN PRINT */
+    .garment-type-print,
+    .fabric-type-print {
+        display: block !important;
+    }
+    
+    .garment-type-print small,
+    .fabric-type-print small {
+        font-size: 7.5pt !important;
+        color: #666 !important;
+        text-transform: uppercase !important;
+    }
+    
+    .garment-type-print strong,
+    .fabric-type-print strong {
+        font-size: 9pt !important;
+        color: #000 !important;
+        font-weight: normal !important;
+    }
+    
+    /* RESET MAIN CONTAINER - FIX LEFT MARGIN ISSUE */
+    #kt_app_main, #kt_app_content, #kt_app_content_container,
+    .app-main, .content, .container-fluid, main {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        position: static !important;
+        left: 0 !important;
+        transform: none !important;
+    }
+    
+    /* REMOVE PSEUDO-ELEMENT HEADER */
+    #kt_app_content_container::before {
+        content: none !important;
         display: none !important;
     }
     
-    .page-header {
-        display: none !important;
-    }
-    
+    /* CARDS */
     .card {
+        border: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+        margin: 0 0 4px 0 !important;
+        padding: 0 !important;
         page-break-inside: avoid;
     }
     
-    .status-flow-container {
+    .card-body { padding: 0 !important; margin: 0 !important; }
+    
+    /* HIDE FIRST ROW (STATUS CARDS AT TOP) */
+    #kt_app_content_container > .row:first-child,
+    .status-payment-overview,
+    .row.status-payment-overview { 
+        display: none !important; 
+        visibility: hidden !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+    }
+    
+    /* Remove all spacing from hidden status section */
+    .status-payment-overview * {
+        display: none !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    /* CLEAN STATUS BADGES */
+    .badge {
+        display: inline !important;
+        border: none !important;
+        background: transparent !important;
+        padding: 0 !important;
+        color: #000 !important;
+    }
+    
+    .badge i, .bg-warning, .bg-info, .bg-success, .bg-danger,
+    .bg-primary, .bg-secondary, .bg-light {
+        background: transparent !important;
+    }
+    
+    /* TWO COLUMN LAYOUT */
+    .row.mb-4 { display: table !important; width: 100% !important; margin: 0 0 4px 0 !important; }
+    .row.mb-4 .col-md-6 {
+        display: table-cell !important;
+        width: 48% !important;
+        vertical-align: top !important;
+        padding-right: 2% !important;
+    }
+    
+    /* SECTION HEADERS */
+    h6.fw-bold, .fw-bold {
+        font-size: 11pt !important;
+        font-weight: bold !important;
+        margin: 0 0 3px 0 !important;
+        padding: 0 0 2px 0 !important;
+        border-bottom: 1px solid #333 !important;
+    }
+    
+    h6 i, .fw-bold i { display: none !important; }
+    
+    /* CUSTOMER INFO TABLE LAYOUT */
+    .card:has(.fa-user) {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+    
+    .card:has(.fa-user) .row { 
+        display: table !important; 
+        width: 100% !important; 
+        margin: 0 !important;
+    }
+    .card:has(.fa-user) .col-md-6 {
+        display: table-cell !important;
+        width: 48% !important;
+        padding-right: 2% !important;
+        vertical-align: top !important;
+    }
+    
+    /* Ensure customer info fields are visible and properly formatted */
+    .card:has(.fa-user) p {
+        margin: 0 0 4px 0 !important;
+        line-height: 1.3 !important;
+        font-size: 9pt !important;
+    }
+    
+    .card:has(.fa-user) small {
+        font-size: 7.5pt !important;
+        color: #666 !important;
+        text-transform: uppercase !important;
+        display: block !important;
+        margin-bottom: 1px !important;
+    }
+    
+    .card:has(.fa-user) strong {
+        font-size: 9pt !important;
+        color: #000 !important;
+        font-weight: normal !important;
+    }
+    
+    /* PRODUCT TABLE */
+    .table-responsive { overflow: visible !important; }
+    
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin: 6px 0 !important;
+    }
+    
+    thead, tbody, tr, th, td { display: table !important; }
+    thead { display: table-header-group !important; }
+    tbody { display: table-row-group !important; }
+    tr { display: table-row !important; page-break-inside: avoid !important; }
+    
+    th, td {
+        display: table-cell !important;
+        border: 1px solid #000 !important;
+        padding: 3px 5px !important;
+        font-size: 9pt !important;
+    }
+    
+    th { background: #f5f5f5 !important; font-weight: bold !important; }
+    
+    .text-right, th.text-right, td.text-right { text-align: right !important; }
+    .text-center, th.text-center, td.text-center { text-align: center !important; }
+    
+    /* HIDE SCREEN IMAGES BUT SHOW PRINT LOGO */
+    .card img { display: none !important; }
+    .card:has(img) div:has(img):not(.print-logo-container) { display: none !important; }
+    
+    /* PAYMENT SUMMARY */
+    .d-flex {
+        display: flex !important;
+        justify-content: space-between !important;
+        padding: 2px 0 !important;
+    }
+    
+    .d-flex.border-bottom {
+        border-bottom: 1px solid #ccc !important;
+        margin-bottom: 4px !important;
+        padding-bottom: 4px !important;
+    }
+    
+    .d-flex:last-child {
+        font-size: 12pt !important;
+        font-weight: bold !important;
+        border-top: 2px solid #000 !important;
+        padding-top: 4px !important;
+        margin-top: 4px !important;
+    }
+    
+    .fs-5 { font-size: 12pt !important; font-weight: bold !important; }
+    
+    /* LABELS */
+    small.text-muted {
+        font-size: 8pt !important;
+        font-weight: bold !important;
+        text-transform: uppercase !important;
+        color: #666 !important;
+        display: block !important;
+        margin-bottom: 1px !important;
+    }
+    
+    p { margin: 1px 0 !important; line-height: 1.2 !important; }
+    
+    /* REMOVE DUPLICATE SIGNATURES */
+    body::after, .card::after, .card:last-of-type::after, #kt_app_content_container::after {
+        content: none !important;
         display: none !important;
     }
+    
+    /* ADD FOOTER */
+    .content::after, #kt_app_content::after {
+        content: "___________________________\ACustomer Signature\A\AThank you for your business!";
+        white-space: pre !important;
+        display: block !important;
+        text-align: center !important;
+        margin-top: 15px !important;
+        padding-top: 10px !important;
+        border-top: 1px solid #000 !important;
+        font-size: 9pt !important;
+    }
+    
+    /* COMPACT SPACING */
+    .mb-2, .mb-3, .mb-4 { margin-bottom: 4px !important; }
+    .row { margin-bottom: 6px !important; }
+    
+    h6 { page-break-after: avoid !important; }
 }
 
 @media (max-width: 768px) {
-    .status-flow {
-        flex-direction: column;
-        gap: 15px;
-    }
-    
-    .status-connector {
-        width: 3px;
-        height: 30px;
-        margin-top: 0;
-        margin-left: 20px;
+    .timeline-content {
+        padding-left: 10px;
     }
 }
 </style>

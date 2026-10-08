@@ -475,6 +475,35 @@ class OrderController extends Controller
     }
 
     /**
+     * Delete an order
+     */
+    public function destroy(Order $order)
+    {
+        try {
+            // Check if order has associated invoices or payments
+            if ($order->invoice) {
+                return back()->with('error', 'Cannot delete order with associated invoice. Please delete the invoice first.');
+            }
+
+            // Delete order items
+            $order->orderItems()->delete();
+
+            // Delete stitching order if exists
+            if ($order->stitchingOrder) {
+                $order->stitchingOrder()->delete();
+            }
+
+            // Delete the order
+            $order->delete();
+
+            return redirect()->route('receptionist.orders.index')
+                            ->with('success', 'Order deleted successfully');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error deleting order: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Get products by category (AJAX)
      */
     public function getProductsByCategory($categoryId)

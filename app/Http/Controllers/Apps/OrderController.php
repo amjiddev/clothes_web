@@ -20,7 +20,7 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Order::with('user', 'orderItems');
+        $query = Order::with(['user', 'orderItems', 'invoice']);
 
         // Search by order number or customer name
         if ($request->has('search') && $request->search) {

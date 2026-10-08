@@ -43,7 +43,7 @@ Route::middleware(['auth', 'verified', 'receptionist.only'])->prefix('receptioni
         return view('receptionist.orders.test-form');
     })->name('orders.test-form');
     Route::get('customers/{customerId}/measurements-api', [OrderController::class, 'getCustomerMeasurements'])->name('customers.measurements-api');
-    Route::resource('orders', OrderController::class)->only(['index', 'show', 'store', 'edit', 'update']);
+    Route::resource('orders', OrderController::class)->only(['index', 'show', 'store', 'edit', 'update', 'destroy']);
     Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
     Route::post('orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
     Route::get('orders/{order}/invoice', [OrderController::class, 'downloadInvoice'])->name('orders.invoice');
@@ -72,11 +72,18 @@ Route::middleware(['auth', 'verified', 'receptionist.only'])->prefix('receptioni
     Route::get('tailors/{tailor}/orders', [TailorController::class, 'getTailorOrders'])->name('tailors.tailor-orders');
     Route::get('tailors/{tailor}/dashboard', [TailorController::class, 'viewDashboard'])->name('tailors.view-dashboard');
 
-    // Invoices
-    Route::get('invoices', [InvoiceController::class, 'index'])->name('invoices.index');
-    Route::get('invoices/{order}', [InvoiceController::class, 'show'])->name('invoices.show');
-    Route::get('invoices/{order}/download', [InvoiceController::class, 'download'])->name('invoices.download');
-    Route::get('invoices/{order}/print', [InvoiceController::class, 'print'])->name('invoices.print');
+    // Invoices (Financial Management)
+    Route::prefix('invoices')->name('invoices.')->group(function () {
+        Route::get('', [InvoiceController::class, 'index'])->name('index');
+        Route::get('create/{order}', [InvoiceController::class, 'create'])->name('create');
+        Route::post('store/{order}', [InvoiceController::class, 'store'])->name('store');
+        Route::get('{invoice}', [InvoiceController::class, 'show'])->name('show');
+        Route::get('{invoice}/payment', [InvoiceController::class, 'paymentForm'])->name('payment');
+        Route::post('{invoice}/pay', [InvoiceController::class, 'recordPayment'])->name('record-payment');
+        Route::get('{invoice}/print', [InvoiceController::class, 'print'])->name('print');
+        Route::get('{invoice}/download', [InvoiceController::class, 'download'])->name('download');
+        Route::delete('{invoice}', [InvoiceController::class, 'destroy'])->name('destroy');
+    });
 
     // Reports
     Route::prefix('reports')->name('reports.')->group(function () {

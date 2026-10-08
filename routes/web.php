@@ -49,5 +49,8 @@ require __DIR__ . '/tailor.php';
 // Receptionist routes (Receptionist only)
 require __DIR__ . '/receptionist.php';
 
+// Temp fix routes (for data migration)
+require __DIR__ . '/temp-fix.php';
+
 // Frontend routes (For guests and users)
 require __DIR__ . '/frontend.php';

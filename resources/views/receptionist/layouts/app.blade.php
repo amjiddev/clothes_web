@@ -714,6 +714,146 @@
                 padding: clamp(10px, 2vw, 15px);
             }
         }
+
+        /* ===================== PRINT MEDIA QUERIES ===================== */
+        @media print {
+            /* Hide sidebar, topbar, and print button */
+            .sidebar {
+                display: none;
+            }
+
+            .topbar {
+                display: none;
+            }
+
+            #print-button {
+                display: none;
+            }
+
+            /* Adjust main content layout for full width printing */
+            .receptionist-wrapper {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 0;
+                width: 100%;
+                height: auto;
+            }
+
+            .content-area {
+                padding: 0;
+                overflow-y: visible;
+                background: white;
+            }
+
+            /* Page margins for printing */
+            @page {
+                margin: 0.5cm;
+                size: A4;
+            }
+
+            body {
+                background-color: white;
+                color: #000;
+            }
+
+            /* Print invoice styling */
+            .page-header {
+                margin-bottom: 0;
+                break-inside: avoid;
+            }
+
+            .card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                page-break-inside: avoid;
+                margin-bottom: 10px;
+            }
+
+            .card-header {
+                background-color: #f5f5f5 !important;
+                border-bottom: 2px solid #ddd;
+                break-after: avoid;
+            }
+
+            .card-body {
+                background-color: white !important;
+                break-inside: avoid;
+            }
+
+            .btn {
+                display: none;
+            }
+
+            .page-title,
+            .page-subtitle {
+                color: #000;
+            }
+
+            .table {
+                color: #000;
+                border-collapse: collapse;
+            }
+
+            .table thead {
+                background-color: #f5f5f5 !important;
+            }
+
+            .table th,
+            .table td {
+                border: 1px solid #ddd;
+                padding: 8px;
+            }
+
+            .table tbody tr {
+                page-break-inside: avoid;
+            }
+
+            .breadcrumb {
+                display: none;
+            }
+
+            .alert {
+                border: 1px solid #999;
+                background-color: #fff;
+                color: #000;
+            }
+
+            /* Remove background colors */
+            .bg-light {
+                background-color: white !important;
+            }
+
+            .bg-success,
+            .bg-warning,
+            .bg-danger,
+            .bg-info {
+                background-color: white !important;
+            }
+
+            .badge {
+                border: 1px solid #000;
+                background-color: white !important;
+                color: #000 !important;
+            }
+
+            /* Ensure links are visible */
+            a {
+                color: #000;
+                text-decoration: underline;
+            }
+
+            /* Hide unnecessary elements */
+            .mobile-toggle,
+            .search-box,
+            .notification-bell,
+            .profile-dropdown,
+            .dropdown-menu {
+                display: none;
+            }
+        }
     </style>
 
     @yield('extra-css')
