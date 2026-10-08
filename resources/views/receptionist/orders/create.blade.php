@@ -755,7 +755,111 @@
                                 </div>
                             </div>
 
-                            <!-- SECTION G: ADDITIONAL INFORMATION -->
+                            <!-- SECTION G: PAYMENT & INVOICE GENERATION -->
+                            <div class="col-lg-12 mb-4">
+                                <div class="card border-1 border-success">
+                                    <div class="card-header bg-success text-white">
+                                        <h5 class="card-title mb-0">
+                                            <i class="fas fa-credit-card me-2"></i>Payment & Invoice Generation
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="alert alert-info mb-3">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            <strong>Invoice will be auto-generated on order creation.</strong> 
+                                            Record an initial payment below (optional). You can record additional payments later if needed.
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-4 mb-3">
+                                                <label for="paymentAmount" class="form-label">Amount Paying Now</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text">{{ env('CURRENCY_SYMBOL', 'Rs.') }}</span>
+                                                    <input 
+                                                        type="number" 
+                                                        id="paymentAmount"
+                                                        class="form-control @error('payment_amount') is-invalid @enderror"
+                                                        name="payment_amount"
+                                                        x-model.number="paymentAmount"
+                                                        placeholder="0.00"
+                                                        step="0.01"
+                                                        min="0"
+                                                        @input="updatePaymentAmount()"
+                                                    >
+                                                </div>
+                                                <small class="text-muted d-block mt-1">Leave empty to skip payment</small>
+                                                @error('payment_amount')
+                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+
+                                            <div class="col-md-4 mb-3">
+                                                <label for="paymentMethod" class="form-label">Payment Method</label>
+                                                <select 
+                                                    id="paymentMethod"
+                                                    class="form-select @error('payment_method') is-invalid @enderror"
+                                                    name="payment_method"
+                                                    x-model="paymentMethod"
+                                                >
+                                                    <option value="">Select payment method</option>
+                                                    <option value="cash">Cash</option>
+                                                    <option value="card">Card</option>
+                                                    <option value="bank_transfer">Bank Transfer</option>
+                                                    <option value="easypaisa">Easypaisa</option>
+                                                </select>
+                                                @error('payment_method')
+                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+
+                                            <div class="col-md-4 mb-3">
+                                                <label for="transactionId" class="form-label">Transaction ID (Optional)</label>
+                                                <input 
+                                                    type="text" 
+                                                    id="transactionId"
+                                                    class="form-control @error('transaction_id') is-invalid @enderror"
+                                                    name="transaction_id"
+                                                    x-model="transactionId"
+                                                    placeholder="e.g., TXN123456"
+                                                >
+                                                <small class="text-muted d-block mt-1">For card/bank/easypaisa payments</small>
+                                                @error('transaction_id')
+                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+
+                                        <div class="row mt-2">
+                                            <div class="col-md-4">
+                                                <div class="alert alert-light border mb-0">
+                                                    <small class="text-muted">Order Total:</small>
+                                                    <div class="h5 mb-0 text-primary fw-bold">
+                                                        {{ env('CURRENCY_SYMBOL', 'Rs.') }} <span x-text="total.toFixed(2)"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="alert alert-light border mb-0">
+                                                    <small class="text-muted">Amount Paying:</small>
+                                                    <div class="h5 mb-0 text-info fw-bold">
+                                                        {{ env('CURRENCY_SYMBOL', 'Rs.') }} <span x-text="paymentAmount.toFixed(2)"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="alert" :class="remainingAmount > 0 ? 'alert-warning border' : 'alert-success border'" :style="`background-color: ${remainingAmount > 0 ? '#fff3cd' : '#d1e7dd'}`">
+                                                    <small class="text-muted">Remaining Balance:</small>
+                                                    <div class="h5 mb-0 fw-bold" :style="`color: ${remainingAmount > 0 ? '#ff6b6b' : '#51cf66'}`">
+                                                        {{ env('CURRENCY_SYMBOL', 'Rs.') }} <span x-text="remainingAmount.toFixed(2)"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- SECTION H: ADDITIONAL INFORMATION -->
                             <div class="col-lg-12 mb-4">
                                 <div class="card border-1">
                                     <div class="card-header bg-light">
@@ -780,7 +884,7 @@
                                         </div>
 
                                         <div class="mb-3">
-                                            <label for="deliveryDate" class="form-label">Delivery Date</label>
+                                            <label for="deliveryDate" class="form-label">Delivery Date <span class="text-danger">*</span></label>
                                             <input 
                                                 type="date" 
                                                 id="deliveryDate"
@@ -788,8 +892,9 @@
                                                 name="delivery_date"
                                                 x-model="deliveryDate"
                                                 :min="minDeliveryDate"
+                                                required
                                             >
-                                            <small class="text-muted d-block mt-1">Must be a future date</small>
+                                            <small class="text-muted d-block mt-1">Must be today or a future date</small>
                                             @error('delivery_date')
                                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                                             @enderror
@@ -892,6 +997,11 @@ function orderForm() {
         discount: 0,
         tax: 0,
 
+        // Payment & Invoice section
+        paymentAmount: 0,
+        paymentMethod: '',
+        transactionId: '',
+
         // Additional info
         notes: '',
         deliveryDate: null,
@@ -978,6 +1088,10 @@ function orderForm() {
 
         get total() {
             return this.subtotal + this.stitching.charge + this.tax - this.discount;
+        },
+
+        get remainingAmount() {
+            return Math.max(0, this.total - this.paymentAmount);
         },
 
         get minDeliveryDate() {
@@ -1093,6 +1207,17 @@ function orderForm() {
         recalculateTotal() {
             // Just trigger reactivity
             this.tax = this.tax;
+            // Auto-fill payment amount if it's 0 or empty and total changed
+            if (this.paymentAmount === 0 || this.paymentAmount === '') {
+                this.paymentAmount = this.total;
+            }
+        },
+
+        updatePaymentAmount() {
+            // Ensure payment amount doesn't exceed total
+            if (this.paymentAmount > this.total) {
+                this.paymentAmount = this.total;
+            }
         },
 
         prepareSubmission(event) {
@@ -1112,6 +1237,16 @@ function orderForm() {
             if (['ready_made', 'combined'].includes(this.orderType) && this.selectedProducts.length === 0) {
                 event.preventDefault();
                 alert('❌ Please select at least one product for ' + this.orderType + ' order');
+                return;
+            }
+
+            // NEW VALIDATION: If payment amount > 0, payment method is required
+            const paymentAmount = parseFloat(this.paymentAmount) || 0;
+            const paymentMethod = this.paymentMethod && this.paymentMethod.trim();
+            
+            if (paymentAmount > 0 && !paymentMethod) {
+                event.preventDefault();
+                alert('❌ Payment Method is required when Amount Paying Now is greater than 0');
                 return;
             }
 
@@ -1161,6 +1296,43 @@ function orderForm() {
         }
     };
 }
+
+/**
+ * Payment Method Dynamic Requirement Handler
+ * 
+ * Makes the Payment Method dropdown required only when Amount Paying Now > 0
+ * Removes the requirement when amount is empty or 0
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    const paymentAmountInput = document.getElementById('paymentAmount');
+    const paymentMethodSelect = document.getElementById('paymentMethod');
+
+    if (paymentAmountInput && paymentMethodSelect) {
+        // Function to update required attribute based on payment amount
+        function updatePaymentMethodRequired() {
+            const amount = parseFloat(paymentAmountInput.value) || 0;
+            
+            if (amount > 0) {
+                // Payment amount is greater than 0, make payment method required
+                paymentMethodSelect.setAttribute('required', 'required');
+                paymentMethodSelect.classList.add('required-field');
+            } else {
+                // Payment amount is 0 or empty, remove required
+                paymentMethodSelect.removeAttribute('required');
+                paymentMethodSelect.classList.remove('required-field');
+            }
+        }
+
+        // Listen to input events on the payment amount field
+        paymentAmountInput.addEventListener('input', updatePaymentMethodRequired);
+        
+        // Also listen to change events for good measure
+        paymentAmountInput.addEventListener('change', updatePaymentMethodRequired);
+
+        // Initialize on page load
+        updatePaymentMethodRequired();
+    }
+});
 </script>
 
 <style>
