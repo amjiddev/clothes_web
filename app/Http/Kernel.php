@@ -73,6 +73,7 @@ class Kernel extends HttpKernel
         'admin.only' => \App\Http\Middleware\AdminOnly::class,
         'receptionist.only' => \App\Http\Middleware\ReceptionistOnly::class,
         'tailor.only' => \App\Http\Middleware\TailorOnly::class,
+        'modal.only' => \App\Http\Middleware\ModalOnlyAccess::class,
     ];
 }
 

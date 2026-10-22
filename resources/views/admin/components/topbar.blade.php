@@ -23,16 +23,8 @@
                 <input type="text" placeholder="Search..." class="form-control">
             </div>
 
-            <!-- Notifications -->
-            <div class="notification-bell" id="notificationBell" style="display: none;">
-                <i class="fas fa-bell"></i>
-                @php
-                    $unreadNotifications = 0; // Disabled: notifications table doesn't exist yet
-                @endphp
-                @if ($unreadNotifications > 0)
-                    <span class="notification-badge">{{ $unreadNotifications }}</span>
-                @endif
-            </div>
+            <!-- Notification Bell -->
+            @include('components.notification-bell')
 
             <!-- Profile Dropdown -->
             <div class="dropdown">

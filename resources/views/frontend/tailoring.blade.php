@@ -43,9 +43,9 @@
                             <strong>Starting from Rs. 500</strong> + Fabric Cost
                         </p>
 
-                        <button class="btn w-100" style="background: var(--accent-gold); color: var(--primary-dark); font-weight: 600; padding: 12px; border: none; border-radius: 5px; transition: all 0.3s ease;" onmouseover="this.style.background='white'; this.style.color='var(--accent-gold)'; this.style.border='2px solid var(--accent-gold)';" onmouseout="this.style.background='var(--accent-gold)'; this.style.color='var(--primary-dark)'; this.style.border='none';">
+                        <a href="{{ route('shop') }}" class="btn w-100" style="background: var(--accent-gold); color: var(--primary-dark); font-weight: 600; padding: 12px; border: none; border-radius: 5px; transition: all 0.3s ease; text-decoration: none; display: inline-block; text-align: center;" onmouseover="this.style.background='white'; this.style.color='var(--accent-gold)'; this.style.border='2px solid var(--accent-gold)';" onmouseout="this.style.background='var(--accent-gold)'; this.style.color='var(--primary-dark)'; this.style.border='none';">
                             Book Now
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -80,9 +80,9 @@
                             <strong>Starting from Rs. 300</strong>
                         </p>
 
-                        <button class="btn w-100" style="background: var(--accent-gold); color: var(--primary-dark); font-weight: 600; padding: 12px; border: none; border-radius: 5px; transition: all 0.3s ease;" onmouseover="this.style.background='white'; this.style.color='var(--accent-gold)'; this.style.border='2px solid var(--accent-gold)';" onmouseout="this.style.background='var(--accent-gold)'; this.style.color='var(--primary-dark)'; this.style.border='none';">
+                        <a href="{{ route('tailoring.service') }}" class="btn w-100" style="background: var(--accent-gold); color: var(--primary-dark); font-weight: 600; padding: 12px; border: none; border-radius: 5px; transition: all 0.3s ease; text-decoration: none; display: inline-block; text-align: center;" onmouseover="this.style.background='white'; this.style.color='var(--accent-gold)'; this.style.border='2px solid var(--accent-gold)';" onmouseout="this.style.background='var(--accent-gold)'; this.style.color='var(--primary-dark)'; this.style.border='none';">
                             Book Now
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>

@@ -17,7 +17,7 @@
                 <p class="text-muted">Revenue analysis and sales performance</p>
             </div>
             <div class="col-auto">
-                <a href="{{ route('admin.reports.export', ['type' => 'sales', 'period' => $period]) }}" class="btn btn-primary">
+                <a href="{{ route('admin.reports.export', ['type' => 'sales', 'period' => $period]) }}" class="btn btn-primary" target="_blank">
                     <i class="fas fa-file-pdf me-2"></i>Export PDF
                 </a>
             </div>
@@ -81,7 +81,7 @@
                                 @foreach($byType as $type)
                                 <tr>
                                     <td>
-                                        @if($type->type === 'ready_made')
+                                        @if($type->type === 'cloth')
                                             Cloth Only
                                         @elseif($type->type === 'stitching')
                                             Stitching Only
@@ -154,7 +154,7 @@
                         <td><strong>{{ $sale->order_number }}</strong></td>
                         <td>{{ $sale->created_at->format('M d, Y H:i') }}</td>
                         <td>
-                            @if($sale->type === 'ready_made')
+                            @if($sale->type === 'cloth')
                                 <span class="badge bg-light text-dark">Cloth Only</span>
                             @elseif($sale->type === 'stitching')
                                 <span class="badge bg-light text-dark">Stitching Only</span>

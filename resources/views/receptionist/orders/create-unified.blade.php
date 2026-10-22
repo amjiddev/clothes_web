@@ -358,30 +358,6 @@
 
                 <hr>
 
-                <!-- 9. PAYMENT SECTION -->
-                <div class="mb-3">
-                    <label for="payment_method" class="form-label fw-bold">Payment Method <span class="text-danger">*</span></label>
-                    <select class="form-select" id="payment_method" name="payment_method" form="orderForm" required>
-                        <option value="">-- Select Method --</option>
-                        <option value="cash">Cash</option>
-                        <option value="card">Card</option>
-                        <option value="bank_transfer">Bank Transfer</option>
-                        <option value="online">Online Payment</option>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label for="paid_amount" class="form-label fw-bold">Amount Paid <span class="text-danger">*</span></label>
-                    <input type="number" class="form-control" id="paid_amount" name="paid_amount" form="orderForm" placeholder="0.00" min="0" step="0.01" value="0" required>
-                </div>
-
-                <div class="p-2 bg-light rounded mb-3">
-                    <div class="d-flex justify-content-between mb-1">
-                        <small class="text-muted">Due Amount:</small>
-                        <strong>₹<span id="dueAmount">0.00</span></strong>
-                    </div>
-                </div>
-
                 <!-- Validation Messages -->
                 <div id="validationMessages" class="mb-3"></div>
 

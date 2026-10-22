@@ -169,33 +169,6 @@
         </div>
     </div>
 
-    <!-- Payment Collection Report -->
-    <div class="col-lg-6 mb-4">
-        <div class="table-card report-card">
-            <div class="table-header">
-                <h5 class="table-title">
-                    <i class="fas fa-money-bill-wave"></i> Payment Collection Report
-                </h5>
-            </div>
-            <div style="padding: 20px;">
-                <p class="text-muted mb-3">Track payment collections, pending amounts, and transaction status with detailed breakdown.</p>
-                <div class="report-stats mb-3">
-                    <div class="stat-mini">
-                        <span class="label">Collected</span>
-                        <span class="value">Rs. {{ number_format($collectedPayments, 0) }}</span>
-                    </div>
-                    <div class="stat-mini">
-                        <span class="label">Pending</span>
-                        <span class="value">Rs. {{ number_format($pendingPayments, 0) }}</span>
-                    </div>
-                </div>
-                <a href="{{ route('receptionist.reports.payment-collection') }}" class="btn btn-custom btn-primary-custom w-100">
-                    <i class="fas fa-receipt"></i> View Report
-                </a>
-            </div>
-        </div>
-    </div>
-
     <!-- Note: Financial Reports Restricted -->
     <div class="col-lg-6 mb-4">
         <div class="table-card alert-card">

@@ -77,14 +77,6 @@
             </a>
         </div>
 
-        <!-- Payments -->
-        <div class="nav-item">
-            <a href="{{ route('admin.payments.index') }}" class="nav-link {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}">
-                <i class="fas fa-credit-card"></i>
-                <span>Payments</span>
-            </a>
-        </div>
-
         <!-- Contact Submissions -->
         <div class="nav-item">
             <a href="{{ route('admin.contact-submissions.index', ['type' => 'message']) }}" class="nav-link {{ request()->routeIs('admin.contact-submissions.*') ? 'active' : '' }}">

@@ -141,7 +141,7 @@
                                     <i class="fas fa-credit-card me-2"></i>Payment Status
                                 </h6>
                                 <p style="margin: 0; color: var(--primary-dark); font-weight: 600;">
-                                    <span class="badge" style="background: #FFC107; color: #000;">{{ strtoupper($order->payment_method) }}</span>
+                                    <span class="badge" style="background: #FFC107; color: #000;">CASH ON DELIVERY</span>
                                 </p>
                                 <p style="margin: 10px 0 0 0; color: var(--text-muted); font-size: 0.9rem;">
                                     Payment will be collected on delivery
@@ -200,12 +200,26 @@
                         <h5 class="fw-bold mb-3" style="color: var(--primary-dark);">
                             <i class="fas fa-headset me-2"></i>Need Help?
                         </h5>
-                        <p style="margin: 0; color: var(--text-muted);">
-                            Contact our support team at <strong style="color: var(--accent-gold);">support@clothes.com</strong>
-                        </p>
-                        <p style="margin: 5px 0 0 0; color: var(--text-muted);">
-                            Call us: <strong style="color: var(--accent-gold);">+91-XXXXXXXXXX</strong> (9 AM - 6 PM, Mon-Sat)
-                        </p>
+                        @if($contactInfo && $contactInfo->data)
+                            <p style="margin: 0; color: var(--text-muted);">
+                                Contact our support team at <strong style="color: var(--accent-gold);">{{ $contactInfo->data['email'] ?? 'support@clothes.com' }}</strong>
+                            </p>
+                            <p style="margin: 5px 0 0 0; color: var(--text-muted);">
+                                Call us: <strong style="color: var(--accent-gold);">{{ $contactInfo->data['phone'] ?? '+91-XXXXXXXXXX' }}</strong> 
+                                @if(isset($contactInfo->data['response_time']))
+                                    ({{ $contactInfo->data['response_time'] }})
+                                @else
+                                    (9 AM - 6 PM, Mon-Sat)
+                                @endif
+                            </p>
+                        @else
+                            <p style="margin: 0; color: var(--text-muted);">
+                                Contact our support team at <strong style="color: var(--accent-gold);">support@clothes.com</strong>
+                            </p>
+                            <p style="margin: 5px 0 0 0; color: var(--text-muted);">
+                                Call us: <strong style="color: var(--accent-gold);">+91-XXXXXXXXXX</strong> (9 AM - 6 PM, Mon-Sat)
+                            </p>
+                        @endif
                     </div>
                 </div>
 

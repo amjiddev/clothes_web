@@ -58,7 +58,7 @@
                     <label class="form-label fw-bold">Type</label>
                     <select name="type" class="form-select">
                         <option value="">All Types</option>
-                        <option value="ready_made" {{ request('type') === 'ready_made' ? 'selected' : '' }}>Cloth Only</option>
+                        <option value="cloth" {{ request('type') === 'cloth' ? 'selected' : '' }}>Cloth Only</option>
                         <option value="stitching" {{ request('type') === 'stitching' ? 'selected' : '' }}>Stitching Only</option>
                         <option value="combined" {{ request('type') === 'combined' ? 'selected' : '' }}>Cloth + Stitching</option>
                     </select>
@@ -146,7 +146,7 @@
 
                         <!-- Order Type -->
                         <td class="text-center">
-                            @if($order->type === 'ready_made')
+                            @if($order->type === 'cloth')
                             <span class="badge bg-info"><i class="fas fa-shirt me-1"></i>Cloth Only</span>
                             @elseif($order->type === 'stitching')
                             <span class="badge bg-warning"><i class="fas fa-needle me-1"></i>Stitching Only</span>

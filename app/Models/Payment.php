@@ -10,43 +10,60 @@ class Payment extends Model
     use HasFactory;
 
     protected $fillable = [
+        'invoice_id',
         'order_id',
-        'user_id',
-        'transaction_id',
-        'payment_method',
-        'status',
+        'payment_reference',
         'amount',
-        'response',
-        'processed_at',
+        'payment_method',
+        'payment_date',
+        'notes',
+        'transaction_id',
+        'received_by',
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
-        'processed_at' => 'datetime',
+        'payment_date' => 'date',
     ];
+
+    /**
+     * Relationships
+     */
+    public function invoice()
+    {
+        return $this->belongsTo(Invoice::class);
+    }
 
     public function order()
     {
         return $this->belongsTo(Order::class);
     }
 
-    public function user()
+    public function receivedByUser()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'received_by');
     }
 
-    public function isCompleted()
+    /**
+     * Get formatted amount
+     */
+    public function getFormattedAmountAttribute()
     {
-        return $this->status === 'completed';
+        return 'Rs. ' . number_format($this->amount, 2);
     }
 
-    public function isFailed()
+    /**
+     * Get payment method text
+     */
+    public function getPaymentMethodTextAttribute()
     {
-        return $this->status === 'failed';
-    }
-
-    public function isRefunded()
-    {
-        return $this->status === 'refunded';
+        $methods = [
+            'cash' => 'Cash',
+            'card' => 'Card',
+            'bank_transfer' => 'Bank Transfer',
+            'mobile_money' => 'Mobile Money',
+            'other' => 'Other',
+        ];
+        return $methods[$this->payment_method] ?? 'Unknown';
     }
 }

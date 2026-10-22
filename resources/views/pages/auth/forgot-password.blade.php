@@ -6,13 +6,13 @@
         <!--begin::Heading-->
         <div class="text-center mb-10">
             <!--begin::Title-->
-            <h1 class="text-gray-900 fw-bolder mb-3">
-                Forgot Password ?
+            <h1 class="text-gray-900 fw-bolder mb-3" style="font-size: 28px; color: #1a1a1a;">
+                Forgot Password?
             </h1>
             <!--end::Title-->
 
             <!--begin::Link-->
-            <div class="text-gray-500 fw-semibold fs-6">
+            <div class="text-gray-500 fw-semibold fs-6" style="font-size: 14px; color: #666;">
                 Enter your email to reset your password.
             </div>
             <!--end::Link-->
@@ -22,18 +22,18 @@
         <!--begin::Input group--->
         <div class="fv-row mb-8">
             <!--begin::Email-->
-            <input type="email" placeholder="Email" name="email" autocomplete="email" class="form-control bg-transparent" value="{{ old('email', request('email')) }}"/>
+            <input type="email" placeholder="Email" name="email" autocomplete="email" class="form-control" value="{{ old('email', request('email')) }}" style="padding: 12px 16px; border: 1px solid #d4d4d4; border-radius: 4px; font-size: 14px;"/>
             <!--end::Email-->
         </div>
 
         <!--begin::Actions-->
-        <div class="d-flex flex-wrap justify-content-center pb-lg-0">
-            <button type="submit" class="btn btn-primary me-4" id="sendVerificationCode">
+        <div class="d-flex flex-wrap justify-content-center gap-3 pb-lg-0">
+            <button type="submit" class="btn btn-primary" id="sendVerificationCode" style="padding: 12px 24px; background-color: #d4af37; color: #1a1a1a; border: none; border-radius: 4px; font-weight: 600; font-size: 14px; cursor: pointer; width: auto;">
                 <span class="send-code-label">Send Verification Code</span>
                 <span class="send-code-spinner d-none" aria-hidden="true"></span>
             </button>
 
-            <a href="{{ route('login') }}" class="btn btn-light">Cancel</a>
+            <a href="{{ route('login') }}" class="btn btn-light" style="padding: 12px 24px; background-color: #f0f0f0; color: #333; border: 1px solid #d4d4d4; border-radius: 4px; font-weight: 600; font-size: 14px; cursor: pointer; text-decoration: none; display: inline-block;">Cancel</a>
         </div>
         <!--end::Actions-->
     </form>
@@ -48,37 +48,59 @@
         display: flex !important;
         flex-direction: column;
         justify-content: center;
-        width: min(460px, calc(100vw - 48px)) !important;
+        width: min(430px, calc(100vw - 48px)) !important;
         max-width: none !important;
         min-height: 100% !important;
         margin: auto !important;
     }
 
     #passwordRequestForm h1 {
-        font-size: 26px !important;
+        font-size: 28px !important;
+        color: #1a1a1a !important;
     }
 
     #passwordRequestForm .text-gray-500 {
-        font-size: 15px !important;
+        font-size: 14px !important;
+        color: #666 !important;
     }
 
     #passwordRequestForm input[name="email"] {
         width: 100% !important;
-        height: 58px !important;
-        padding: 0 18px !important;
-        font-size: 15px !important;
-        box-sizing: border-box;
+        box-sizing: border-box !important;
+        color: #333;
+        background-color: #fff;
+        border-color: #d4d4d4;
+    }
+
+    #passwordRequestForm input[name="email"]:focus {
+        color: #333;
+        background-color: #fff;
+        border-color: #d4af37 !important;
+        box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.25) !important;
+        outline: none;
+    }
+
+    #passwordRequestForm input[name="email"]::placeholder {
+        color: #999;
+        opacity: 1;
     }
 
     #passwordRequestForm .d-flex {
-        gap: 12px;
+        gap: 12px !important;
     }
 
     #passwordRequestForm button,
     #passwordRequestForm a.btn {
-        min-height: 54px;
-        padding: 13px 22px !important;
-        font-size: 15px !important;
+        font-size: 14px !important;
+        text-decoration: none;
+    }
+
+    #passwordRequestForm button[type="submit"] {
+        min-width: 120px;
+    }
+
+    #passwordRequestForm a.btn {
+        text-decoration: none !important;
     }
 </style>
 

@@ -10,16 +10,16 @@ return new class extends Migration
     {
         Schema::create('permissions', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name');
-            $table->string('guard_name');
+            $table->string('name', 125);  // Limited to 125 chars for unique index
+            $table->string('guard_name', 125);  // Limited to 125 chars for unique index
             $table->timestamps();
             $table->unique(['name', 'guard_name']);
         });
 
         Schema::create('roles', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name');
-            $table->string('guard_name');
+            $table->string('name', 125);  // Limited to 125 chars for unique index
+            $table->string('guard_name', 125);  // Limited to 125 chars for unique index
             $table->timestamps();
             $table->unique(['name', 'guard_name']);
         });

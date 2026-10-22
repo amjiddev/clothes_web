@@ -47,6 +47,7 @@ Route::post('/cart/remove/{cartKey}', [CartController::class, 'remove'])->name('
 Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 Route::get('/cart/count', [CartController::class, 'getCount'])->name('cart.count');
 Route::get('/cart/summary', [CartController::class, 'getSummary'])->name('cart.summary');
+Route::get('/cart/items', [CartController::class, 'getItems'])->name('cart.items');
 
 // Checkout routes
 Route::middleware('auth')->group(function () {

@@ -5,10 +5,11 @@ use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\TailorController;
 use App\Http\Controllers\Admin\ReceptionistController;
 use App\Http\Controllers\Admin\CustomerController;
-use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\ContactSubmissionController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\DebugNotificationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,6 +22,22 @@ Route::middleware(['auth', 'verified', 'admin.only'])->prefix('admin')->name('ad
     
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Debug Endpoints (Temporary - Remove after debugging)
+    Route::prefix('debug')->name('debug.')->group(function () {
+        Route::get('/notifications/full', [DebugNotificationController::class, 'fullDebug'])->name('notifications.full');
+        Route::get('/notifications/simple', [DebugNotificationController::class, 'simple'])->name('notifications.simple');
+        Route::get('/table/{table}', [DebugNotificationController::class, 'tableStructure'])->name('table');
+    });
+
+    // Notification Bell Endpoints
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', [NotificationController::class, 'getNotifications'])->name('index');
+        Route::get('unread-count', [NotificationController::class, 'getUnreadCount'])->name('unread-count');
+        Route::post('mark-as-seen', [NotificationController::class, 'markAsSeen'])->name('mark-as-seen');
+        Route::post('mark-all-as-seen', [NotificationController::class, 'markAllAsSeen'])->name('mark-all-as-seen');
+        Route::get('details', [NotificationController::class, 'getNotificationDetails'])->name('details');
+    });
 
     // Inventory Management
     Route::resource('inventory', InventoryController::class)->only(['index', 'show', 'edit', 'update']);
@@ -41,10 +58,6 @@ Route::middleware(['auth', 'verified', 'admin.only'])->prefix('admin')->name('ad
     Route::post('customers/{customer}/block', [CustomerController::class, 'block'])->name('customers.block');
     Route::post('customers/{customer}/unblock', [CustomerController::class, 'unblock'])->name('customers.unblock');
 
-    // Payment Management
-    Route::resource('payments', PaymentController::class)->only(['index', 'show']);
-    Route::post('payments/{payment}/update-status', [PaymentController::class, 'updateStatus'])->name('payments.update-status');
-
     // Contact Submissions Management
     Route::resource('contact-submissions', ContactSubmissionController::class)->only(['index', 'show', 'destroy']);
     Route::post('contact-submissions/{contact_submission}/mark-as-read', [ContactSubmissionController::class, 'markAsRead'])->name('contact-submissions.mark-as-read');
@@ -63,7 +76,6 @@ Route::middleware(['auth', 'verified', 'admin.only'])->prefix('admin')->name('ad
     // Settings
     Route::resource('settings', SettingsController::class)->only(['index']);
     Route::post('settings/shop/update', [SettingsController::class, 'updateShop'])->name('settings.updateShop');
-    Route::post('settings/payment/update', [SettingsController::class, 'updatePayment'])->name('settings.updatePayment');
     Route::post('settings/email/update', [SettingsController::class, 'updateEmail'])->name('settings.updateEmail');
     Route::post('settings/colors/update', [SettingsController::class, 'updateColors'])->name('settings.updateColors');
     Route::get('settings/tab/{tab}', [SettingsController::class, 'getTab'])->name('settings.getTab');

@@ -38,7 +38,7 @@
                             </h5>
 
                             <div class="row g-3">
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="order-type-option" style="border: 2px solid #ddd; padding: 15px; border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.3s;" onclick="selectOrderType('cloth_only', this)">
                                         <input type="radio" name="order_type" value="cloth_only" id="orderType1" class="order-type-input" style="display: none;">
                                         <p style="margin: 0 0 10px 0; color: var(--primary-dark); font-weight: 600;">Cloth Only</p>
@@ -46,19 +46,11 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="order-type-option" style="border: 2px solid #ddd; padding: 15px; border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.3s;" onclick="selectOrderType('cloth_stitching', this)">
                                         <input type="radio" name="order_type" value="cloth_stitching" id="orderType2" class="order-type-input" style="display: none;" checked>
                                         <p style="margin: 0 0 10px 0; color: var(--primary-dark); font-weight: 600;">Cloth + Stitching</p>
                                         <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem;">Fabric + custom tailoring</p>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-4">
-                                    <div class="order-type-option" style="border: 2px solid #ddd; padding: 15px; border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.3s;" onclick="selectOrderType('stitching_only', this)">
-                                        <input type="radio" name="order_type" value="stitching_only" id="orderType3" class="order-type-input" style="display: none;">
-                                        <p style="margin: 0 0 10px 0; color: var(--primary-dark); font-weight: 600;">Stitching Only</p>
-                                        <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem;">Bring your own fabric</p>
                                     </div>
                                 </div>
                             </div>
@@ -116,9 +108,11 @@
                                     Use Saved Measurement (Optional)
                                 </label>
                                 <select name="measurement_id" class="form-select" id="savedMeasurements" style="border-color: var(--accent-gold);">
-                                    <option value="">Or enter new measurements below...</option>
+                                    <option value="" selected>-- Or enter new measurements below --</option>
                                     @foreach($measurements as $m)
-                                    <option value="{{ $m->id }}">{{ $m->title }}</option>
+                                    <option value="{{ $m->id }}" data-chest="{{ $m->chest }}" data-shoulder="{{ $m->shoulder }}" data-sleeve="{{ $m->sleeve_length }}" data-shirt="{{ $m->torso_length }}" data-neck="{{ $m->neck }}" data-waist="{{ $m->waist }}" data-trouser="{{ $m->inseam }}" data-bottom="{{ $m->bottom ?? '' }}">
+                                        {{ $m->title }}
+                                    </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -175,38 +169,6 @@
                         </div>
                     </div>
 
-                    <!-- Payment Method -->
-                    <div class="card border-0 shadow-sm" style="border-top: 3px solid var(--accent-gold);">
-                        <div class="card-body p-4">
-                            <h5 class="fw-bold mb-4" style="color: var(--primary-dark);">
-                                <i class="fas fa-credit-card me-2"></i>Payment Method
-                            </h5>
-
-                            <div class="payment-options">
-                                <div class="form-check mb-3">
-                                    <input class="form-check-input payment-option" type="radio" name="payment_method" 
-                                           value="cash_on_delivery" id="cod" checked>
-                                    <label class="form-check-label" for="cod" style="cursor: pointer; color: var(--primary-dark);">
-                                        <strong>Cash on Delivery</strong>
-                                        <p style="margin: 5px 0 0 0; color: var(--text-muted); font-size: 0.9rem;">
-                                            Pay when you receive your order
-                                        </p>
-                                    </label>
-                                </div>
-
-                                <div class="form-check">
-                                    <input class="form-check-input payment-option" type="radio" name="payment_method" 
-                                           value="bank_transfer" id="bank">
-                                    <label class="form-check-label" for="bank" style="cursor: pointer; color: var(--primary-dark);">
-                                        <strong>Bank Transfer</strong>
-                                        <p style="margin: 5px 0 0 0; color: var(--text-muted); font-size: 0.9rem;">
-                                            Transfer to our account (details will be provided after order)
-                                        </p>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- Special Notes -->
                     <div class="card border-0 shadow-sm mt-4" style="border-top: 3px solid var(--accent-gold);">
@@ -349,39 +311,75 @@
 
 @section('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Handle order type selection
-    function selectOrderType(type, element) {
-        document.getElementById('orderType1').checked = false;
-        document.getElementById('orderType2').checked = false;
-        document.getElementById('orderType3').checked = false;
+// Handle order type selection - MUST be outside DOMContentLoaded
+function selectOrderType(type, element) {
+    const orderType1 = document.getElementById('orderType1');
+    const orderType2 = document.getElementById('orderType2');
+    
+    if (!orderType1 || !orderType2) return;
+    
+    orderType1.checked = false;
+    orderType2.checked = false;
 
-        if (type === 'cloth_only') {
-            document.getElementById('orderType1').checked = true;
-        } else if (type === 'cloth_stitching') {
-            document.getElementById('orderType2').checked = true;
-        } else if (type === 'stitching_only') {
-            document.getElementById('orderType3').checked = true;
-        }
-
-        // Update order type options styling
-        document.querySelectorAll('.order-type-option').forEach(opt => {
-            opt.classList.remove('active');
-        });
-        element.classList.add('active');
-
-        // Show/hide measurement section
-        const measurementSection = document.getElementById('measurementSection');
-        if (type !== 'cloth_only') {
-            measurementSection.style.display = 'block';
-        } else {
-            measurementSection.style.display = 'none';
-        }
-
-        // Update total
-        updateTotal(type);
+    if (type === 'cloth_only') {
+        orderType1.checked = true;
+    } else if (type === 'cloth_stitching') {
+        orderType2.checked = true;
     }
 
+    // Update order type options styling
+    document.querySelectorAll('.order-type-option').forEach(opt => {
+        opt.style.borderColor = '#ddd';
+        opt.style.backgroundColor = 'white';
+    });
+    
+    if (element) {
+        element.style.borderColor = 'var(--accent-gold)';
+        element.style.backgroundColor = '#fffbf0';
+    }
+
+    // Show/hide measurement section
+    const measurementSection = document.getElementById('measurementSection');
+    if (measurementSection && type !== 'cloth_only') {
+        measurementSection.style.display = 'block';
+    } else if (measurementSection) {
+        measurementSection.style.display = 'none';
+    }
+
+    // Update total
+    updateTotal(type);
+}
+
+// Update total based on order type
+function updateTotal(orderType) {
+    const subtotal = {{ $subtotal }};
+    const tax = {{ $tax }};
+    let stitchingCharge = 0;
+
+    if (orderType === 'cloth_stitching') {
+        stitchingCharge = 1500;
+    }
+
+    const total = subtotal + stitchingCharge + (orderType === 'cloth_only' ? tax : Math.round((subtotal + stitchingCharge) * 0.05));
+
+    // Update display
+    const stitchingRow = document.getElementById('stitchingChargeRow');
+    const stitchingAmount = document.getElementById('stitchingAmount');
+    const totalAmount = document.getElementById('totalAmount');
+
+    if (stitchingCharge > 0 && stitchingRow) {
+        stitchingRow.style.display = 'block';
+        stitchingAmount.textContent = 'Rs. ' + stitchingCharge.toLocaleString('en-IN');
+    } else if (stitchingRow) {
+        stitchingRow.style.display = 'none';
+    }
+
+    if (totalAmount) {
+        totalAmount.textContent = 'Rs. ' + total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
     // Handle form inputs
     document.querySelectorAll('input[name="order_type"]').forEach(input => {
         input.addEventListener('change', function() {
@@ -392,70 +390,65 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Handle saved measurement selection
-    document.getElementById('savedMeasurements').addEventListener('change', function() {
-        if (this.value) {
-            // Disable new measurement inputs
-            document.querySelectorAll('input[name^="chest"], input[name^="shoulder"], input[name^="sleeve_length"], input[name^="shirt_length"], input[name^="neck"], input[name^="waist"], input[name^="trouser_length"], input[name^="bottom"]').forEach(input => {
-                input.disabled = true;
-                input.value = '';
-            });
-        } else {
-            // Enable new measurement inputs
-            document.querySelectorAll('input[name^="chest"], input[name^="shoulder"], input[name^="sleeve_length"], input[name^="shirt_length"], input[name^="neck"], input[name^="waist"], input[name^="trouser_length"], input[name^="bottom"]').forEach(input => {
-                input.disabled = false;
-            });
-        }
-    });
-
-    // Update total based on order type
-    function updateTotal(orderType) {
-        const subtotal = {{ $subtotal }};
-        const tax = {{ $tax }};
-        let stitchingCharge = 0;
-
-        if (orderType === 'cloth_stitching') {
-            stitchingCharge = 1500;
-        } else if (orderType === 'stitching_only') {
-            stitchingCharge = 300;
-        }
-
-        const total = subtotal + stitchingCharge + (orderType === 'cloth_only' ? tax : Math.round((subtotal + stitchingCharge) * 0.05));
-
-        // Update display
-        const stitchingRow = document.getElementById('stitchingChargeRow');
-        const stitchingAmount = document.getElementById('stitchingAmount');
-        const totalAmount = document.getElementById('totalAmount');
-
-        if (stitchingCharge > 0) {
-            stitchingRow.style.display = 'block';
-            stitchingAmount.textContent = 'Rs. ' + stitchingCharge.toLocaleString('en-IN');
-        } else {
-            stitchingRow.style.display = 'none';
-        }
-
-        totalAmount.textContent = 'Rs. ' + total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const savedMeasurementsSelect = document.getElementById('savedMeasurements');
+    if (savedMeasurementsSelect) {
+        savedMeasurementsSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            
+            if (this.value) {
+                // Get measurement data from data attributes
+                const measurements = {
+                    chest: selectedOption.dataset.chest,
+                    shoulder: selectedOption.dataset.shoulder,
+                    sleeve_length: selectedOption.dataset.sleeve,
+                    shirt_length: selectedOption.dataset.shirt,
+                    neck: selectedOption.dataset.neck,
+                    waist: selectedOption.dataset.waist,
+                    trouser_length: selectedOption.dataset.trouser,
+                    bottom: selectedOption.dataset.bottom
+                };
+                
+                // Populate and disable input fields
+                Object.entries(measurements).forEach(([name, value]) => {
+                    const input = document.querySelector(`input[name="${name}"]`);
+                    if (input) {
+                        input.value = value || '';
+                        input.disabled = true;
+                        input.style.backgroundColor = '#e8e8e8';
+                    }
+                });
+            } else {
+                // Clear and enable new measurement inputs
+                document.querySelectorAll('input[name="chest"], input[name="shoulder"], input[name="sleeve_length"], input[name="shirt_length"], input[name="neck"], input[name="waist"], input[name="trouser_length"], input[name="bottom"]').forEach(input => {
+                    input.disabled = false;
+                    input.value = '';
+                    input.style.backgroundColor = '';
+                });
+            }
+        });
     }
 
-    // Initialize
-    selectOrderType('cloth_stitching', document.querySelectorAll('.order-type-option')[1]);
+    // Initialize with Cloth + Stitching selected
+    const options = document.querySelectorAll('.order-type-option');
+    if (options.length > 1) {
+        selectOrderType('cloth_stitching', options[1]);
+    }
 
     // Form validation
-    document.getElementById('checkoutForm').addEventListener('submit', function(e) {
-        const orderType = document.querySelector('input[name="order_type"]:checked').value;
-        
-        if (orderType !== 'cloth_only') {
-            const measurementId = document.querySelector('input[name="measurement_id"]').value;
-            const chest = document.querySelector('input[name="chest"]').value;
-
-            if (!measurementId && !chest) {
+    const checkoutForm = document.getElementById('checkoutForm');
+    if (checkoutForm) {
+        checkoutForm.addEventListener('submit', function(e) {
+            const orderType = document.querySelector('input[name="order_type"]:checked');
+            if (!orderType) {
                 e.preventDefault();
-                alert('Please select saved measurements or enter new measurements for tailoring service');
+                alert('Please select an order type');
+                return false;
             }
-        }
-    });
+            
+            // Allow form submission - measurements can be added to order later
+            return true;
+        });
+    }
 });
-
-// Make selectOrderType globally available
-window.selectOrderType = selectOrderType;
 </script>
 @endsection

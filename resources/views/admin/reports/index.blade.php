@@ -136,7 +136,7 @@
                     <a href="{{ route('admin.reports.sales') }}" class="btn btn-success btn-sm">
                         <i class="fas fa-arrow-right me-1"></i>View Report
                     </a>
-                    <a href="{{ route('admin.reports.export', ['type' => 'sales', 'period' => $period]) }}" class="btn btn-outline-success btn-sm">
+                    <a href="javascript:void(0)" onclick="exportReportPDF('sales', '{{ $period }}')" class="btn btn-outline-success btn-sm">
                         <i class="fas fa-download me-1"></i>Export PDF
                     </a>
                 </div>
@@ -156,7 +156,7 @@
                     <a href="{{ route('admin.reports.orders') }}" class="btn btn-info btn-sm">
                         <i class="fas fa-arrow-right me-1"></i>View Report
                     </a>
-                    <a href="{{ route('admin.reports.export', ['type' => 'orders', 'period' => $period]) }}" class="btn btn-outline-info btn-sm">
+                    <a href="javascript:void(0)" onclick="exportReportPDF('orders', '{{ $period }}')" class="btn btn-outline-info btn-sm">
                         <i class="fas fa-download me-1"></i>Export PDF
                     </a>
                 </div>
@@ -176,7 +176,7 @@
                     <a href="{{ route('admin.reports.stitching') }}" class="btn btn-warning btn-sm">
                         <i class="fas fa-arrow-right me-1"></i>View Report
                     </a>
-                    <a href="{{ route('admin.reports.export', ['type' => 'stitching', 'period' => $period]) }}" class="btn btn-outline-warning btn-sm">
+                    <a href="javascript:void(0)" onclick="exportReportPDF('stitching', '{{ $period }}')" class="btn btn-outline-warning btn-sm">
                         <i class="fas fa-download me-1"></i>Export PDF
                     </a>
                 </div>
@@ -240,4 +240,23 @@
     transform: translateY(-2px);
 }
 </style>
+
+<script>
+function exportReportPDF(type, period) {
+    // Create a hidden iframe
+    var iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = "{{ route('admin.reports.export', ['type' => '__TYPE__', 'period' => '__PERIOD__']) }}".replace('__TYPE__', type).replace('__PERIOD__', period);
+    
+    // When the iframe loads, trigger print
+    iframe.onload = function() {
+        iframe.contentWindow.focus();
+        setTimeout(function() {
+            iframe.contentWindow.print();
+        }, 500);
+    };
+    
+    document.body.appendChild(iframe);
+}
+</script>
 @endsection

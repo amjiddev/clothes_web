@@ -21,11 +21,13 @@ class CartController extends Controller
         $cartItems = [];
         $total = 0;
 
-        foreach ($cart as $productId => $item) {
-            $product = Product::find($productId);
+        foreach ($cart as $cartKey => $item) {
+            $product = Product::find($item['product_id']);
             if ($product) {
                 $item['product'] = $product;
+                $item['price'] = $product->final_price;
                 $item['line_total'] = $product->final_price * $item['quantity'];
+                $item['cart_key'] = $cartKey;
                 $total += $item['line_total'];
                 $cartItems[] = $item;
             }
@@ -77,7 +79,7 @@ class CartController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Product added to cart',
-            'cartCount' => count($cart),
+            'cartCount' => $this->calculateTotalQuantity($cart),
             'total' => $this->calculateTotal($cart)
         ]);
     }
@@ -134,7 +136,7 @@ class CartController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Item removed from cart',
-                'cartCount' => count($cart),
+                'cartCount' => $this->calculateTotalQuantity($cart),
                 'total' => $this->calculateTotal($cart)
             ]);
         }
@@ -238,11 +240,10 @@ class CartController extends Controller
         }
 
         $validated = $request->validate([
-            'order_type' => 'required|in:cloth_only,cloth_stitching,stitching_only',
+            'order_type' => 'required|in:cloth_only,cloth_stitching',
             'customer_name' => 'required|string|max:255',
             'customer_phone' => 'required|string|max:20',
             'customer_address' => 'required|string|max:500',
-            'payment_method' => 'required|in:cash_on_delivery,bank_transfer',
             'measurement_id' => 'nullable|exists:customer_measurements,id',
             'measurement_title' => 'nullable|string|max:255',
             // Measurement fields for new stitching orders
@@ -258,15 +259,13 @@ class CartController extends Controller
         ]);
 
         // Validate stitching measurements if stitching is selected
-        if (in_array($validated['order_type'], ['cloth_stitching', 'stitching_only'])) {
-            if (!$validated['measurement_id'] && !$validated['chest']) {
-                return back()->with('error', 'Please provide measurements for stitching service');
-            }
-
+        if (in_array($validated['order_type'], ['cloth_stitching'])) {
+            // Measurements are optional on checkout - can be added later
+            // Just ensure if entered, all are provided
             if ($validated['chest'] && !($validated['shoulder'] && $validated['sleeve_length'] && 
                 $validated['shirt_length'] && $validated['neck'] && $validated['waist'] && 
                 $validated['trouser_length'] && $validated['bottom'])) {
-                return back()->with('error', 'All measurements are required for stitching service');
+                return back()->with('error', 'All measurements are required if any are entered');
             }
         }
 
@@ -301,16 +300,15 @@ class CartController extends Controller
             // Create order
             $order = Order::create([
                 'user_id' => Auth::id(),
-                'type' => $validated['order_type'],
+                'order_number' => 'ORD-' . date('Ymd') . '-' . rand(1000, 9999),
+                'type' => $validated['order_type'] === 'cloth_only' ? 'ready_made' : 'combined',
                 'status' => 'pending',
                 'subtotal' => $subtotal,
                 'stitching_charge' => $stitchingCharge,
                 'tax' => $tax,
                 'discount' => 0,
                 'total' => $total,
-                'payment_status' => $validated['payment_method'] === 'cash_on_delivery' ? 'pending' : 'pending',
-                'payment_method' => $validated['payment_method'],
-                'notes' => $validated['notes'] ?? null,
+                'notes' => $validated['notes'] . "\n\nCustomer Address: " . $validated['customer_address'] ?? null,
             ]);
 
             // Add order items
@@ -392,7 +390,12 @@ class CartController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        return view('frontend.order-confirmation', compact('order'));
+        // Get contact information from website CMS
+        $contactInfo = \App\Models\WebsiteCms::where('section_type', 'contact')
+                                             ->where('is_published', true)
+                                             ->first();
+
+        return view('frontend.order-confirmation', compact('order', 'contactInfo'));
     }
 
     /**
@@ -413,16 +416,68 @@ class CartController extends Controller
     }
 
     /**
+     * Calculate total quantity in cart (sum of all item quantities)
+     */
+    private function calculateTotalQuantity($cart)
+    {
+        $totalQuantity = 0;
+
+        foreach ($cart as $item) {
+            $totalQuantity += $item['quantity'];
+        }
+
+        return $totalQuantity;
+    }
+
+    /**
      * Get cart summary (for navbar, etc.)
      */
     public function getSummary()
     {
         $cart = session()->get('cart', []);
-        $count = count($cart);
+        $totalQuantity = $this->calculateTotalQuantity($cart);
         $total = $this->calculateTotal($cart);
 
         return response()->json([
-            'count' => $count,
+            'success' => true,
+            'count' => $totalQuantity,
+            'total' => $total,
+            'formatted_total' => '₹' . number_format($total, 2)
+        ]);
+    }
+
+    /**
+     * Get cart items as JSON for sidebar display
+     */
+    public function getItems()
+    {
+        $cart = session()->get('cart', []);
+        $cartItems = [];
+        $total = 0;
+
+        foreach ($cart as $cartKey => $item) {
+            $product = Product::find($item['product_id']);
+            if ($product) {
+                $lineTotal = $product->final_price * $item['quantity'];
+                $cartItems[] = [
+                    'cart_key' => $cartKey,
+                    'product_id' => $product->id,
+                    'name' => $product->name,
+                    'image' => $product->image_url,
+                    'price' => $product->final_price,
+                    'quantity' => $item['quantity'],
+                    'size' => $item['size'],
+                    'color' => $item['color'],
+                    'line_total' => $lineTotal
+                ];
+                $total += $lineTotal;
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'items' => $cartItems,
+            'count' => count($cartItems),
             'total' => $total,
             'formatted_total' => '₹' . number_format($total, 2)
         ]);

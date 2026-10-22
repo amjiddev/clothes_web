@@ -29,15 +29,30 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request)
     {
+        \Log::info('Login attempt started', [
+            'email' => $request->input('email'),
+            'has_iframe_param' => $request->input('_iframe'),
+            'sec_fetch_dest' => $request->header('Sec-Fetch-Dest')
+        ]);
+
         $request->authenticate();
+
+        \Log::info('Authentication successful');
 
         $request->session()->regenerate();
 
         $user = $request->user();
 
+        \Log::info('User loaded', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'email_verified' => $user->hasVerifiedEmail()
+        ]);
+
         // Email verified check
         if (! $user->hasVerifiedEmail()) {
             Auth::logout();
+            \Log::warning('Email not verified, logged out');
             return redirect()->route('verification.notice');
         }
 
@@ -46,17 +61,36 @@ class AuthenticatedSessionController extends Controller
             'last_login_ip' => $request->getClientIp()
         ]);
 
-        // Role based redirect
+        // Get user roles
+        $roles = $user->roles->pluck('name')->toArray();
+        \Log::info('User roles', ['roles' => $roles]);
+
+        // Determine redirect URL based on role
         if ($user->hasRole('super_admin')) {
-            // Super Admins go to admin dashboard
-            return redirect()->route('admin.dashboard');
-        } elseif ($user->hasRole('receptionist') || $user->hasRole('tailor')) {
-            // Receptionists and Tailors go to admin dashboard
-            return redirect()->route('admin.dashboard');
+            $redirectUrl = route('admin.dashboard');
+        } elseif ($user->hasRole('receptionist')) {
+            $redirectUrl = route('receptionist.dashboard');
+        } elseif ($user->hasRole('tailor')) {
+            $redirectUrl = route('tailor.dashboard');
+        } else {
+            // Customers and other users go to home page
+            $redirectUrl = route('home');
         }
 
-        // Customers and other users go to home page
-        return redirect()->route('home');
+        \Log::info('Redirect URL determined', ['url' => $redirectUrl]);
+
+        // Check if request is from iframe (modal login)
+        // Return HTML with JavaScript to redirect parent window
+        if ($request->header('Sec-Fetch-Dest') === 'iframe' || $request->input('_iframe') === '1') {
+            \Log::info('Iframe login detected, returning redirect-parent view');
+            return response()->view('auth.redirect-parent', [
+                'redirectUrl' => $redirectUrl
+            ]);
+        }
+
+        \Log::info('Normal redirect');
+        // Normal redirect for non-iframe requests
+        return redirect($redirectUrl);
     }
 
     /**

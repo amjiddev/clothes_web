@@ -5,12 +5,13 @@ namespace App\Http\Controllers\Receptionist;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\Payment;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Category;
 use App\Models\CustomerMeasurement;
 use App\Models\StitchingOrder;
+use App\Models\Invoice;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -34,7 +35,7 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Order::with('user', 'orderItems', 'stitchingOrder', 'payments');
+        $query = Order::with('user', 'orderItems', 'stitchingOrder');
 
         // Search by order number or customer name
         if ($request->has('search') && $request->search) {
@@ -82,10 +83,12 @@ class OrderController extends Controller
     }
 
     /**
-     * Show order creation wizard - Step 1: Select Customer
+     * Show order creation form - Single Page
+     * Fetch ALL required data for the single-page form
      */
-    public function create()
+    public function create(Request $request)
     {
+        // Get all non-blocked customers
         $customers = User::where(function($q) {
             $q->doesntHave('roles')
               ->orWhereHas('roles', function($role) {
@@ -95,7 +98,22 @@ class OrderController extends Controller
           ->orderBy('name')
           ->get();
 
-        return view('receptionist.orders.create.step1-customer', compact('customers'));
+        // Get all active products
+        $products = Product::where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        // Get all categories
+        $categories = Category::active()->orderBy('name')->get();
+
+        // Get customer_id from query parameter if provided
+        $selectedCustomer = null;
+        $customerId = $request->query('customer_id');
+        if ($customerId) {
+            $selectedCustomer = $customers->find($customerId);
+        }
+
+        return view('receptionist.orders.create', compact('customers', 'products', 'categories', 'selectedCustomer'));
     }
 
     /**
@@ -189,76 +207,357 @@ class OrderController extends Controller
 
     /**
      * Store the order (create order with all details)
+     * Supports both existing and new customer creation
      */
     public function store(Request $request)
     {
+        \Log::debug('========= ORDER STORE REQUEST START =========', [
+            'payment_amount' => $request->input('payment_amount'),
+            'payment_method' => $request->input('payment_method'),
+            'request_method' => $request->method(),
+        ]);
+
+        $this->normalizeOrderType($request);
+        $this->normalizeProductPayload($request);
+
+        // Log the incoming request data
+        \Log::warning('========= ORDER STORE REQUEST START =========', [
+            'order_type_received' => $request->input('order_type'),
+            'order_type_hidden' => $request->input('order_type_hidden'),
+            'new_measurement_profile_name' => $request->input('new_measurement_profile_name'),
+            'customer_id' => $request->input('customer_id'),
+            'all_inputs' => $request->all(),
+        ]);
+
         $validated = $request->validate([
-            'customer_id' => 'required|exists:users,id',
+            // Customer - either existing customer_id OR new customer fields
+            'customer_id' => 'nullable|exists:users,id',
+            'new_customer_name' => 'nullable|string|max:255',
+            'new_customer_email' => 'nullable|email|unique:users,email',
+            'new_customer_phone' => 'nullable|string|max:20',
+            'new_customer_city' => 'nullable|string|max:255',
+            'new_customer_address' => 'nullable|string|max:500',
+
+            // Order details
             'order_type' => 'required|in:ready_made,stitching,combined',
             'subtotal' => 'required|numeric|min:0',
             'stitching_charge' => 'nullable|numeric|min:0',
             'discount' => 'nullable|numeric|min:0',
             'tax' => 'nullable|numeric|min:0',
             'total' => 'required|numeric|min:0.01',
-            'payment_method' => 'required|in:cash,card,bank_transfer,online',
-            'paid_amount' => 'required|numeric|min:0',
             'notes' => 'nullable|string|max:500',
-            'delivery_date' => 'nullable|date|after:today',
+            'delivery_date' => 'required|date|after_or_equal:today',
+
+            // Products
+            'product_ids' => 'nullable|array',
+            'product_ids.*' => 'nullable|exists:products,id',
+            'quantities' => 'nullable|array',
+            'quantities.*' => 'nullable|integer|min:1',
+
+            // Stitching details
+            'fabric_type' => 'nullable|string|max:100',
+            'fabric_color' => 'nullable|string|max:100',
+            'garment_type' => 'nullable|string|max:100',
+            'measurement_id' => 'nullable|exists:customer_measurements,id',
+            'stitching_instructions' => 'nullable|string|max:500',
+            'design_image' => 'nullable|image|max:5120', // 5MB
+            
+            // New measurement fields
+            'new_measurement_profile_name' => 'nullable|string|max:255',
+            'new_measurement_chest' => 'nullable|numeric|min:0',
+            'new_measurement_shoulder' => 'nullable|numeric|min:0',
+            'new_measurement_sleeve_length' => 'nullable|numeric|min:0',
+            'new_measurement_shirt_length' => 'nullable|numeric|min:0',
+            'new_measurement_neck' => 'nullable|numeric|min:0',
+            'new_measurement_waist' => 'nullable|numeric|min:0',
+            'new_measurement_trouser_length' => 'nullable|numeric|min:0',
+            'new_measurement_bottom' => 'nullable|numeric|min:0',
+            'new_measurement_thigh' => 'nullable|numeric|min:0',
+            'new_measurement_cuff_size' => 'nullable|numeric|min:0',
+
+            // Payment & Invoice fields
+            'payment_amount' => 'nullable|numeric|min:0',
+            'payment_method' => 'nullable|string|in:cash,card,bank_transfer,easypaisa',
+            'transaction_id' => 'nullable|string|max:100',
         ]);
 
-        // Verify customer exists and is not blocked
-        $customer = User::findOrFail($validated['customer_id']);
-        if ($customer->is_blocked) {
-            return back()->with('error', 'Cannot create order for blocked customer.');
+        // Custom validation: if payment_amount > 0, payment_method must be provided
+        $paymentAmount = floatval($request->input('payment_amount') ?? 0);
+        $paymentMethod = $request->input('payment_method');
+
+        if ($paymentAmount > 0 && !$paymentMethod) {
+            return back()->withInput()->withErrors([
+                'payment_method' => 'Payment Method is required.'
+            ]);
         }
 
         try {
             DB::beginTransaction();
 
-            // Create order
-            $order = Order::create([
-                'user_id' => $validated['customer_id'],
-                'type' => $validated['order_type'],
-                'status' => 'pending',
-                'subtotal' => $validated['subtotal'],
-                'stitching_charge' => $validated['stitching_charge'] ?? 0,
-                'discount' => $validated['discount'] ?? 0,
-                'tax' => $validated['tax'] ?? 0,
-                'total' => $validated['total'],
-                'payment_method' => $validated['payment_method'],
-                'payment_status' => $validated['paid_amount'] >= $validated['total'] ? 'paid' : 'pending',
-                'notes' => $validated['notes'],
-                'delivery_date' => $validated['delivery_date'],
-            ]);
-
-            // Add order items
-            $this->addOrderItems($request, $order);
-
-            // Handle stitching order if needed
-            if (in_array($validated['order_type'], ['stitching', 'combined'])) {
-                $this->createStitchingOrder($request, $order);
+            // Step 1: Determine or create customer
+            if (!empty($validated['customer_id'])) {
+                // Use existing customer
+                $customer = User::findOrFail($validated['customer_id']);
+                if ($customer->is_blocked) {
+                    return back()->with('error', 'Cannot create order for blocked customer.');
+                }
+                $customerId = $validated['customer_id'];
+            } elseif (!empty($validated['new_customer_phone'])) {
+                // Create new customer only if phone is provided
+                $customer = User::create([
+                    'name' => $validated['new_customer_name'] ?? 'Customer',
+                    'email' => $validated['new_customer_email'] ?? null,
+                    'contact_number' => $validated['new_customer_phone'],
+                    'password' => bcrypt('temp-' . time()),
+                    'email_verified_at' => now(),
+                ]);
+                
+                // Assign customer role
+                $customer->assignRole('customer');
+                $customerId = $customer->id;
+            } else {
+                return back()->withInput()->with('error', 'Please select a customer or enter customer phone number for new customer.');
             }
 
-            // Record initial payment if paid amount > 0
-            if ($validated['paid_amount'] > 0) {
-                Payment::create([
-                    'order_id' => $order->id,
-                    'user_id' => auth()->id(),
-                    'amount' => $validated['paid_amount'],
-                    'payment_method' => $validated['payment_method'],
-                    'status' => 'completed',
-                    'processed_at' => now(),
+            // Step 1.5: Create new measurement if provided
+            if (!empty($validated['new_measurement_profile_name'])) {
+                $newMeasurement = CustomerMeasurement::create([
+                    'user_id' => $customerId,
+                    'profile_name' => $validated['new_measurement_profile_name'],
+                    'chest' => $validated['new_measurement_chest'] ?? 0,
+                    'shoulder' => $validated['new_measurement_shoulder'] ?? 0,
+                    'sleeve_length' => $validated['new_measurement_sleeve_length'] ?? 0,
+                    'shirt_length' => $validated['new_measurement_shirt_length'] ?? 0,
+                    'neck' => $validated['new_measurement_neck'] ?? 0,
+                    'waist' => $validated['new_measurement_waist'] ?? 0,
+                    'trouser_length' => $validated['new_measurement_trouser_length'] ?? 0,
+                    'bottom' => $validated['new_measurement_bottom'] ?? 0,
+                    'thigh' => $validated['new_measurement_thigh'] ?? 0,
+                    'cuff_size' => $validated['new_measurement_cuff_size'] ?? 0,
+                    'is_default' => false,
                 ]);
+                
+                // Use the newly created measurement
+                if (empty($validated['measurement_id'])) {
+                    $validated['measurement_id'] = $newMeasurement->id;
+                }
+            }
+
+            // Step 2: Recalculate subtotal from fresh product prices (server-side validation)
+            $subtotal = 0;
+            $productsToProccess = [];
+
+            \Log::warning('PROCESSING PRODUCTS', [
+                'order_type' => $validated['order_type'],
+                'product_ids' => $validated['product_ids'] ?? null,
+                'quantities' => $validated['quantities'] ?? null,
+            ]);
+
+            // For ready_made and combined orders, require at least one product with valid quantity
+            if ($validated['order_type'] !== 'stitching') {
+                $hasProducts = false;
+                
+                if (!empty($validated['product_ids']) && is_array($validated['product_ids'])) {
+                    foreach ($validated['product_ids'] as $index => $productId) {
+                        if (!empty($productId)) {
+                            $qty = intval($validated['quantities'][$index] ?? 0);
+                            if ($qty > 0) {
+                                $hasProducts = true;
+                                $product = Product::findOrFail($productId);
+                                
+                                // Validate sufficient stock
+                                if ($product->stock_quantity < $qty) {
+                                    throw new \Exception("Insufficient stock for product '{$product->name}'. Available: {$product->stock_quantity}, Requested: {$qty}");
+                                }
+                                
+                                $lineTotal = $product->final_price * $qty;
+                                $subtotal += $lineTotal;
+
+                                $productsToProccess[] = [
+                                    'product_id' => $product->id,
+                                    'quantity' => $qty,
+                                    'price' => $product->final_price,
+                                ];
+                                
+                                \Log::warning('PRODUCT ADDED', [
+                                    'product_id' => $product->id,
+                                    'quantity' => $qty,
+                                    'price' => $product->final_price,
+                                ]);
+                            }
+                        }
+                    }
+                }
+                
+                if (!$hasProducts && $validated['order_type'] === 'ready_made') {
+                    throw new \Exception('Ready-made orders must include at least one product with quantity greater than 0');
+                }
+                
+                if (!$hasProducts && $validated['order_type'] === 'combined' && empty($validated['fabric_type'])) {
+                    throw new \Exception('Combined orders must include either products or stitching details');
+                }
+            }
+
+            // Step 3: Recalculate total with fresh values
+            $stitchingCharge = floatval($validated['stitching_charge'] ?? 0);
+            $discount = floatval($validated['discount'] ?? 0);
+            $tax = floatval($validated['tax'] ?? 0);
+            $total = max(0, $subtotal + $stitchingCharge + $tax - $discount);
+
+            // Step 4: Create order
+            $order = Order::create([
+                'user_id' => $customerId,
+                'type' => $validated['order_type'],
+                'status' => 'pending',
+                'subtotal' => $subtotal,
+                'stitching_charge' => $stitchingCharge,
+                'discount' => $discount,
+                'tax' => $tax,
+                'total' => $total,
+                'notes' => $validated['notes'] ?? null,
+                'delivery_date' => $validated['delivery_date'] ?? null,
+            ]);
+
+            // Step 5: Create order items and decrement stock
+            foreach ($productsToProccess as $item) {
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $item['product_id'],
+                    'quantity' => $item['quantity'],
+                    'price' => $item['price'],
+                ]);
+
+                // Decrement product stock
+                Product::findOrFail($item['product_id'])->decrement('stock_quantity', $item['quantity']);
+            }
+
+            // Step 6: Create stitching order if applicable
+            if (in_array($validated['order_type'], ['stitching', 'combined'])) {
+                \Log::warning('Creating stitching order for type: ' . $validated['order_type']);
+                $this->createStitchingOrder($request, $order, $validated);
+                \Log::warning('Stitching order creation completed');
+            }
+
+            // Step 7: Auto-generate invoice
+            $invoice = Invoice::create([
+                'order_id' => $order->id,
+                'invoice_number' => null, // Will be generated by boot method
+                'invoice_date' => now(),
+                'due_date' => $validated['delivery_date'],
+                'subtotal' => $subtotal,
+                'tax_amount' => $tax,
+                'discount_amount' => $discount,
+                'total_amount' => $total,
+                'amount_paid' => 0,
+                'balance_due' => $total,
+                'status' => 'unpaid',
+                'notes' => $validated['notes'] ?? null,
+            ]);
+
+            \Log::info('Invoice auto-generated for order', [
+                'invoice_id' => $invoice->id,
+                'invoice_number' => $invoice->invoice_number,
+                'order_id' => $order->id,
+                'total_amount' => $total,
+            ]);
+
+            // Step 8: Handle payment scenarios
+            // Use the pre-validated payment values (already checked custom validation above)
+            $paymentAmount = floatval($request->input('payment_amount') ?? 0);
+            $paymentMethod = $request->input('payment_method') ?? null;
+            $transactionId = $request->input('transaction_id') ?? null;
+
+            // SCENARIO 1: No Payment (Empty or 0)
+            if ($paymentAmount <= 0) {
+                // Invoice remains unpaid with full balance due
+                $order->payment_status = 'pending';
+                $order->save();
+
+                \Log::info('Order created with no initial payment', [
+                    'order_id' => $order->id,
+                    'invoice_id' => $invoice->id,
+                    'invoice_status' => 'unpaid',
+                ]);
+            }
+            // SCENARIO 2 & 3: Payment Amount > 0 (Partial or Full)
+            else {
+                // Create payment record
+                $payment = Payment::create([
+                    'invoice_id' => $invoice->id,
+                    'order_id' => $order->id,
+                    'payment_reference' => 'PAY-' . date('YmdHis') . '-' . $invoice->id,
+                    'amount' => $paymentAmount,
+                    'payment_method' => $paymentMethod,
+                    'payment_date' => now(),
+                    'transaction_id' => $transactionId,
+                    'notes' => 'Initial payment on order creation',
+                    'received_by' => auth()->id(),
+                ]);
+
+                // Update invoice with payment details
+                $invoice->amount_paid = $paymentAmount;
+                $invoice->balance_due = max(0, $total - $paymentAmount);
+
+                // SCENARIO 2: Partial Payment
+                if ($paymentAmount < $total) {
+                    $invoice->status = 'partial';
+                    $order->payment_status = 'partial';
+                    
+                    \Log::info('Partial payment recorded on order', [
+                        'order_id' => $order->id,
+                        'invoice_id' => $invoice->id,
+                        'payment_amount' => $paymentAmount,
+                        'total_amount' => $total,
+                        'balance_due' => $invoice->balance_due,
+                        'payment_method' => $paymentMethod,
+                    ]);
+                }
+                // SCENARIO 3: Full Payment
+                else {
+                    $invoice->status = 'paid';
+                    $invoice->paid_at = now();
+                    $order->payment_status = 'paid';
+                    
+                    \Log::info('Full payment recorded on order', [
+                        'order_id' => $order->id,
+                        'invoice_id' => $invoice->id,
+                        'payment_amount' => $paymentAmount,
+                        'total_amount' => $total,
+                        'payment_method' => $paymentMethod,
+                    ]);
+                }
+
+                $invoice->save();
+                $order->payment_method = $paymentMethod;
+                $order->save();
             }
 
             DB::commit();
+            \Log::info('========= ORDER CREATION SUCCESSFUL =========', [
+                'order_id' => $order->id,
+                'order_number' => $order->order_number,
+                'type' => $order->type,
+                'invoice_id' => $invoice->id,
+                'invoice_number' => $invoice->invoice_number,
+                'payment_amount' => $paymentAmount,
+                'total_amount' => $total,
+                'invoice_status' => $invoice->status,
+            ]);
 
+            // Redirect to order details page for ALL scenarios (empty, partial, full payment)
             return redirect()->route('receptionist.orders.show', $order)
-                            ->with('success', 'Order created successfully! Order ID: ' . $order->order_number);
+                            ->with('success', 'Order created successfully! Order #' . $order->order_number . ' has been saved.');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Error creating order: ' . $e->getMessage());
+            \Log::error('========= ORDER CREATION FAILED =========', [
+                'error_message' => $e->getMessage(),
+                'error_file' => $e->getFile(),
+                'error_line' => $e->getLine(),
+                'order_type' => $validated['order_type'] ?? 'unknown',
+                'stack_trace' => $e->getTraceAsString(),
+            ]);
+            return back()->withInput()->with('error', 'Error creating order: ' . $e->getMessage());
         }
     }
 
@@ -267,17 +566,9 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        $order->load('user', 'orderItems.product', 'stitchingOrder', 'payments');
+        $order->load('user', 'orderItems.product', 'stitchingOrder');
 
-        // Calculate payment status
-        $paidAmount = $order->payments ? $order->payments->where('status', 'completed')->sum('amount') : 0;
-        $remainingAmount = max(0, $order->total - $paidAmount);
-
-        return view('receptionist.orders.show', compact(
-            'order',
-            'paidAmount',
-            'remainingAmount'
-        ));
+        return view('receptionist.orders.show', compact('order'));
     }
 
     /**
@@ -296,17 +587,53 @@ class OrderController extends Controller
     public function update(Request $request, Order $order)
     {
         $validated = $request->validate([
+            'status' => 'nullable|in:pending,confirmed,in_progress,ready,delivered,cancelled',
+            'payment_status' => 'nullable|in:pending,paid,failed',
             'delivery_date' => 'nullable|date|after:today',
             'notes' => 'nullable|string|max:500',
         ]);
 
         try {
+            // Auto-update payment_status based on order status if not explicitly provided
+            if (isset($validated['status']) && $validated['status'] === 'cancelled' && !$request->has('payment_status')) {
+                $validated['payment_status'] = 'failed';
+            }
+
             $order->update($validated);
 
             return redirect()->route('receptionist.orders.show', $order)
                             ->with('success', 'Order updated successfully');
         } catch (\Exception $e) {
             return back()->with('error', 'Error updating order: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete an order
+     */
+    public function destroy(Order $order)
+    {
+        try {
+            // Check if order has associated invoices or payments
+            if ($order->invoice) {
+                return back()->with('error', 'Cannot delete order with associated invoice. Please delete the invoice first.');
+            }
+
+            // Delete order items
+            $order->orderItems()->delete();
+
+            // Delete stitching order if exists
+            if ($order->stitchingOrder) {
+                $order->stitchingOrder()->delete();
+            }
+
+            // Delete the order
+            $order->delete();
+
+            return redirect()->route('receptionist.orders.index')
+                            ->with('success', 'Order deleted successfully');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error deleting order: ' . $e->getMessage());
         }
     }
 
@@ -320,6 +647,18 @@ class OrderController extends Controller
             ->get(['id', 'name', 'price', 'discount_price', 'stock_quantity', 'color', 'size']);
 
         return response()->json($products);
+    }
+
+    /**
+     * Get customer measurements (AJAX API)
+     */
+    public function getCustomerMeasurements($customerId)
+    {
+        $measurements = CustomerMeasurement::where('user_id', $customerId)
+            ->latest()
+            ->get(['id', 'profile_name', 'created_at']);
+
+        return response()->json($measurements);
     }
 
     /**
@@ -392,10 +731,11 @@ class OrderController extends Controller
     /**
      * Add order items to the order
      */
-    private function addOrderItems($request, $order)
+    private function addOrderItems($request, $order, $validated = [])
     {
-        $productIds = $request->input('product_ids', []);
-        $quantities = $request->input('quantities', []);
+        // Use validated data if provided, otherwise fall back to request input
+        $productIds = $validated['product_ids'] ?? $request->input('product_ids', []);
+        $quantities = $validated['quantities'] ?? $request->input('quantities', []);
 
         foreach ($productIds as $index => $productId) {
             if (!empty($productId) && !empty($quantities[$index])) {
@@ -418,24 +758,128 @@ class OrderController extends Controller
     /**
      * Create stitching order for receptionist workflow
      */
-    private function createStitchingOrder($request, $order)
+    private function createStitchingOrder($request, $order, $validated = [])
     {
-        $stitchingOrder = StitchingOrder::create([
+        \Log::warning('========= CREATE STITCHING ORDER START =========');
+        \Log::warning('Validated data:', $validated);
+        
+        // Use validated data if provided, otherwise fall back to request input
+        $fabricType = $validated['fabric_type'] ?? $request->input('fabric_type');
+        $fabricColor = $validated['fabric_color'] ?? $request->input('fabric_color');
+        $garmentType = $validated['garment_type'] ?? $request->input('garment_type', 'custom');
+        $measurementId = $validated['measurement_id'] ?? $request->input('measurement_id');
+        $stitchingInstructions = $validated['stitching_instructions'] ?? $request->input('stitching_instructions');
+        $stitchingCharge = floatval($validated['stitching_charge'] ?? $request->input('stitching_charge', 0));
+
+        \Log::warning('Stitching order data being created:', [
             'order_id' => $order->id,
-            'user_id' => $order->user_id,
-            'fabric_type' => $request->input('fabric_type'),
-            'color' => $request->input('fabric_color'),
-            'garment_type' => $request->input('garment_type', 'custom'),
-            'measurement_id' => $request->input('measurement_id'),
-            'design_details' => $request->input('stitching_instructions'),
+            'fabric_type' => $fabricType,
+            'color' => $fabricColor,
+            'garment_type' => $garmentType,
+            'measurement_id' => $measurementId,
+            'design_details' => $stitchingInstructions,
+            'estimated_cost' => $stitchingCharge,
             'stitching_status' => 'pending',
-            'status' => 'pending',
         ]);
+
+        $stitchingOrderData = [
+            'order_id' => $order->id,
+            'fabric_type' => $fabricType,
+            'color' => $fabricColor,
+            'garment_type' => $garmentType,
+            'measurement_id' => $measurementId,
+            'design_details' => $stitchingInstructions,
+            'estimated_cost' => $stitchingCharge,
+            'stitching_status' => 'pending',
+        ];
 
         // Handle design image upload if provided
         if ($request->hasFile('design_image')) {
             $path = $request->file('design_image')->store('designs', 'public');
-            $stitchingOrder->update(['design_image' => $path]);
+            $stitchingOrderData['design_image'] = $path;
+        }
+
+        try {
+            $stitchingOrder = StitchingOrder::create($stitchingOrderData);
+            \Log::warning('========= STITCHING ORDER CREATED SUCCESSFULLY =========', ['id' => $stitchingOrder->id]);
+            return $stitchingOrder;
+        } catch (\Exception $e) {
+            \Log::error('========= STITCHING ORDER CREATION FAILED =========', [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Normalize legacy request values to the canonical backend contract.
+     * Supported values are exactly: ready_made, stitching, combined.
+     */
+    private function normalizeOrderType(Request $request): void
+    {
+        $legacyType = (string) ($request->input('order_type') ?? $request->input('order_type_hidden') ?? '');
+        $canonicalType = strtolower(trim($legacyType));
+
+        $map = [
+            'cloth' => 'ready_made',
+            'cloth_only' => 'ready_made',
+            'stitching_only' => 'stitching',
+            'cloth_stitching' => 'combined',
+        ];
+
+        $normalizedType = $map[$canonicalType] ?? $canonicalType;
+
+        if (!in_array($normalizedType, ['ready_made', 'stitching', 'combined'], true)) {
+            return;
+        }
+
+        $request->merge([
+            'order_type' => $normalizedType,
+            'order_type_hidden' => $normalizedType,
+        ]);
+    }
+
+    /**
+     * Normalize legacy product payloads to the canonical product_ids/quantities arrays.
+     */
+    private function normalizeProductPayload(Request $request): void
+    {
+        $productIds = $request->input('product_ids', []);
+        $quantities = $request->input('quantities', []);
+
+        if (!is_array($productIds)) {
+            $productIds = $productIds !== null ? [$productIds] : [];
+        }
+
+        if (!is_array($quantities)) {
+            $quantities = $quantities !== null ? [$quantities] : [];
+        }
+
+        $normalizedProductIds = [];
+        $normalizedQuantities = [];
+
+        foreach ($productIds as $index => $productId) {
+            if ($productId === null || trim((string) $productId) === '') {
+                continue;
+            }
+
+            $qty = isset($quantities[$index]) ? (int) $quantities[$index] : 0;
+
+            if ($qty <= 0) {
+                continue;
+            }
+
+            $normalizedProductIds[] = $productId;
+            $normalizedQuantities[] = $qty;
+        }
+
+        if (!empty($normalizedProductIds)) {
+            $request->merge([
+                'product_ids' => $normalizedProductIds,
+                'quantities' => $normalizedQuantities,
+            ]);
         }
     }
 }

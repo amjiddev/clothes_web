@@ -24,12 +24,23 @@ class User extends Authenticatable
         'name',
         'email',
         'contact_number',
+        'phone',
         'password',
         'last_login_at',
         'last_login_ip',
         'profile_photo_path',
         'is_blocked',
     ];
+
+    public function setPhoneAttribute($value)
+    {
+        $this->attributes['contact_number'] = $value;
+    }
+
+    public function getPhoneAttribute()
+    {
+        return $this->contact_number;
+    }
 
     /**
      * The attributes that should be hidden for serialization.

@@ -61,10 +61,61 @@ class ContactSubmission extends Model
     }
 
     /**
+     * Mark as unread
+     */
+    public function markAsUnread()
+    {
+        $this->update([
+            'is_read' => false,
+            'read_at' => null,
+        ]);
+    }
+
+    /**
+     * Check if read
+     */
+    public function isRead()
+    {
+        return $this->is_read === true;
+    }
+
+    /**
+     * Check if unread
+     */
+    public function isUnread()
+    {
+        return $this->is_read === false;
+    }
+
+    /**
      * Get status badge
      */
     public function getStatusBadgeAttribute()
     {
         return $this->is_read ? '<span class="badge bg-success">Read</span>' : '<span class="badge bg-warning">New</span>';
+    }
+
+    /**
+     * Get unread contact messages count for admin
+     */
+    public static function getUnreadCount()
+    {
+        return static::where('is_read', false)->count();
+    }
+
+    /**
+     * Scope: Get unread messages
+     */
+    public function scopeUnread($query)
+    {
+        return $query->where('is_read', false);
+    }
+
+    /**
+     * Scope: Get read messages
+     */
+    public function scopeRead($query)
+    {
+        return $query->where('is_read', true);
     }
 }

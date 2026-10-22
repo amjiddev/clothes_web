@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Receptionist;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\StitchingOrder;
-use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -42,15 +41,6 @@ class DashboardController extends Controller
         $assignedStitchingOrders = StitchingOrder::where('stitching_status', 'assigned')->count();
         $inProgressStitchingOrders = StitchingOrder::where('stitching_status', 'in_progress')->count();
 
-        // Get payment statistics (count for pending payments)
-        $totalPayments = Payment::count();
-        $paidPayments = Payment::where('status', 'completed')->count();
-        $pendingPaymentsCount = Payment::where('status', 'pending')->count();
-        $failedPayments = Payment::where('status', 'failed')->count();
-
-        // Calculate total pending payment amount
-        $pendingPaymentsAmount = Payment::where('status', 'pending')->sum('amount');
-
         // Get recent orders with user relationship
         $recentOrders = Order::with('user')
             ->latest()
@@ -83,12 +73,6 @@ class DashboardController extends Controller
                 ];
             })->toArray();
 
-        // Get pending payments data
-        $pendingPaymentsData = Payment::where('status', 'pending')
-            ->latest()
-            ->take(5)
-            ->get();
-
         return view('receptionist.dashboard', compact(
             'totalOrders',
             'pendingOrders',
@@ -100,13 +84,8 @@ class DashboardController extends Controller
             'pendingStitchingOrders',
             'assignedStitchingOrders',
             'inProgressStitchingOrders',
-            'totalPayments',
-            'paidPayments',
-            'pendingPaymentsCount',
-            'failedPayments',
             'recentOrders',
-            'recentStitchingOrders',
-            'pendingPaymentsData'
-        ) + ['pendingPayments' => $pendingPaymentsAmount]);
+            'recentStitchingOrders'
+        ));
     }
 }

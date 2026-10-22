@@ -38,7 +38,7 @@
                         <option value="all">All Types</option>
                         <option value="ready_made" {{ $orderType === 'ready_made' ? 'selected' : '' }}>Cloth Only</option>
                         <option value="stitching" {{ $orderType === 'stitching' ? 'selected' : '' }}>Stitching Only</option>
-                        <option value="combined" {{ $orderType === 'combined' ? 'selected' : '' }}>Cloth + Stitching</option>
+                        <option value="combined" {{ $orderType === 'combined' ? 'selected' : '' }}>Cloth Only + Stitching</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -177,11 +177,11 @@
                         <td>{{ $order->user->name ?? 'Unknown' }}</td>
                         <td>
                             @if($order->type === 'ready_made')
-                                <span class="badge bg-light text-dark">Cloth</span>
+                                <span class="badge bg-light text-dark">Cloth Only</span>
                             @elseif($order->type === 'stitching')
                                 <span class="badge bg-light text-dark">Stitching</span>
                             @else
-                                <span class="badge bg-light text-dark">Cloth + Stitching</span>
+                                <span class="badge bg-light text-dark">Cloth Only + Stitching</span>
                             @endif
                         </td>
                         <td><strong>Rs. {{ number_format($order->total, 2) }}</strong></td>
@@ -226,7 +226,7 @@
             labels: @json($chartData['labels'] ?? []),
             datasets: [{
                 data: @json($chartData['data'] ?? []),
-                backgroundColor: @json($chartData['backgroundColor'] ?? ['#28a745', '#ffc107', '#17a2b8', '#007bff', '#6610f2', '#dc3545']),
+                backgroundColor: ['#28a745', '#ffc107', '#17a2b8', '#007bff', '#6610f2', '#dc3545'],
                 borderColor: '#fff',
                 borderWidth: 2,
             }]

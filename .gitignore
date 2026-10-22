@@ -5,6 +5,9 @@
 /public/assets
 /public/mix-manifest.json
 /storage/*.key
+/storage/framework/views/*
+/storage/framework/cache/*
+/storage/logs/*
 /vendor
 .env
 .env.backup

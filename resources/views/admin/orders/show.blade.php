@@ -58,7 +58,7 @@
             <div class="card border-0 shadow text-center">
                 <div class="card-body">
                     <div class="text-muted mb-2">Order Type</div>
-                    @if($order->type === 'ready_made')
+                    @if($order->type === 'cloth')
                     <span class="badge bg-info fs-6 p-2">Cloth Only</span>
                     @elseif($order->type === 'stitching')
                     <span class="badge bg-warning fs-6 p-2">Stitching Only</span>
@@ -100,14 +100,14 @@
                                 <dd class="col-sm-8">{{ $order->created_at->format('M d, Y') }}</dd>
 
                                 <dt class="col-sm-4 text-muted">Payment Method:</dt>
-                                <dd class="col-sm-8">{{ ucfirst($order->payment_method ?? 'N/A') }}</dd>
+                                <dd class="col-sm-8"><span class="badge bg-success">Cash</span></dd>
                             </dl>
                         </div>
                         <div class="col-md-6">
                             <dl class="row">
                                 <dt class="col-sm-4 text-muted">Order Type:</dt>
                                 <dd class="col-sm-8">
-                                    @if($order->type === 'ready_made')
+                                    @if($order->type === 'cloth')
                                     <span class="badge bg-info">Cloth Only</span>
                                     @elseif($order->type === 'stitching')
                                     <span class="badge bg-warning">Stitching Only</span>
@@ -438,7 +438,7 @@
                         </dd>
 
                         <dt class="col-7 text-muted">Method:</dt>
-                        <dd class="col-5 text-end">{{ ucfirst($order->payment_method ?? 'N/A') }}</dd>
+                        <dd class="col-5 text-end"><span class="badge bg-success">Cash</span></dd>
 
                         <dt class="col-7 text-muted">Amount:</dt>
                         <dd class="col-5 text-end fw-bold">Rs. {{ number_format($order->total, 2) }}</dd>
@@ -579,5 +579,32 @@ function cancelOrder(orderId) {
         console.log('Cancel order:', orderId);
     }
 }
+
+// Auto-update payment status based on order status
+document.addEventListener('DOMContentLoaded', function() {
+    const statusSelect = document.querySelector('select[name="status"]');
+    const paymentStatusSelect = document.querySelector('select[name="payment_status"]');
+
+    if (statusSelect && paymentStatusSelect) {
+        statusSelect.addEventListener('change', function() {
+            const orderStatus = this.value;
+
+            // Define payment status mappings
+            const statusMappings = {
+                'pending': 'pending',      // Pending order → Pending payment
+                'confirmed': 'pending',    // Confirmed order → Pending payment
+                'in_progress': 'pending',  // Processing → Pending payment
+                'ready': 'pending',        // Ready → Pending payment
+                'delivered': 'pending',    // Delivered → Pending payment (to be collected)
+                'cancelled': 'failed'      // Cancelled → Failed payment
+            };
+
+            // Update payment status
+            if (statusMappings[orderStatus]) {
+                paymentStatusSelect.value = statusMappings[orderStatus];
+            }
+        });
+    }
+});
 </script>
 @endsection

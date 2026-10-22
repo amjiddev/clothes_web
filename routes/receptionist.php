@@ -1,13 +1,13 @@
 <?php
 
 use App\Http\Controllers\Receptionist\DashboardController;
+use App\Http\Controllers\Receptionist\OrderController;
 use App\Http\Controllers\Apps\CustomerController;
-use App\Http\Controllers\Apps\OrderController;
 use App\Http\Controllers\Apps\StitchingOrderController;
 use App\Http\Controllers\Apps\MeasurementController;
 use App\Http\Controllers\Apps\TailorController;
-use App\Http\Controllers\Apps\PaymentController;
 use App\Http\Controllers\Apps\InvoiceController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,17 +23,27 @@ Route::middleware(['auth', 'verified', 'receptionist.only'])->prefix('receptioni
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    // Notification Bell Endpoints
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', [NotificationController::class, 'getNotifications'])->name('index');
+        Route::get('unread-count', [NotificationController::class, 'getUnreadCount'])->name('unread-count');
+        Route::post('mark-as-seen', [NotificationController::class, 'markAsSeen'])->name('mark-as-seen');
+        Route::post('mark-all-as-seen', [NotificationController::class, 'markAllAsSeen'])->name('mark-all-as-seen');
+        Route::get('details', [NotificationController::class, 'getNotificationDetails'])->name('details');
+    });
+
     // Customers
     Route::resource('customers', CustomerController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update']);
     Route::get('customers/{customer}/measurements', [CustomerController::class, 'showMeasurements'])->name('customers.measurements');
     Route::get('customers/{customer}/orders', [CustomerController::class, 'showOrders'])->name('customers.orders');
 
     // Orders
-    Route::resource('orders', OrderController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update']);
-    Route::get('orders/create/select-type', [OrderController::class, 'selectOrderType'])->name('orders.select-type');
-    Route::post('orders/create/summary', [OrderController::class, 'orderSummary'])->name('orders.summary');
-    Route::post('orders/create/payment', [OrderController::class, 'paymentStep'])->name('orders.payment');
-    Route::post('orders/{order}/record-payment', [OrderController::class, 'recordPayment'])->name('orders.record-payment');
+    Route::get('orders/create', [OrderController::class, 'create'])->name('orders.create');
+    Route::get('orders/test-form', function() {
+        return view('receptionist.orders.test-form');
+    })->name('orders.test-form');
+    Route::get('customers/{customerId}/measurements-api', [OrderController::class, 'getCustomerMeasurements'])->name('customers.measurements-api');
+    Route::resource('orders', OrderController::class)->only(['index', 'show', 'store', 'edit', 'update', 'destroy']);
     Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
     Route::post('orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
     Route::get('orders/{order}/invoice', [OrderController::class, 'downloadInvoice'])->name('orders.invoice');
@@ -62,19 +72,18 @@ Route::middleware(['auth', 'verified', 'receptionist.only'])->prefix('receptioni
     Route::get('tailors/{tailor}/orders', [TailorController::class, 'getTailorOrders'])->name('tailors.tailor-orders');
     Route::get('tailors/{tailor}/dashboard', [TailorController::class, 'viewDashboard'])->name('tailors.view-dashboard');
 
-    // Payments
-    Route::resource('payments', PaymentController::class)->only(['index', 'show']);
-    Route::post('payments/{payment}/collect', [PaymentController::class, 'collectPayment'])->name('payments.collect');
-    Route::post('payments/{payment}/mark-paid', [PaymentController::class, 'markPaid'])->name('payments.mark-paid');
-    Route::post('orders/{order}/record-payment', [PaymentController::class, 'recordPayment'])->name('orders.record-payment');
-    Route::get('payments/summary/{order}', [PaymentController::class, 'getPaymentSummary'])->name('payments.summary');
-    Route::get('payments/export', [PaymentController::class, 'exportSummary'])->name('payments.export');
-
-    // Invoices
-    Route::get('invoices', [InvoiceController::class, 'index'])->name('invoices.index');
-    Route::get('invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
-    Route::get('invoices/{invoice}/download', [InvoiceController::class, 'download'])->name('invoices.download');
-    Route::get('invoices/{invoice}/print', [InvoiceController::class, 'print'])->name('invoices.print');
+    // Invoices (Financial Management)
+    Route::prefix('invoices')->name('invoices.')->group(function () {
+        Route::get('', [InvoiceController::class, 'index'])->name('index');
+        Route::get('create/{order}', [InvoiceController::class, 'create'])->name('create');
+        Route::post('store/{order}', [InvoiceController::class, 'store'])->name('store');
+        Route::get('{invoice}', [InvoiceController::class, 'show'])->name('show');
+        Route::get('{invoice}/payment', [InvoiceController::class, 'paymentForm'])->name('payment');
+        Route::post('{invoice}/pay', [InvoiceController::class, 'recordPayment'])->name('record-payment');
+        Route::get('{invoice}/print', [InvoiceController::class, 'print'])->name('print');
+        Route::get('{invoice}/download', [InvoiceController::class, 'download'])->name('download');
+        Route::delete('{invoice}', [InvoiceController::class, 'destroy'])->name('destroy');
+    });
 
     // Reports
     Route::prefix('reports')->name('reports.')->group(function () {
@@ -83,6 +92,5 @@ Route::middleware(['auth', 'verified', 'receptionist.only'])->prefix('receptioni
         Route::get('monthly-sales', [\App\Http\Controllers\Receptionist\ReportController::class, 'monthlySalesReport'])->name('monthly-sales');
         Route::get('pending-stitching', [\App\Http\Controllers\Receptionist\ReportController::class, 'pendingStitchingReport'])->name('pending-stitching');
         Route::get('completed-orders', [\App\Http\Controllers\Receptionist\ReportController::class, 'completedOrdersReport'])->name('completed-orders');
-        Route::get('payment-collection', [\App\Http\Controllers\Receptionist\ReportController::class, 'paymentCollectionReport'])->name('payment-collection');
     });
 });

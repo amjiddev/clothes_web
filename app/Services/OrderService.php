@@ -17,7 +17,6 @@ class OrderService
         $order = new Order();
         $order->user_id = $data['user_id'];
         $order->type = $data['type'];
-        $order->payment_method = $data['payment_method'];
         $order->notes = $data['notes'] ?? null;
         $order->save();
 
@@ -135,7 +134,6 @@ class OrderService
             'customer' => $order->user->name,
             'type' => $order->type,
             'status' => $order->status,
-            'payment_status' => $order->payment_status,
             'items_count' => $order->orderItems->count(),
             'subtotal' => $order->subtotal,
             'tax' => $order->tax,
