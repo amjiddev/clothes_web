@@ -1447,5 +1447,8 @@
     </script>
 
     @yield('scripts')
+
+    <!-- WhatsApp Sticky Icon -->
+    <x-whatsapp-sticky-icon />
 </body>
 </html>
