@@ -37,9 +37,9 @@
 
         <!-- Action Buttons (Top Right) -->
         <div class="d-flex gap-2 flex-wrap justify-content-end" style="max-width: 500px;">
-            <button class="btn btn-primary btn-sm" onclick="window.print()" title="Print Invoice" style="white-space: nowrap;">
+            <a href="{{ route('receptionist.orders.print-invoice', $order) }}" class="btn btn-primary btn-sm" title="Print Invoice" style="white-space: nowrap;" target="_blank">
                 <i class="fas fa-print me-1"></i>Print Invoice
-            </button>
+            </a>
             @if($order->invoice)
                 <a href="{{ route('receptionist.invoices.show', $order->invoice) }}" class="btn btn-success btn-sm" title="View Invoice" style="white-space: nowrap;">
                     <i class="fas fa-eye me-1"></i>View Invoice

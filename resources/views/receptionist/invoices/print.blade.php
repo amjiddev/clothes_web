@@ -383,10 +383,11 @@ body {
 </style>
 
 <script>
-// Auto-trigger print dialog when page loads
-window.onload = function() {
-    window.print();
-}
+    @unless(request()->boolean('embedded'))
+        window.onload = function() {
+            window.print();
+        };
+    @endunless
 </script>
 
 </body>

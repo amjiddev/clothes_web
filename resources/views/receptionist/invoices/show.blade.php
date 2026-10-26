@@ -31,12 +31,36 @@
                     <i class="fas fa-money-bill-wave me-1"></i>Record Payment
                 </a>
             @endif
-            <button type="button" class="btn btn-primary btn-sm" onclick="window.print()" id="print-button" title="Print Invoice">
+            <button type="button" class="btn btn-primary btn-sm" id="print-button" title="Print Invoice">
                 <i class="fas fa-print me-1"></i>Print
             </button>
         </div>
     </div>
 </div>
+
+<iframe
+    id="invoice-print-frame"
+    src="{{ route('receptionist.invoices.print', $invoice) }}?embedded=1"
+    title="Invoice print view"
+    aria-hidden="true"
+    tabindex="-1"
+    style="position: fixed; left: -10000px; top: 0; width: 1px; height: 1px; border: 0;"
+></iframe>
+
+<script>
+    document.getElementById('print-button').addEventListener('click', function () {
+        const printFrame = document.getElementById('invoice-print-frame');
+        const printInvoice = function () {
+            printFrame.contentWindow.print();
+        };
+
+        if (printFrame.contentDocument && printFrame.contentDocument.readyState === 'complete') {
+            printInvoice();
+        } else {
+            printFrame.addEventListener('load', printInvoice, { once: true });
+        }
+    });
+</script>
 
 <!-- TOP SUMMARY CARDS (3 Cards) -->
 <div class="row g-3 mb-5">
@@ -422,16 +446,3 @@
         }
     }
 </style>
-
-<script>
-// Auto-trigger print if ?print=1 parameter is present
-document.addEventListener('DOMContentLoaded', function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('print') === '1') {
-        // Delay print to allow page to fully render
-        setTimeout(function() {
-            window.print();
-        }, 500);
-    }
-});
-</script>
