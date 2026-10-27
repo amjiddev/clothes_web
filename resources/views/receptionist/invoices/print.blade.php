@@ -19,7 +19,7 @@
             </div>
         @endif
         <div class="print-company-info">
-            <h1 class="print-company-name">{{ config('app.name', 'CLOTHES STORE') }}</h1>
+            <h1 class="print-company-name">{{ \App\Models\Setting::getShopName() }}</h1>
             <p class="print-tagline">Tailoring & Fashion Store</p>
         </div>
     </div>

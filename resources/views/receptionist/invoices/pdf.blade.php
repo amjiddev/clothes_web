@@ -248,12 +248,16 @@
         <!-- Header -->
         <div class="invoice-header">
             <div class="shop-info">
-                <h1>🧵 TAILOR SHOP</h1>
-                <p><strong>Professional Tailoring Services</strong></p>
-                <p>📍 Address: Shop No. 123, Main Street, City</p>
-                <p>📞 Phone: +92-300-1234567</p>
-                <p>✉️ Email: info@tailorshop.com</p>
-                <p>🕐 Hours: Mon-Sat 10AM-8PM</p>
+                <h1>{{ \App\Models\Setting::getShopName() }}</h1>
+                <p><strong>Tailoring & Fashion Store</strong></p>
+                @php
+                    $shopAddress = \App\Models\Setting::getValue('shop_address', 'Shop Address Not Set');
+                    $shopPhone = \App\Models\Setting::getValue('shop_phone', '+92-300-0000000');
+                    $shopEmail = \App\Models\Setting::getValue('shop_email', 'info@shop.com');
+                @endphp
+                <p>📍 Address: {{ $shopAddress }}</p>
+                <p>📞 Phone: {{ $shopPhone }}</p>
+                <p>✉️ Email: {{ $shopEmail }}</p>
             </div>
             <div class="invoice-title-section">
                 <div class="invoice-title">INVOICE</div>

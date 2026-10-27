@@ -105,7 +105,7 @@
         <div class="invoice-details">
             <div class="detail-section">
                 <h6>From:</h6>
-                <p><strong>{{ config('app.name', 'Clothes Shop') }}</strong></p>
+                <p><strong>{{ \App\Models\Setting::getShopName() }}</strong></p>
                 <p>Professional Stitching Services</p>
             </div>
             <div class="detail-section">
