@@ -967,7 +967,7 @@
                     </li>
                     <li class="nav-item ms-3">
                         @if(auth()->check())
-                            <span class="nav-link">{{ auth()->user()->name }}</span>
+                            <a class="nav-link" href="{{ route('dashboard') }}">{{ auth()->user()->name }}</a>
                             <a class="nav-link" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
                             <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
                         @else

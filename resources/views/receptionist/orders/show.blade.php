@@ -37,10 +37,10 @@
 
         <!-- Action Buttons (Top Right) -->
         <div class="d-flex gap-2 flex-wrap justify-content-end" style="max-width: 500px;">
-            <a href="{{ route('receptionist.orders.print-invoice', $order) }}" class="btn btn-primary btn-sm" title="Print Invoice" style="white-space: nowrap;" target="_blank">
-                <i class="fas fa-print me-1"></i>Print Invoice
-            </a>
             @if($order->invoice)
+                <button type="button" class="btn btn-primary btn-sm" id="print-button" title="Print Invoice">
+                    <i class="fas fa-print me-1"></i>Print Invoice
+                </button>
                 <a href="{{ route('receptionist.invoices.show', $order->invoice) }}" class="btn btn-success btn-sm" title="View Invoice" style="white-space: nowrap;">
                     <i class="fas fa-eye me-1"></i>View Invoice
                 </a>
@@ -60,6 +60,32 @@
         </div>
     </div>
 </div>
+
+<iframe
+    id="invoice-print-frame"
+    src="{{ $order->invoice ? route('receptionist.invoices.print', $order->invoice) . '?embedded=1' : '#' }}"
+    title="Invoice print view"
+    aria-hidden="true"
+    tabindex="-1"
+    style="position: fixed; left: -10000px; top: 0; width: 1px; height: 1px; border: 0;"
+></iframe>
+
+<script>
+    @if($order->invoice)
+    document.getElementById('print-button').addEventListener('click', function () {
+        const printFrame = document.getElementById('invoice-print-frame');
+        const printInvoice = function () {
+            printFrame.contentWindow.print();
+        };
+
+        if (printFrame.contentDocument && printFrame.contentDocument.readyState === 'complete') {
+            printInvoice();
+        } else {
+            printFrame.addEventListener('load', printInvoice, { once: true });
+        }
+    });
+    @endif
+</script>
 
 <!-- TOP SUMMARY ROW (3 Cards) -->
 <div class="row g-3 mb-5">

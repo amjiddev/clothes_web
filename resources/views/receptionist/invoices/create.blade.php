@@ -19,6 +19,16 @@
                     </h3>
                 </div>
                 <div class="card-body">
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                    
                     <form method="POST" action="{{ route('receptionist.invoices.store', $order) }}">
                         @csrf
 
@@ -137,13 +147,28 @@
                                        class="btn btn-secondary">
                                         <i class="fas fa-arrow-left me-2"></i>Cancel
                                     </a>
-                                    <button type="submit" class="btn btn-primary">
+                                    <button type="submit" class="btn btn-primary" id="create-invoice-btn">
                                         <i class="fas fa-check me-2"></i>Create Invoice
                                     </button>
                                 </div>
                             </div>
                         </div>
                     </form>
+
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const form = document.querySelector('form');
+                            const btn = document.getElementById('create-invoice-btn');
+                            
+                            if (btn) {
+                                btn.addEventListener('click', function(e) {
+                                    console.log('Button clicked');
+                                    console.log('Form valid:', form.checkValidity());
+                                    console.log('Form action:', form.action);
+                                });
+                            }
+                        });
+                    </script>
                 </div>
             </div>
         </div>

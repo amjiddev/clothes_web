@@ -103,10 +103,13 @@ class InvoiceController extends Controller
      */
     public function store(Request $request, Order $order)
     {
+        \Log::info('Invoice store called for order: ' . $order->id);
+        
         $this->authorizeReceptionist($order);
 
         // Check if invoice already exists
         if ($order->invoice) {
+            \Log::info('Invoice already exists for order: ' . $order->id);
             return redirect()->route('receptionist.invoices.show', $order->invoice)
                 ->with('error', 'Invoice already exists for this order.');
         }
@@ -119,6 +122,8 @@ class InvoiceController extends Controller
 
         DB::beginTransaction();
         try {
+            \Log::info('Creating invoice for order: ' . $order->id);
+            
             // Create invoice from order data
             $invoice = Invoice::create([
                 'order_id' => $order->id,
@@ -134,12 +139,15 @@ class InvoiceController extends Controller
                 'notes' => $request->notes,
             ]);
 
+            \Log::info('Invoice created successfully: ' . $invoice->id);
             DB::commit();
 
             return redirect()->route('receptionist.invoices.show', $invoice)
                 ->with('success', 'Invoice created successfully.');
 
         } catch (\Exception $e) {
+            \Log::error('Invoice creation failed: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
             DB::rollBack();
             return back()->with('error', 'Failed to create invoice: ' . $e->getMessage());
         }

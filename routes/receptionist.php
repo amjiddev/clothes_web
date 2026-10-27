@@ -47,7 +47,6 @@ Route::middleware(['auth', 'verified', 'receptionist.only'])->prefix('receptioni
     Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
     Route::post('orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
     Route::get('orders/{order}/invoice', [OrderController::class, 'downloadInvoice'])->name('orders.invoice');
-    Route::post('orders/{order}/print-invoice', [OrderController::class, 'printInvoice'])->name('orders.print-invoice');
 
     // Stitching Orders
     Route::resource('stitching-orders', StitchingOrderController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update']);
