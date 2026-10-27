@@ -6,6 +6,9 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Premium Men\'s Fashion & Tailoring') - Clothes Store</title>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
@@ -1017,8 +1020,8 @@
     <div class="login-modal-backdrop" id="loginModal" aria-hidden="true">
         <div class="login-modal-dialog" role="dialog" aria-modal="true" aria-label="Login">
             <button type="button" class="login-modal-close" id="closeLoginModal" aria-label="Close">&times;</button>
-            <iframe id="loginModalFrame" class="auth-frame-loading" src="{{ route('login') }}" title="Login form"></iframe>
-            <iframe id="forgotPasswordModalFrame" class="auth-frame-hidden auth-frame-loading" src="{{ route('password.request') }}" title="Forgot password form"></iframe>
+            <iframe id="loginModalFrame" class="auth-frame-loading" src="about:blank" data-src="{{ route('login') }}" title="Login form"></iframe>
+            <iframe id="forgotPasswordModalFrame" class="auth-frame-hidden auth-frame-loading" src="about:blank" data-src="{{ route('password.request') }}" title="Forgot password form"></iframe>
         </div>
     </div>
 
@@ -1137,6 +1140,7 @@
             cartSidebar.classList.add('active');
             cartOverlay.classList.add('active');
             document.body.style.overflow = 'hidden';
+            updateCartUI();
         }
 
         // Close cart sidebar
@@ -1147,7 +1151,7 @@
         }
 
         // Fetch cart data from server and update UI
-        function updateCartUI() {
+        function updateCartUI(loadItems = cartSidebar.classList.contains('active')) {
             fetch('/cart/summary', {
                 method: 'GET',
                 headers: {
@@ -1170,40 +1174,40 @@
                         `;
                         document.querySelector('.cart-total').style.display = 'none';
                     } else {
-                        // Fetch full cart items
-                        fetch('/cart/items', {
-                            method: 'GET',
-                            headers: {
-                                'Accept': 'application/json'
-                            }
-                        })
-                        .then(res => res.json())
-                        .then(cartData => {
-                            if (cartData.success && cartData.items.length > 0) {
-                                // Render cart items
-                                let itemsHTML = '';
-                                cartData.items.forEach(item => {
-                                    itemsHTML += `
-                                        <div class="cart-item" data-cart-key="${item.cart_key}">
-                                            <img src="${item.image}" alt="${item.name}" class="cart-item-image">
-                                            <div class="cart-item-details">
-                                                <p class="cart-item-name">${item.name}</p>
-                                                <p class="cart-item-price">Rs ${item.price.toLocaleString('en-PK')}</p>
-                                                <div class="cart-item-controls">
-                                                    <button class="quantity-btn" onclick="decrementCartItem('${item.cart_key}')">−</button>
-                                                    <input type="number" class="quantity-input" value="${item.quantity}" readonly data-cart-key="${item.cart_key}">
-                                                    <button class="quantity-btn" onclick="incrementCartItem('${item.cart_key}')">+</button>
+                        if (loadItems) {
+                            fetch('/cart/items', {
+                                method: 'GET',
+                                headers: {
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(res => res.json())
+                            .then(cartData => {
+                                if (cartData.success && cartData.items.length > 0) {
+                                    let itemsHTML = '';
+                                    cartData.items.forEach(item => {
+                                        itemsHTML += `
+                                            <div class="cart-item" data-cart-key="${item.cart_key}">
+                                                <img src="${item.image}" alt="${item.name}" class="cart-item-image">
+                                                <div class="cart-item-details">
+                                                    <p class="cart-item-name">${item.name}</p>
+                                                    <p class="cart-item-price">Rs ${item.price.toLocaleString('en-PK')}</p>
+                                                    <div class="cart-item-controls">
+                                                        <button class="quantity-btn" onclick="decrementCartItem('${item.cart_key}')">−</button>
+                                                        <input type="number" class="quantity-input" value="${item.quantity}" readonly data-cart-key="${item.cart_key}">
+                                                        <button class="quantity-btn" onclick="incrementCartItem('${item.cart_key}')">+</button>
+                                                    </div>
                                                 </div>
+                                                <i class="fas fa-trash cart-item-delete" onclick="removeFromCart('${item.cart_key}')" title="Remove from cart"></i>
                                             </div>
-                                            <i class="fas fa-trash cart-item-delete" onclick="removeFromCart('${item.cart_key}')" title="Remove from cart"></i>
-                                        </div>
-                                    `;
-                                });
-                                cartItemsContainer.innerHTML = itemsHTML;
-                            }
-                        })
-                        .catch(error => console.error('Error fetching cart items:', error));
-                        
+                                        `;
+                                    });
+                                    cartItemsContainer.innerHTML = itemsHTML;
+                                }
+                            })
+                            .catch(error => console.error('Error fetching cart items:', error));
+                        }
+
                         document.querySelector('.cart-total').style.display = 'flex';
                         document.getElementById('cartTotal').textContent = data.formatted_total || '₹0';
                     }
@@ -1214,7 +1218,12 @@
 
         // Initialize cart UI on page load
         function initializeCartUI() {
-            updateCartUI();
+            const update = () => updateCartUI(false);
+            if ('requestIdleCallback' in window) {
+                window.requestIdleCallback(update, { timeout: 2000 });
+            } else {
+                window.addEventListener('load', update, { once: true });
+            }
         }
 
         // Increment cart item quantity
@@ -1353,6 +1362,9 @@
             document.querySelector('.login-modal-dialog').classList.add('forgot-active');
             loginModalFrame.classList.add('auth-frame-hidden');
             forgotPasswordModalFrame.classList.remove('auth-frame-hidden');
+            if (forgotPasswordModalFrame.src === 'about:blank') {
+                forgotPasswordModalFrame.src = forgotPasswordModalFrame.dataset.src;
+            }
 
             const forgotEmail = forgotPasswordModalFrame.contentDocument?.querySelector('[name="email"]');
             if (forgotEmail && email) {
@@ -1394,7 +1406,7 @@
         function openLoginModal(url) {
             showLoginFrame();
             bindForgotPasswordLink();
-            if (!loginModalFrame.src || loginModalFrame.src === 'about:blank') {
+            if (loginModalFrame.src === 'about:blank') {
                 loginModalFrame.src = url;
             }
             loginModal.classList.add('active');

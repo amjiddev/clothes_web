@@ -8,6 +8,7 @@ use App\Http\Controllers\Apps\MeasurementController;
 use App\Http\Controllers\Apps\TailorController;
 use App\Http\Controllers\Apps\InvoiceController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Middleware\CompressResponse;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 | Routes for receptionist panel with role-based access control
 */
 
-Route::middleware(['auth', 'verified', 'receptionist.only'])->prefix('receptionist')->name('receptionist.')->group(function () {
+Route::middleware(['auth', 'verified', 'receptionist.only', CompressResponse::class])->prefix('receptionist')->name('receptionist.')->group(function () {
     
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

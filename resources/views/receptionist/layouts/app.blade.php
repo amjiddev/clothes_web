@@ -6,15 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'CLOTHES STORE') }} - @yield('title')</title>
+    <meta name="description" content="@yield('meta_description', 'Receptionist workspace for managing customers, orders, invoices, and payments.')">
 
     <!-- Styles -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/tempusdominus-bootstrap-4@5.39.0/css/tempusdominus-bootstrap-4.min.css"
-        rel="stylesheet" />
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"></noscript>
 
     <style>
         :root {
@@ -106,7 +105,7 @@
             font-weight: bold;
         }
 
-        .sidebar-brand h4 {
+        .sidebar-brand-title {
             margin: 0;
             font-weight: 700;
             font-size: 1.2rem;
@@ -316,7 +315,7 @@
 
         .profile-info .user-role {
             font-size: 0.8rem;
-            color: #95a5a6;
+            color: #6c757d;
         }
 
         /* Dropdown */
@@ -364,7 +363,7 @@
         }
 
         .page-subtitle {
-            color: #95a5a6;
+            color: #6c757d;
             font-size: clamp(0.8rem, 1.5vw, 0.95rem);
         }
 
@@ -411,7 +410,7 @@
         }
 
         .stat-label {
-            color: #95a5a6;
+            color: #6c757d;
             font-size: clamp(0.8rem, 1vw, 0.9rem);
         }
 
@@ -868,7 +867,7 @@
                     <i class="fas fa-crown"></i>
                 </div>
                 <div>
-                    <h4>CLOTHES</h4>
+                    <div class="sidebar-brand-title">CLOTHES</div>
                     <p>Receptionist</p>
                 </div>
             </div>
@@ -968,12 +967,12 @@
             <div class="topbar">
                 <div class="topbar-content">
                     <div class="breadcrumb-section">
-                        <button class="mobile-toggle" id="sidebarToggle">
+                        <button class="mobile-toggle" id="sidebarToggle" type="button" aria-label="Toggle navigation" aria-controls="sidebar" aria-expanded="false">
                             <i class="fas fa-bars"></i>
                         </button>
                         <nav aria-label="breadcrumb">
                             <ol class="breadcrumb mb-0">
-                                <li class="breadcrumb-item"><a href="{{ route('receptionist.dashboard') }}" style="text-decoration: none; color: var(--accent-color);">Dashboard</a></li>
+                                <li class="breadcrumb-item"><a href="{{ route('receptionist.dashboard') }}" style="text-decoration: none; color: #735c00;">Dashboard</a></li>
                                 @yield('breadcrumb')
                             </ol>
                         </nav>
@@ -1035,24 +1034,24 @@
             </div>
 
             <!-- Content Area -->
-            <div class="content-area">
+            <main class="content-area">
                 @yield('content')
-            </div>
+            </main>
         </div>
     </div>
 
     <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    @if (request()->routeIs('receptionist.orders.create'))
+        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    @endif
 
     <script>
         // Sidebar Toggle
         document.getElementById('sidebarToggle')?.addEventListener('click', function() {
-            document.getElementById('sidebar').classList.toggle('show');
+            const sidebar = document.getElementById('sidebar');
+            const isOpen = sidebar.classList.toggle('show');
+            this.setAttribute('aria-expanded', String(isOpen));
         });
 
         // Close sidebar on link click (mobile)
@@ -1060,17 +1059,11 @@
             document.querySelectorAll('.sidebar-nav .nav-link').forEach(link => {
                 link.addEventListener('click', function() {
                     document.getElementById('sidebar').classList.remove('show');
+                    document.getElementById('sidebarToggle')?.setAttribute('aria-expanded', 'false');
                 });
             });
         }
 
-        // Initialize Select2
-        $(document).ready(function() {
-            $('.select2').select2({
-                theme: 'bootstrap-5',
-                allowClear: true,
-            });
-        });
     </script>
 
     @yield('extra-js')

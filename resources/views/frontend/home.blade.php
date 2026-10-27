@@ -2,34 +2,38 @@
 
 @section('title', 'Home - Premium Men\'s Fashion & Custom Tailoring')
 
+@php
+    $heroImages = [];
+    if ($homePageContent && isset($homePageContent->data)) {
+        for ($i = 1; $i <= 4; $i++) {
+            if (isset($homePageContent->data['hero_image_' . $i])) {
+                $heroImages[] = asset('storage/' . $homePageContent->data['hero_image_' . $i]);
+            }
+        }
+    }
+
+    if (empty($heroImages)) {
+        $heroImages = [
+            asset('frontend/images/images.jfif'),
+            asset('frontend/images/images (1).jfif'),
+            asset('frontend/images/images (2).jfif'),
+            asset('frontend/images/images (3).jfif'),
+        ];
+    }
+@endphp
+
+@section('styles')
+    <link rel="preload" as="image" href="{{ $heroImages[0] }}" fetchpriority="high">
+@endsection
+
 @section('content')
 
 <!-- Hero Section with Image Slider -->
     <!-- Slider Container -->
     <div class="hero-slider" style="position: relative; width: 100%; height: 85vh; overflow: hidden;">
-        @php
-            $heroImages = [];
-            if ($homePageContent && isset($homePageContent->data)) {
-                for ($i = 1; $i <= 4; $i++) {
-                    if (isset($homePageContent->data['hero_image_' . $i])) {
-                        $heroImages[] = asset('storage/' . $homePageContent->data['hero_image_' . $i]);
-                    }
-                }
-            }
-            // Fallback to default images if none are set
-            if (empty($heroImages)) {
-                $heroImages = [
-                    asset('frontend/images/images.jfif'),
-                    asset('frontend/images/images (1).jfif'),
-                    asset('frontend/images/images (2).jfif'),
-                    asset('frontend/images/images (3).jfif'),
-                ];
-            }
-        @endphp
-        
         @foreach($heroImages as $index => $image)
         <!-- Slide {{ $index + 1 }} - Clickable -->
-        <div class="hero-slide {{ $index === 0 ? 'active' : '' }}" onclick="window.location.href='{{ route('shop') }}';" style="position: absolute; width: 100%; height: 100%; background: url('{{ $image }}') center/cover no-repeat; background-size: cover; opacity: {{ $index === 0 ? 1 : 0 }}; transition: opacity 0.8s ease-in-out; cursor: pointer;">
+        <div class="hero-slide {{ $index === 0 ? 'active' : '' }}" data-background-url="{{ $index === 0 ? '' : $image }}" onclick="window.location.href='{{ route('shop') }}';" style="position: absolute; width: 100%; height: 100%; {{ $index === 0 ? "background-image: url('$image');" : '' }} background-position: center; background-size: cover; background-repeat: no-repeat; opacity: {{ $index === 0 ? 1 : 0 }}; transition: opacity 0.8s ease-in-out; cursor: pointer;">
         </div>
         @endforeach
     </div>
@@ -146,7 +150,7 @@
             <div class="col-lg-3 col-md-4 col-sm-6">
                 <div class="product-card">
                     <div class="product-image" style="position: relative;">
-                        <img src="{{ $product->image_url }}" alt="{{ $product->name }}" onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'" style="height: 280px; object-fit: cover;">
+                        <img src="{{ $product->image_url }}" alt="{{ $product->name }}" loading="lazy" decoding="async" width="300" height="280" onerror="this.onerror=null;this.src='{{ asset('frontend/images/images.jfif') }}'" style="height: 280px; object-fit: cover;">
                         <span class="product-badge" style="position: absolute; top: 10px; right: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.85rem; opacity: 0; transition: opacity 0.3s ease; z-index: 10;">{{ $product->stock_status }}</span>
                         @if($product->hasDiscount())
                         <span class="sale-badge" style="position: absolute; top: 10px; left: 10px; background: #D4AF37; color: #0B0B0B; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 5;">-{{ $product->discount_percentage }}%</span>
@@ -553,13 +557,31 @@ function showSlide(index) {
         currentSlideIndex = index;
     }
 
-    // Hide all slides
     slides.forEach(slide => {
         slide.style.opacity = '0';
     });
 
-    // Show current slide
-    slides[currentSlideIndex].style.opacity = '1';
+    const activeSlide = slides[currentSlideIndex];
+    const backgroundUrl = activeSlide.dataset.backgroundUrl;
+    if (backgroundUrl) {
+        const image = new Image();
+        image.onload = () => {
+            activeSlide.style.backgroundImage = `url("${backgroundUrl}")`;
+            delete activeSlide.dataset.backgroundUrl;
+            if (slides[currentSlideIndex] === activeSlide) {
+                activeSlide.style.opacity = '1';
+            }
+        };
+        image.onerror = () => {
+            console.error('Unable to load hero image:', backgroundUrl);
+            if (slides[currentSlideIndex] === activeSlide) {
+                activeSlide.style.opacity = '1';
+            }
+        };
+        image.src = backgroundUrl;
+    } else {
+        activeSlide.style.opacity = '1';
+    }
 
     // Update dots
     dots.forEach((dot, i) => {

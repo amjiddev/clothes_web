@@ -4,11 +4,14 @@
     <button type="button" 
             class="notification-bell-button" 
             id="notificationBellButton"
+            aria-label="Notifications"
+            aria-controls="notificationDropdown"
+            aria-expanded="false"
             style="background: none; border: none; cursor: pointer; position: relative; padding: 5px;">
         <i class="fas fa-bell" style="font-size: 1.3rem; color: var(--text-dark);"></i>
         <span class="notification-badge" 
               id="notificationBadge" 
-              style="display: none; position: absolute; top: -5px; right: -10px; background-color: #e74c3c; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold;">0</span>
+              style="display: none; position: absolute; top: -5px; right: -10px; background-color: #b42318; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold;">0</span>
     </button>
 
     <!-- Notification Dropdown (Custom - No Modal) -->
@@ -18,8 +21,8 @@
         
         <!-- Dropdown Header -->
         <div style="padding: 15px 20px; border-bottom: 1px solid #e0e0e0; background-color: #f8f9fa; display: flex; justify-content: space-between; align-items: center;">
-            <h6 style="margin: 0; font-weight: 600;"><i class="fas fa-bell" style="color: #d4af37; margin-right: 8px;"></i>Notifications</h6>
-            <button type="button" id="notificationCloseBtn" style="background: none; border: none; cursor: pointer; font-size: 1.2rem; color: #999;">×</button>
+            <div style="margin: 0; font-weight: 600;"><i class="fas fa-bell" style="color: #d4af37; margin-right: 8px;"></i>Notifications</div>
+            <button type="button" id="notificationCloseBtn" aria-label="Close notifications" style="background: none; border: none; cursor: pointer; font-size: 1.2rem; color: #555;">×</button>
         </div>
 
         <!-- Dropdown Body -->
@@ -28,7 +31,7 @@
                 <div class="spinner-border" role="status" style="color: #d4af37;">
                     <span class="visually-hidden">Loading...</span>
                 </div>
-                <p style="margin-top: 15px; color: #999;">Loading notifications...</p>
+                <p style="margin-top: 15px; color: #5c5c5c;">Loading notifications...</p>
             </div>
         </div>
     </div>
@@ -51,19 +54,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const isReceptionist = currentPath.includes('/receptionist/');
     const routePrefix = isAdmin ? '/admin' : isReceptionist ? '/receptionist' : '/admin';
 
-    console.log('🔔 Notification Bell initialized');
-    console.log('   Path:', currentPath);
-    console.log('   Prefix:', routePrefix);
-    console.log('   CSRF Token:', csrfToken ? 'Present' : 'MISSING!');
-
     /**
      * Update badge count
      */
     async function updateBadgeCount() {
         try {
             const url = `${routePrefix}/notifications/unread-count`;
-            console.log('📊 Fetching badge count from:', url);
-            
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {
@@ -73,20 +69,17 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             if (!response.ok) {
-                console.warn('❌ Badge count failed with status:', response.status);
+                console.error('Notification badge request failed:', response.status);
                 return;
             }
 
             const data = await response.json();
-            console.log('✅ Badge data:', data);
 
             if (data.success && data.total > 0) {
                 notificationBadge.textContent = data.total;
                 notificationBadge.style.display = 'flex';
-                console.log('🔴 Badge showing:', data.total);
             } else {
                 notificationBadge.style.display = 'none';
-                console.log('⚫ Badge hidden');
             }
         } catch (error) {
             console.error('❌ Badge update error:', error.message);
@@ -209,9 +202,11 @@ document.addEventListener('DOMContentLoaded', function() {
         e.stopPropagation();
         if (notificationDropdown.style.display === 'none') {
             notificationDropdown.style.display = 'block';
+            notificationBellButton.setAttribute('aria-expanded', 'true');
             loadNotifications();
         } else {
             notificationDropdown.style.display = 'none';
+            notificationBellButton.setAttribute('aria-expanded', 'false');
         }
     });
 
@@ -219,22 +214,33 @@ document.addEventListener('DOMContentLoaded', function() {
     notificationCloseBtn.addEventListener('click', function(e) {
         e.stopPropagation();
         notificationDropdown.style.display = 'none';
+        notificationBellButton.setAttribute('aria-expanded', 'false');
     });
 
     // Close dropdown when clicking outside
     document.addEventListener('click', function(e) {
         if (!notificationDropdown.contains(e.target) && e.target !== notificationBellButton && !notificationBellButton.contains(e.target)) {
             notificationDropdown.style.display = 'none';
+            notificationBellButton.setAttribute('aria-expanded', 'false');
         }
     });
 
-    // Initial badge load on page load
-    updateBadgeCount();
+    // Load the non-critical badge count when the browser is idle.
+    const scheduleBadgeCountRefresh = () => {
+        if (document.visibilityState !== 'visible') {
+            return;
+        }
 
-    // Poll for updates every 30 seconds
-    setInterval(updateBadgeCount, 30000);
-    
-    console.log('✅ Notification Bell fully initialized');
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(updateBadgeCount, { timeout: 3000 });
+        } else {
+            setTimeout(updateBadgeCount, 1000);
+        }
+    };
+
+    window.addEventListener('load', scheduleBadgeCountRefresh, { once: true });
+    setInterval(scheduleBadgeCountRefresh, 60000);
+    document.addEventListener('visibilitychange', scheduleBadgeCountRefresh);
 });
 </script>
 

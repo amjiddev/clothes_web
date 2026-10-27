@@ -3,6 +3,7 @@
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\TailoringServiceController;
 use App\Http\Controllers\Frontend\CartController;
+use App\Http\Middleware\CompressResponse;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/', [HomeController::class, 'index'])->middleware(CompressResponse::class)->name('home');
 Route::get('/shop', [HomeController::class, 'shop'])->name('shop');
 Route::get('/new-in', [HomeController::class, 'newIn'])->name('new-in');
 Route::get('/brands-page', [HomeController::class, 'brandsPage'])->name('brands-page');

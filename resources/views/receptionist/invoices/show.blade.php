@@ -1,6 +1,7 @@
 @extends('receptionist.layouts.app')
 
 @section('title', 'Invoice - ' . ($invoice->invoice_number ?? 'N/A'))
+@section('meta_description', 'View invoice details, payment status, and payment history for invoice ' . ($invoice->invoice_number ?? 'N/A') . '.')
 
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('receptionist.invoices.index') }}">Invoices</a></li>
@@ -40,7 +41,7 @@
 
 <iframe
     id="invoice-print-frame"
-    src="{{ route('receptionist.invoices.print', $invoice) }}?embedded=1"
+    data-src="{{ route('receptionist.invoices.print', $invoice) }}?embedded=1"
     title="Invoice print view"
     aria-hidden="true"
     tabindex="-1"
@@ -53,6 +54,12 @@
         const printInvoice = function () {
             printFrame.contentWindow.print();
         };
+
+        if (!printFrame.src || printFrame.src === 'about:blank') {
+            printFrame.addEventListener('load', printInvoice, { once: true });
+            printFrame.src = printFrame.dataset.src;
+            return;
+        }
 
         if (printFrame.contentDocument && printFrame.contentDocument.readyState === 'complete') {
             printInvoice();
@@ -70,7 +77,7 @@
             <div class="card-body">
                 <div class="d-flex align-items-center mb-3">
                     <i class="fas fa-file-invoice text-primary me-2" style="font-size: 1.25rem;"></i>
-                    <h6 class="mb-0 fw-600">Invoice Details</h6>
+                    <h2 class="h6 mb-0 fw-600">Invoice Details</h2>
                 </div>
                 <div style="font-size: 0.9rem;">
                     <div class="mb-3">
@@ -104,7 +111,7 @@
             <div class="card-body">
                 <div class="d-flex align-items-center mb-3">
                     <i class="fas fa-user text-success me-2" style="font-size: 1.25rem;"></i>
-                    <h6 class="mb-0 fw-600">Customer Information</h6>
+                    <h2 class="h6 mb-0 fw-600">Customer Information</h2>
                 </div>
                 <div style="font-size: 0.9rem;">
                     <div class="mb-3">
@@ -138,7 +145,7 @@
             <div class="card-body">
                 <div class="d-flex align-items-center mb-3">
                     <i class="fas fa-credit-card text-info me-2" style="font-size: 1.25rem;"></i>
-                    <h6 class="mb-0 fw-600">Financial Summary</h6>
+                    <h2 class="h6 mb-0 fw-600">Financial Summary</h2>
                 </div>
                 <div style="font-size: 0.9rem;">
                     <div class="row g-2 mb-3">
@@ -187,7 +194,7 @@
         @if($invoice->order->orderItems->count() > 0)
         <div class="card border-0 rounded-3 shadow-sm mb-4">
             <div class="card-body">
-                <h6 class="mb-3 fw-600">Order Items</h6>
+                <h2 class="h6 mb-3 fw-600">Order Items</h2>
                 <div class="table-responsive">
                     <table class="table table-hover mb-0" style="font-size: 0.9rem;">
                         <thead style="background-color: #f8f9fa;">
@@ -231,7 +238,7 @@
         @if($invoice->notes)
         <div class="card border-0 rounded-3 shadow-sm">
             <div class="card-body">
-                <h6 class="mb-3 fw-600">Notes</h6>
+                <h2 class="h6 mb-3 fw-600">Notes</h2>
                 <p class="mb-0" style="font-size: 0.9rem; line-height: 1.6;">{{ $invoice->notes }}</p>
             </div>
         </div>
@@ -246,7 +253,7 @@
                 <div class="mb-3">
                     <i class="fas fa-badge-check" style="font-size: 2rem; color: #0d6efd;"></i>
                 </div>
-                <h6 class="mb-3 fw-600">Invoice Status</h6>
+                <h2 class="h6 mb-3 fw-600">Invoice Status</h2>
                 @php
                     $statusClass = match($invoice->status) {
                         'paid' => 'success',
@@ -264,11 +271,11 @@
                     };
                 @endphp
                 <div style="padding: 1rem; background-color: #f8f9fa; border-radius: 8px; margin-bottom: 1rem;">
-                    <h4 class="mb-2">
+                    <div class="h4 mb-2">
                         <span class="badge bg-{{ $statusClass }} p-2" style="font-size: 0.9rem;">
                             <i class="{{ $statusIcon }} me-1"></i>{{ ucfirst($invoice->status) }}
                         </span>
-                    </h4>
+                    </div>
                     @if($invoice->paid_at && $invoice->status === 'paid')
                         <p class="text-muted small mb-0">
                             <i class="fas fa-calendar me-1"></i>Paid on {{ $invoice->paid_at->format('M d, Y') }}
@@ -287,6 +294,7 @@
                         @endphp
                         <div class="progress-bar bg-{{ $invoice->balance_due > 0 ? 'warning' : 'success' }}" 
                              role="progressbar" 
+                             aria-label="Payment progress"
                              style="width: {{ $progressPercentage }}%;" 
                              aria-valuenow="{{ $progressPercentage }}" 
                              aria-valuemin="0" 
@@ -302,7 +310,7 @@
         @if($invoice->payments->count() > 0)
         <div class="card border-0 rounded-3 shadow-sm">
             <div class="card-body">
-                <h6 class="mb-3 fw-600">Payment History</h6>
+                <h2 class="h6 mb-3 fw-600">Payment History</h2>
                 <div style="max-height: 400px; overflow-y: auto;">
                     @foreach($invoice->payments as $payment)
                     <div class="mb-3 pb-3" style="border-bottom: 1px solid #e9ecef;">
@@ -345,6 +353,7 @@
 
 @endsection
 
+@section('extra-css')
 <style>
     .rounded-3 {
         border-radius: 12px;
@@ -480,3 +489,4 @@
         }
     }
 </style>
+@endsection
