@@ -801,7 +801,7 @@
         });
 
         // Close sidebar when clicking on a link
-        document.querySelectorAll('.sidebar-nav .nav-link').forEach(link => {
+        document.querySelectorAll('.sidebar-nav .nav-link:not(.nav-toggle)').forEach(link => {
             link.addEventListener('click', function() {
                 if (window.innerWidth < 768) {
                     document.querySelector('.sidebar').classList.remove('show');

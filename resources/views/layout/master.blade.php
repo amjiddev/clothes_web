@@ -147,6 +147,63 @@
     </script>
 
     @livewireScripts
+
+    <!-- Fix sidebar dropdown behavior on mobile -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('kt_app_sidebar');
+            if (!sidebar) return;
+
+            // Get all menu items with dropdowns (menu triggers)
+            const menuTriggers = sidebar.querySelectorAll('[data-kt-menu-trigger]');
+            
+            menuTriggers.forEach(trigger => {
+                trigger.addEventListener('click', function(e) {
+                    // Prevent drawer from closing when clicking dropdown triggers on mobile
+                    e.stopPropagation();
+                    
+                    // Check if we're on mobile view
+                    if (window.matchMedia('(max-width: 991px)').matches) {
+                        // Prevent the default drawer close behavior
+                        e.preventDefault = true;
+                    }
+                });
+            });
+
+            // Get all actual navigation links (not triggers)
+            const navLinks = sidebar.querySelectorAll('.menu-item > a:not([data-kt-menu-trigger])');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    // Close sidebar only when clicking actual links, not triggers
+                    if (window.matchMedia('(max-width: 991px)').matches) {
+                        const sidebarToggle = document.getElementById('kt_app_sidebar_mobile_toggle');
+                        if (sidebarToggle && sidebar.classList.contains('show')) {
+                            setTimeout(() => {
+                                sidebarToggle.click();
+                            }, 200);
+                        }
+                    }
+                });
+            });
+
+            // Prevent drawer from closing on menu trigger clicks
+            // Intercept the drawer instance to modify close behavior
+            const drawer = KTDrawer.getInstance(sidebar);
+            if (drawer) {
+                const originalHide = drawer.hide;
+                drawer.hide = function() {
+                    // Check if the last clicked element was a menu trigger
+                    const lastClicked = document.activeElement;
+                    if (lastClicked && lastClicked.closest('[data-kt-menu-trigger]')) {
+                        // Don't close the drawer if a menu trigger was just clicked
+                        return;
+                    }
+                    originalHide.call(this);
+                };
+            }
+        });
+    </script>
 </body>
 <!--end::Body-->
 
