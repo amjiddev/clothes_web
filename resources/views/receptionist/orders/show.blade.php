@@ -9,14 +9,14 @@
 
 @section('content')
 <!-- HEADER SECTION -->
-<div class="mb-5">
+<div class="order-page-header mb-5">
     <!-- Back Link & Title Row -->
-    <div class="d-flex justify-content-between align-items-start mb-3">
-        <div>
+    <div class="order-page-header__main d-flex justify-content-between align-items-start mb-3">
+        <div class="order-page-title">
             <a href="{{ route('receptionist.orders.index') }}" class="text-muted text-decoration-none small mb-2 d-inline-block">
                 <i class="fas fa-arrow-left me-1"></i>Back to Orders
             </a>
-            <div class="d-flex align-items-center gap-3 mb-2">
+            <div class="order-page-title-row d-flex align-items-center gap-3 mb-2">
                 <h1 class="mb-0" style="font-size: 2rem; font-weight: 700;">Order #{{ $order->order_number }}</h1>
                 @php
                     $statusColors = [
@@ -36,7 +36,7 @@
         </div>
 
         <!-- Action Buttons (Top Right) -->
-        <div class="d-flex gap-2 flex-wrap justify-content-end" style="max-width: 500px;">
+        <div class="order-page-actions d-flex gap-2 flex-wrap justify-content-end" style="max-width: 500px;">
             @if($order->invoice)
                 <button type="button" class="btn btn-primary btn-sm" id="print-button" title="Print Invoice">
                     <i class="fas fa-print me-1"></i>Print Invoice
@@ -432,6 +432,47 @@
     }
 
     @media (max-width: 768px) {
+        .order-page-header__main {
+            flex-direction: column;
+            align-items: stretch !important;
+            gap: 1rem;
+        }
+
+        .order-page-title {
+            min-width: 0;
+        }
+
+        .order-page-title-row {
+            flex-wrap: wrap;
+            align-items: flex-start !important;
+            gap: 0.5rem !important;
+        }
+
+        .order-page-title-row h1 {
+            min-width: 0;
+            max-width: 100%;
+            overflow-wrap: anywhere;
+            font-size: clamp(1.35rem, 6vw, 1.75rem) !important;
+            line-height: 1.2;
+        }
+
+        .order-page-actions {
+            display: grid !important;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            width: 100%;
+            max-width: none !important;
+        }
+
+        .order-page-actions .btn {
+            width: 100%;
+            min-width: 0;
+            margin-bottom: 0;
+            white-space: normal !important;
+            padding: 0.45rem 0.25rem;
+            font-size: 0.75rem;
+            line-height: 1.2;
+        }
+
         .col-lg-8,
         .col-lg-4 {
             flex: 0 0 100%;

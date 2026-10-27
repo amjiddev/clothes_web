@@ -9,9 +9,9 @@
 
 @section('content')
 <!-- HEADER SECTION -->
-<div class="mb-5">
-    <div class="d-flex justify-content-between align-items-start mb-4">
-        <div>
+<div class="invoice-page-header mb-5">
+    <div class="invoice-page-header__main d-flex justify-content-between align-items-start mb-4">
+        <div class="invoice-page-title">
             <a href="{{ route('receptionist.invoices.index') }}" class="text-muted text-decoration-none small mb-2 d-inline-block">
                 <i class="fas fa-arrow-left me-1"></i>Back to Invoices
             </a>
@@ -25,7 +25,7 @@
         </div>
 
         <!-- Action Buttons -->
-        <div class="d-flex gap-2 flex-wrap justify-content-end" style="max-width: 300px;">
+        <div class="invoice-page-actions d-flex gap-2 flex-wrap justify-content-end" style="max-width: 300px;">
             @if($invoice->balance_due > 0)
                 <a href="{{ route('receptionist.invoices.payment', $invoice) }}" class="btn btn-success btn-sm" title="Record Payment">
                     <i class="fas fa-money-bill-wave me-1"></i>Record Payment
@@ -415,6 +415,40 @@
     }
 
     @media (max-width: 768px) {
+        .invoice-page-header__main {
+            flex-direction: column;
+            align-items: stretch !important;
+            gap: 1rem;
+        }
+
+        .invoice-page-title {
+            min-width: 0;
+        }
+
+        .invoice-page-title h1 {
+            max-width: 100%;
+            overflow-wrap: anywhere;
+            font-size: clamp(1.5rem, 7vw, 2rem) !important;
+            line-height: 1.2;
+        }
+
+        .invoice-page-actions {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            justify-content: flex-start !important;
+            width: 100%;
+            max-width: none !important;
+        }
+
+        .invoice-page-actions .btn {
+            flex: 1 1 0;
+            width: auto;
+            min-width: 0;
+            margin-bottom: 0;
+            padding: 0.5rem 0.4rem;
+            white-space: normal;
+        }
+
         .col-lg-8,
         .col-lg-4 {
             flex: 0 0 100%;
